@@ -2,4 +2,12 @@
 JavaFX Render Engine
 
 # Installing and running
+Install Eclipse IDE for Java Developers 2023‑09 (or later) and load the repository as a java project into the IDE:
+https://www.eclipse.org/downloads/packages/release/2023-09/r/eclipse-ide-java-developers
+
 Download JavaFX version 21.0.2 LTS or later for your platform at https://openjfx.io/
+Make an user library from the JavaFX library .jar files, include them in modulepath in project build path properties,
+include module path files in run configurations -> dependencies -> add modules from --- to ALL-MODULE-PATH.
+
+Install JAVA JDK 21 or later at, and double click on the downloaded release javarenderengine.jar to run it directly:
+https://www.oracle.com/java/technologies/downloads/#java21
