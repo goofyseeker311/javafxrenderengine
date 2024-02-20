@@ -1,12 +1,19 @@
 package fi.jkauppa.javafxrenderengine;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
@@ -31,7 +38,7 @@ public class JavaFXRenderEngine extends Application implements EventHandler<Even
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.0.8");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.0.9");
     	this.primaryStage.addEventHandler(KeyEvent.ANY, this);
         this.primaryStage.setScene(this.scene);
         this.setActiveApp(this.drawapp);
@@ -81,7 +88,17 @@ public class JavaFXRenderEngine extends Application implements EventHandler<Even
 				//TODO <tbd>
 				keyevent.consume();
 			} else if (keyevent.getCode().equals(KeyCode.F12)) {
-				//TODO save screenshot image file
+				WritableImage writablescreenshot = this.scene.snapshot(null);
+				BufferedImage screenshot = SwingFXUtils.fromFXImage(writablescreenshot, null);
+				File screenshotfile = new File("screenshot1.png");
+				int screenshotnum = 1;
+				while (screenshotfile.exists()) {
+					screenshotnum += 1;
+					screenshotfile = new File("screenshot"+screenshotnum+".png");
+				}
+				try {
+					ImageIO.write(screenshot, "PNG", screenshotfile);
+				} catch (Exception ex) {ex.printStackTrace();}
 				keyevent.consume();
 			} else {
 				activeapp.handle(event);
