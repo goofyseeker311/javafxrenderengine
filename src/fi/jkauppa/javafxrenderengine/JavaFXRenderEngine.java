@@ -1,9 +1,12 @@
 package fi.jkauppa.javafxrenderengine;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
@@ -11,14 +14,22 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.shape.TriangleMesh;
 import javafx.stage.Stage;
 
-public class JavaFXRenderEngine extends Application {
-    @Override
-    public void start(Stage primaryStage) throws Exception{
+public class JavaFXRenderEngine extends Application implements EventHandler<KeyEvent> {
+	private Stage primaryStage = null;
+	
+    @Override public void init() {
+    }
+    
+    @Override public void start(Stage primaryStagei) throws Exception {
+    	this.primaryStage = primaryStagei;
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.0.4");
+    	this.primaryStage.setFullScreen(true);
+    	this.primaryStage.addEventHandler(KeyEvent.ANY, this);
+        
         Group root = new Group();
-        primaryStage.setTitle("JavaFXRenderEngine v0.0.3");
         Scene scene = new Scene(root, 400, 300);
         scene.setFill(Color.LIGHTGRAY);
-        primaryStage.setScene(scene);
+        this.primaryStage.setScene(scene);
         TriangleMesh triangle = new TriangleMesh();
         float[] tripoints = {-1.0f,0.0f,5.0f,0.0f,1.0f,5.0f,0.0f,-1.0f,5.0f};
         float[] triuvs = {0.0f,0.0f,1.0f,0.0f,1.0f,1.0f};
@@ -41,10 +52,25 @@ public class JavaFXRenderEngine extends Application {
         root.getChildren().add(trianglemeshview);
         sphere.setTranslateZ(10);
         sphere.setTranslateY(2);
-        primaryStage.show();
+        
+        this.primaryStage.show();
     }
 
+    @Override public void stop() throws Exception {
+    }
+    
     public static void main(String[] args) {
         launch(args);
     }
+
+	@Override
+	public void handle(KeyEvent event) {
+		if (event.getEventType().equals(KeyEvent.KEY_PRESSED)) {
+			if (event.getCode().equals(KeyCode.ENTER)) {
+				if (event.isAltDown()) {
+					this.primaryStage.setFullScreen(!this.primaryStage.isFullScreen());
+				}
+			}
+		}
+	}
 }
