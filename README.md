@@ -6,6 +6,7 @@ Starts in windowed mode.
 ```
 Keys:
 ALT-ENTER         -- toggles between windowed and full screen mode
+ARROW-KEYS        -- move sphere object left-right-up-down in scene
 ```
 
 # Installing and running
