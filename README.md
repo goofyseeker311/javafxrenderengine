@@ -5,28 +5,28 @@ Starts in windowed mode.
 
 ```
 Shared Keys:
-ALT-ENTER         -- toggles between windowed and full screen mode
-F5                -- Draw App
-F6                -- CAD App
-F7                -- Model App
-F8                -- Editor App
-F9                -- Game App
-F12               -- save a screenshot image file
+ALT-ENTER             -- toggles between windowed and full screen mode
+F5                    -- Draw App
+F6                    -- CAD App
+F7                    -- Model App
+F8                    -- Editor App
+F9                    -- Game App
+F12                   -- save a screenshot image file
 
 Draw App Keys:
--- none --        -- placeholder key binding
+-- none --            -- placeholder key binding
 
 CAD App Keys:
--- none --        -- placeholder key binding
+-- none --            -- placeholder key binding
 
 Model App Keys:
--- none --        -- placeholder key binding
+-- none --            -- placeholder key binding
 
 Editor App Keys:
--- none --        -- placeholder key binding
+-- none --            -- placeholder key binding
 
 Game App Keys:
--- none --        -- placeholder key binding
+-- none --            -- placeholder key binding
 ```
 
 # Installing and running
