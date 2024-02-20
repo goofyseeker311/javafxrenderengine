@@ -1,5 +1,7 @@
 # Java FX Render Engine
-JavaFX Render Engine
+JavaFX Render Engine, file structure is for Eclipse IDE for Java.
+
+Starts in windowed mode.
 
 ```
 Keys:
