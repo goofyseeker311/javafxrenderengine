@@ -1,10 +1,10 @@
-# Java FX Render Engine
+# JavaFX Render Engine
 JavaFX Render Engine, file structure is for Eclipse IDE for Java.
 
 Starts in windowed mode.
 
 ```
-Keys:
+Shared Keys:
 ALT-ENTER         -- toggles between windowed and full screen mode
 F5                -- Draw App
 F6                -- CAD App
