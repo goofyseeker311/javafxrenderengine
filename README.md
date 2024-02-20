@@ -1,6 +1,11 @@
 # Java FX Render Engine
 JavaFX Render Engine
 
+```
+Keys:
+ALT-ENTER         -- toggles between windowed and full screen mode
+```
+
 # Installing and running
 Install Eclipse IDE for Java Developers 2023‑09 (or later) and load the repository as a java project into the IDE:
 https://www.eclipse.org/downloads/packages/release/2023-09/r/eclipse-ide-java-developers
