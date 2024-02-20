@@ -16,14 +16,15 @@ import javafx.stage.Stage;
 
 public class JavaFXRenderEngine extends Application implements EventHandler<KeyEvent> {
 	private Stage primaryStage = null;
+	private Sphere sphere = null;
+	private double translatex = 0.0d, translatey = 0.0d;
 	
     @Override public void init() {
     }
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.0.4");
-    	this.primaryStage.setFullScreen(true);
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.0.5");
     	this.primaryStage.addEventHandler(KeyEvent.ANY, this);
         
         Group root = new Group();
@@ -41,17 +42,18 @@ public class JavaFXRenderEngine extends Application implements EventHandler<KeyE
         trianglemeshview.setMesh(triangle);
         PerspectiveCamera camera = new PerspectiveCamera(true);
         scene.setCamera(camera);
-        Sphere sphere = new Sphere();
+        this.sphere = new Sphere();
         PhongMaterial spheremat = new PhongMaterial();
         spheremat.setDiffuseColor(Color.RED);
         PhongMaterial trianglemat = new PhongMaterial();
         trianglemat.setDiffuseColor(Color.BLUE);
-        sphere.setMaterial(spheremat);
+        this.sphere.setMaterial(spheremat);
         trianglemeshview.setMaterial(trianglemat);
-        root.getChildren().add(sphere);
+        root.getChildren().add(this.sphere);
         root.getChildren().add(trianglemeshview);
-        sphere.setTranslateZ(10);
-        sphere.setTranslateY(2);
+        this.sphere.setTranslateZ(10);
+        this.sphere.setTranslateY(this.translatey);
+        this.sphere.setTranslateX(this.translatex);
         
         this.primaryStage.show();
     }
@@ -70,6 +72,22 @@ public class JavaFXRenderEngine extends Application implements EventHandler<KeyE
 				if (event.isAltDown()) {
 					this.primaryStage.setFullScreen(!this.primaryStage.isFullScreen());
 				}
+			}
+			if (event.getCode().equals(KeyCode.RIGHT)) {
+				this.translatex += 0.1d;
+		        this.sphere.setTranslateX(this.translatex);
+			}
+			if (event.getCode().equals(KeyCode.LEFT)) {
+				this.translatex -= 0.1d;
+		        this.sphere.setTranslateX(this.translatex);
+			}
+			if (event.getCode().equals(KeyCode.UP)) {
+				this.translatey -= 0.1d;
+		        this.sphere.setTranslateY(this.translatey);
+			}
+			if (event.getCode().equals(KeyCode.DOWN)) {
+				this.translatey += 0.1d;
+		        this.sphere.setTranslateY(this.translatey);
 			}
 		}
 	}
