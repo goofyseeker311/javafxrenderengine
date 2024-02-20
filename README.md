@@ -6,6 +6,27 @@ Starts in windowed mode.
 ```
 Keys:
 ALT-ENTER         -- toggles between windowed and full screen mode
+F5                -- Draw App
+F6                -- CAD App
+F7                -- Model App
+F8                -- Editor App
+F9                -- Game App
+F12               -- save a screenshot image file
+
+Draw App Keys:
+-- none --        -- placeholder key binding
+
+CAD App Keys:
+-- none --        -- placeholder key binding
+
+Model App Keys:
+-- none --        -- placeholder key binding
+
+Editor App Keys:
+-- none --        -- placeholder key binding
+
+Game App Keys:
+-- none --        -- placeholder key binding
 ```
 
 # Installing and running
@@ -20,4 +41,4 @@ Make an user library from the JavaFX library .jar files, include them in modulep
 include module path files in run configurations -> dependencies -> add modules from --- to ALL-MODULE-PATH.
 
 To make an executable .jar file, export runnable .jar from eclipse with package required libraries into generated JAR.
-After generating application .jar, add platform binaries to the root of the .jar zip file next to the javafx.jar files.
+After generating application .jar, add platform specific javafx jars and binaries to the root of the .jar zip file.
