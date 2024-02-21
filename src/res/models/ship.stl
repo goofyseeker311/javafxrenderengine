@@ -1,0 +1,44 @@
+solid JREOBJ
+facet normal 0.0000e+00 0.0000e+00 0.0000e+00
+	outer loop
+		vertex 0.0000e+00 1.6000e+02 -1.0000e+02
+		vertex 0.0000e+00 1.6000e+02 1.0000e+02
+		vertex 2.6000e+02 3.6000e+02 0.0000e+00
+	endloop
+endfacet
+facet normal 0.0000e+00 0.0000e+00 0.0000e+00
+	outer loop
+		vertex 0.0000e+00 -3.8000e+02 0.0000e+00
+		vertex 0.0000e+00 1.6000e+02 -1.0000e+02
+		vertex 2.6000e+02 3.6000e+02 0.0000e+00
+	endloop
+endfacet
+facet normal 0.0000e+00 0.0000e+00 0.0000e+00
+	outer loop
+		vertex -2.6000e+02 3.6000e+02 0.0000e+00
+		vertex 0.0000e+00 1.6000e+02 -1.0000e+02
+		vertex 0.0000e+00 1.6000e+02 1.0000e+02
+	endloop
+endfacet
+facet normal 0.0000e+00 0.0000e+00 0.0000e+00
+	outer loop
+		vertex -2.6000e+02 3.6000e+02 0.0000e+00
+		vertex 0.0000e+00 -3.8000e+02 0.0000e+00
+		vertex 0.0000e+00 1.6000e+02 -1.0000e+02
+	endloop
+endfacet
+facet normal 0.0000e+00 0.0000e+00 0.0000e+00
+	outer loop
+		vertex -2.6000e+02 3.6000e+02 0.0000e+00
+		vertex 0.0000e+00 -3.8000e+02 0.0000e+00
+		vertex 0.0000e+00 1.6000e+02 1.0000e+02
+	endloop
+endfacet
+facet normal 0.0000e+00 0.0000e+00 0.0000e+00
+	outer loop
+		vertex 0.0000e+00 -3.8000e+02 0.0000e+00
+		vertex 0.0000e+00 1.6000e+02 1.0000e+02
+		vertex 2.6000e+02 3.6000e+02 0.0000e+00
+	endloop
+endfacet
+endsolid JREOBJ

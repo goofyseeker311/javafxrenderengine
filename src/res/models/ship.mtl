@@ -1,0 +1,14 @@
+newmtl JREMAT1
+Ns 250.0
+Kd 1.0 0.0 0.0
+Ni 1.45
+d 1.0
+illum 2
+Pr 1.0
+Pm 0.0
+Ps 0.0
+Pc 0.0
+Pcr 0.0
+aniso 0.0
+anisor 0.0
+

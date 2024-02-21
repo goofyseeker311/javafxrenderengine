@@ -25,11 +25,11 @@ public class JavaFXRenderEngine extends Application implements EventHandler<Even
 	private Group root = new Group();
 	private Scene scene = new Scene(root, defaultimagecanvaswidth, defaultimagecanvasheight, true, SceneAntialiasing.BALANCED);
 	private FrameTick frametick = new FrameTick();
-	private DrawApp drawapp = new DrawApp();
-	private CADApp cadapp = new CADApp();
-	private ModelApp modelapp = new ModelApp();
-	private EditorApp editorapp = new EditorApp();
-	private GameApp gameapp = new GameApp();
+	private DrawFXApp drawapp = new DrawFXApp();
+	private CADFXApp cadapp = new CADFXApp();
+	private ModelFXApp modelapp = new ModelFXApp();
+	private EditorFXApp editorapp = new EditorFXApp();
+	private GameFXApp gameapp = new GameFXApp();
 	private AppFXHandler activeapp = null;
 	
     public static void main(String[] args) {launch(args);}
@@ -38,7 +38,7 @@ public class JavaFXRenderEngine extends Application implements EventHandler<Even
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.0.9");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.0");
     	this.primaryStage.addEventHandler(KeyEvent.ANY, this);
         this.primaryStage.setScene(this.scene);
         this.setActiveApp(this.drawapp);
