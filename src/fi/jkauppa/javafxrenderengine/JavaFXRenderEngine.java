@@ -4,7 +4,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 
 import javax.imageio.ImageIO;
+import javax.swing.UIManager;
 
+import fi.jkauppa.javarenderengine.JavaRenderEngine;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
@@ -14,6 +16,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.Clipboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
@@ -32,13 +35,19 @@ public class JavaFXRenderEngine extends Application implements EventHandler<Even
 	private GameFXApp gameapp = new GameFXApp();
 	private AppFXHandler activeapp = null;
 	
-    public static void main(String[] args) {launch(args);}
+    public static void main(String[] args) {
+		System.setProperty("sun.java2d.opengl", "true");
+		String userdir = System.getProperty("user.dir");
+		System.out.println("JavaRenderEngine: main: userdir="+userdir);
+		try {UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());} catch (Exception ex) {}
+    	launch(args);
+    }
     @Override public void init() {}
     @Override public void stop() throws Exception {}
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.0");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.1");
     	this.primaryStage.addEventHandler(KeyEvent.ANY, this);
         this.primaryStage.setScene(this.scene);
         this.setActiveApp(this.drawapp);
@@ -49,6 +58,7 @@ public class JavaFXRenderEngine extends Application implements EventHandler<Even
     public static abstract class AppFXHandler implements EventHandler<Event> {
     	public long lasttick = System.currentTimeMillis();
     	public long newtick = this.lasttick;
+    	public Clipboard cb = Clipboard.getSystemClipboard();
     	public void tick() {
 			this.lasttick = this.newtick;
 			this.newtick = System.currentTimeMillis();
@@ -68,38 +78,34 @@ public class JavaFXRenderEngine extends Application implements EventHandler<Even
 				keyevent.consume();
 			} else if (keyevent.getCode().equals(KeyCode.F5)) {
 				this.setActiveApp(this.drawapp);
-				keyevent.consume();
 			} else if (keyevent.getCode().equals(KeyCode.F6)) {
 				this.setActiveApp(this.cadapp);
-				keyevent.consume();
 			} else if (keyevent.getCode().equals(KeyCode.F7)) {
 				this.setActiveApp(this.modelapp);
-				keyevent.consume();
 			} else if (keyevent.getCode().equals(KeyCode.F8)) {
 				this.setActiveApp(this.editorapp);
-				keyevent.consume();
 			} else if (keyevent.getCode().equals(KeyCode.F9)) {
 				this.setActiveApp(this.gameapp);
-				keyevent.consume();
 			} else if (keyevent.getCode().equals(KeyCode.F10)) {
 				//TODO <tbd>
-				keyevent.consume();
 			} else if (keyevent.getCode().equals(KeyCode.F11)) {
 				//TODO <tbd>
-				keyevent.consume();
 			} else if (keyevent.getCode().equals(KeyCode.F12)) {
-				WritableImage writablescreenshot = this.scene.snapshot(null);
-				BufferedImage screenshot = SwingFXUtils.fromFXImage(writablescreenshot, null);
-				File screenshotfile = new File("screenshot1.png");
-				int screenshotnum = 1;
-				while (screenshotfile.exists()) {
-					screenshotnum += 1;
-					screenshotfile = new File("screenshot"+screenshotnum+".png");
+				if (keyevent.isShiftDown()) {
+					new JavaRenderEngine();
+				} else {
+					WritableImage writablescreenshot = this.scene.snapshot(null);
+					BufferedImage screenshot = SwingFXUtils.fromFXImage(writablescreenshot, null);
+					File screenshotfile = new File("screenshot1.png");
+					int screenshotnum = 1;
+					while (screenshotfile.exists()) {
+						screenshotnum += 1;
+						screenshotfile = new File("screenshot"+screenshotnum+".png");
+					}
+					try {
+						ImageIO.write(screenshot, "PNG", screenshotfile);
+					} catch (Exception ex) {ex.printStackTrace();}
 				}
-				try {
-					ImageIO.write(screenshot, "PNG", screenshotfile);
-				} catch (Exception ex) {ex.printStackTrace();}
-				keyevent.consume();
 			} else {
 				activeapp.handle(event);
 			}

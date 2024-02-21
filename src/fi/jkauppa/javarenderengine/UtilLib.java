@@ -12,7 +12,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
-import java.awt.image.VolatileImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -147,7 +146,7 @@ public class UtilLib {
 		return imagechooser;
     }
 
-    public static void saveImageFormat(String filename, VolatileImage image, FileFilter savefileformat) {
+    public static void saveImageFormat(String filename, BufferedImage image, FileFilter savefileformat) {
     	String savefilename = filename;
 		if (savefileformat.getClass().equals(ImageFileFilters.JPGFileFilter.class)) {
 			if ((!savefilename.toLowerCase().endsWith(".jpg"))&&(!savefilename.toLowerCase().endsWith(".jpeg"))) {savefilename = savefilename.concat(".jpg");}
@@ -167,13 +166,13 @@ public class UtilLib {
 		}
     }
     
-	public static void saveImage(String filename, VolatileImage image, String format) {
+	public static void saveImage(String filename, BufferedImage image, String format) {
 		File savefile = new File(filename);
-		try {ImageIO.write(image.getSnapshot(), format, savefile);} catch (Exception ex) {ex.printStackTrace();}
+		try {ImageIO.write(image, format, savefile);} catch (Exception ex) {ex.printStackTrace();}
 	}
     
-	public static VolatileImage loadImage(String filename, boolean loadresourcefromjar) {
-		VolatileImage k = null;
+	public static BufferedImage loadImage(String filename, boolean loadresourcefromjar) {
+		BufferedImage k = null;
 		if (filename!=null) {
 			try {
 				File imagefile = new File(filename);
@@ -185,7 +184,7 @@ public class UtilLib {
 				}
 				BufferedImage loadimage = ImageIO.read(imagefilestream);
 				if (loadimage!=null) {
-					VolatileImage loadimagevolatile = gc.createCompatibleVolatileImage(loadimage.getWidth(), loadimage.getHeight(), Transparency.TRANSLUCENT);
+					BufferedImage loadimagevolatile = gc.createCompatibleImage(loadimage.getWidth(), loadimage.getHeight(), Transparency.TRANSLUCENT);
 					Graphics2D loadimagevolatilegfx = loadimagevolatile.createGraphics();
 					loadimagevolatilegfx.setComposite(AlphaComposite.Src);
 					loadimagevolatilegfx.drawImage(loadimage, 0, 0, null);
@@ -198,8 +197,8 @@ public class UtilLib {
 		return k;
 	}
 	
-	public static VolatileImage flipImage(VolatileImage image, boolean horizontal, boolean vertical) {
-		VolatileImage k = gc.createCompatibleVolatileImage(image.getWidth(), image.getHeight(), Transparency.TRANSLUCENT);
+	public static BufferedImage flipImage(BufferedImage image, boolean horizontal, boolean vertical) {
+		BufferedImage k = gc.createCompatibleImage(image.getWidth(), image.getHeight(), Transparency.TRANSLUCENT);
 		Graphics2D rigfx = k.createGraphics();
 		rigfx.setComposite(AlphaComposite.Src);
 		rigfx.setColor(new Color(0.0f,0.0f,0.0f,0.0f));

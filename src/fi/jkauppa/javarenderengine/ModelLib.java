@@ -2,7 +2,6 @@ package fi.jkauppa.javarenderengine;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.awt.image.VolatileImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,30 +18,18 @@ import javax.imageio.ImageIO;
 public class ModelLib {
 	public static class Material implements Comparable<Material> {
 		public String materialname = null;
-		public VolatileImage fileimage = null;
-		public BufferedImage snapimage = null;
-		public VolatileImage ambientfileimage = null;
-		public BufferedImage ambientsnapimage = null;
-		public VolatileImage specularfileimage = null;
-		public BufferedImage specularsnapimage = null;
-		public VolatileImage specularhighfileimage = null;
-		public BufferedImage specularhighsnapimage = null;
-		public VolatileImage emissivefileimage = null;
-		public BufferedImage emissivesnapimage = null;
-		public VolatileImage alphafileimage = null;
-		public BufferedImage alphasnapimage = null;
-		public VolatileImage roughnessfileimage = null;
-		public BufferedImage roughnesssnapimage = null;
-		public VolatileImage metallicfileimage = null;
-		public BufferedImage metallicsnapimage = null;
-		public VolatileImage sheenfileimage = null;
-		public BufferedImage sheensnapimage = null;
-		public VolatileImage bumpfileimage = null;
-		public BufferedImage bumpsnapimage = null;
-		public VolatileImage dispfileimage = null;
-		public BufferedImage dispsnapimage = null;
-		public VolatileImage decalfileimage = null;
-		public BufferedImage decalsnapimage = null;
+		public BufferedImage fileimage = null;
+		public BufferedImage ambientfileimage = null;
+		public BufferedImage specularfileimage = null;
+		public BufferedImage specularhighfileimage = null;
+		public BufferedImage emissivefileimage = null;
+		public BufferedImage alphafileimage = null;
+		public BufferedImage roughnessfileimage = null;
+		public BufferedImage metallicfileimage = null;
+		public BufferedImage sheenfileimage = null;
+		public BufferedImage bumpfileimage = null;
+		public BufferedImage dispfileimage = null;
+		public BufferedImage decalfileimage = null;
 		public String filename = null;
 		public Color facecolor = null;
 		public Color ambientcolor = null;
@@ -60,7 +47,7 @@ public class ModelLib {
 		public float anisotropyrot = 0.0f;
 		public float refraction = 1.45f;
 		public Material() {}
-		public Material(Color facecolori, float transparencyi, VolatileImage fileimagei) {this.facecolor=facecolori;this.transparency=transparencyi;this.fileimage=fileimagei;}
+		public Material(Color facecolori, float transparencyi, BufferedImage fileimagei) {this.facecolor=facecolori;this.transparency=transparencyi;this.fileimage=fileimagei;}
 		@Override public int compareTo(Material o) {
 			int k=-1;
 			if(this.facecolor.getRed()>o.facecolor.getRed()) {
@@ -98,29 +85,17 @@ public class ModelLib {
 			Material k = new Material();
 			k.materialname = this.materialname;
 			k.fileimage = this.fileimage;
-			k.snapimage = this.snapimage;
 			k.ambientfileimage = this.ambientfileimage;
-			k.ambientsnapimage = this.ambientsnapimage;
 			k.specularfileimage = this.specularfileimage;
-			k.specularsnapimage = this.specularsnapimage;
 			k.specularhighfileimage = this.specularhighfileimage;
-			k.specularhighsnapimage = this.specularhighsnapimage;
 			k.emissivefileimage = this.emissivefileimage;
-			k.emissivesnapimage = this.emissivesnapimage;
 			k.alphafileimage = this.alphafileimage;
-			k.alphasnapimage = this.alphasnapimage;
 			k.roughnessfileimage = this.roughnessfileimage;
-			k.roughnesssnapimage = this.roughnesssnapimage;
 			k.metallicfileimage = this.metallicfileimage;
-			k.metallicsnapimage = this.metallicsnapimage;
 			k.sheenfileimage = this.sheenfileimage;
-			k.sheensnapimage = this.sheensnapimage;
 			k.bumpfileimage = this.bumpfileimage;
-			k.bumpsnapimage = this.bumpsnapimage;
 			k.dispfileimage = this.dispfileimage;
-			k.dispsnapimage = this.dispsnapimage;
 			k.decalfileimage = this.decalfileimage;
-			k.decalsnapimage = this.decalsnapimage;
 			k.filename = this.filename;
 			k.facecolor = this.facecolor;
 			k.ambientcolor = this.ambientcolor;
@@ -142,8 +117,7 @@ public class ModelLib {
 	}
 
 	public static class RenderView {
-		public VolatileImage renderimage = null;
-		public BufferedImage snapimage = null;
+		public BufferedImage renderimage = null;
 		public Cubemap cubemap = null;
 		public Spheremap spheremap = null;
 		public double[][] sbuffer = null;
@@ -800,7 +774,7 @@ public class ModelLib {
 						modelobjfile.write("map_Kd "+savefilename);
 						modelobjfile.newLine();
 						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].fileimage.getSnapshot(), "PNG", imagefile);
+						ImageIO.write(model.materials[i].fileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].ambientfileimage!=null) {
 						String savefilename = model.materials[i].filename;
@@ -808,7 +782,7 @@ public class ModelLib {
 						modelobjfile.write("map_Ka "+savefilename);
 						modelobjfile.newLine();
 						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].ambientfileimage.getSnapshot(), "PNG", imagefile);
+						ImageIO.write(model.materials[i].ambientfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].specularfileimage!=null) {
 						String savefilename = model.materials[i].filename;
@@ -816,7 +790,7 @@ public class ModelLib {
 						modelobjfile.write("map_Ks "+savefilename);
 						modelobjfile.newLine();
 						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].specularfileimage.getSnapshot(), "PNG", imagefile);
+						ImageIO.write(model.materials[i].specularfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].specularhighfileimage!=null) {
 						String savefilename = model.materials[i].filename;
@@ -824,7 +798,7 @@ public class ModelLib {
 						modelobjfile.write("map_Ns "+savefilename);
 						modelobjfile.newLine();
 						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].specularhighfileimage.getSnapshot(), "PNG", imagefile);
+						ImageIO.write(model.materials[i].specularhighfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].emissivefileimage!=null) {
 						String savefilename = model.materials[i].filename;
@@ -832,7 +806,7 @@ public class ModelLib {
 						modelobjfile.write("map_Ke "+savefilename);
 						modelobjfile.newLine();
 						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].emissivefileimage.getSnapshot(), "PNG", imagefile);
+						ImageIO.write(model.materials[i].emissivefileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].roughnessfileimage!=null) {
 						String savefilename = model.materials[i].filename;
@@ -840,7 +814,7 @@ public class ModelLib {
 						modelobjfile.write("map_Pr "+savefilename);
 						modelobjfile.newLine();
 						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].roughnessfileimage.getSnapshot(), "PNG", imagefile);
+						ImageIO.write(model.materials[i].roughnessfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].metallicfileimage!=null) {
 						String savefilename = model.materials[i].filename;
@@ -848,7 +822,7 @@ public class ModelLib {
 						modelobjfile.write("map_Pm "+savefilename);
 						modelobjfile.newLine();
 						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].metallicfileimage.getSnapshot(), "PNG", imagefile);
+						ImageIO.write(model.materials[i].metallicfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].sheenfileimage!=null) {
 						String savefilename = model.materials[i].filename;
@@ -856,7 +830,7 @@ public class ModelLib {
 						modelobjfile.write("map_Ps "+savefilename);
 						modelobjfile.newLine();
 						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].sheenfileimage.getSnapshot(), "PNG", imagefile);
+						ImageIO.write(model.materials[i].sheenfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].alphafileimage!=null) {
 						String savefilename = model.materials[i].filename;
@@ -864,7 +838,7 @@ public class ModelLib {
 						modelobjfile.write("map_d "+savefilename);
 						modelobjfile.newLine();
 						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].alphafileimage.getSnapshot(), "PNG", imagefile);
+						ImageIO.write(model.materials[i].alphafileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].bumpfileimage!=null) {
 						String savefilename = model.materials[i].filename;
@@ -872,7 +846,7 @@ public class ModelLib {
 						modelobjfile.write("bump "+savefilename);
 						modelobjfile.newLine();
 						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].bumpfileimage.getSnapshot(), "PNG", imagefile);
+						ImageIO.write(model.materials[i].bumpfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].dispfileimage!=null) {
 						String savefilename = model.materials[i].filename;
@@ -880,7 +854,7 @@ public class ModelLib {
 						modelobjfile.write("disp "+savefilename);
 						modelobjfile.newLine();
 						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].dispfileimage.getSnapshot(), "PNG", imagefile);
+						ImageIO.write(model.materials[i].dispfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].decalfileimage!=null) {
 						String savefilename = model.materials[i].filename;
@@ -888,7 +862,7 @@ public class ModelLib {
 						modelobjfile.write("decal "+savefilename);
 						modelobjfile.newLine();
 						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].decalfileimage.getSnapshot(), "PNG", imagefile);
+						ImageIO.write(model.materials[i].decalfileimage, "PNG", imagefile);
 					}
 					modelobjfile.newLine();
 				}

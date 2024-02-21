@@ -21,7 +21,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.image.VolatileImage;
+import java.awt.image.BufferedImage;
 import java.io.File;
 
 import javax.swing.JFrame;
@@ -59,12 +59,12 @@ public class JavaRenderEngine extends JFrame implements ActionListener,KeyListen
 	private final int defaultimagecanvaswidth = 1920;
 	private final int defaultimagecanvasheight= 1080;
 	private boolean windowedmode = true;
-	private VolatileImage logoimage = UtilLib.loadImage("res/icons/logo.png", true);
+	private BufferedImage logoimage = UtilLib.loadImage("res/icons/logo.png", true);
 	
 	public JavaRenderEngine() {
 		if (this.logoimage!=null) {this.setIconImage(this.logoimage);}
 		this.setTitle("Java Render Engine v2.6.14");
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setJMenuBar(null);
 		if (!windowedmode) {
 			this.setUndecorated(true);
@@ -582,21 +582,25 @@ public class JavaRenderEngine extends JFrame implements ActionListener,KeyListen
 			//TODO <tbd>
 			e.consume();
 		}else if (e.getKeyCode()==KeyEvent.VK_F11) {
-			System.out.println("JavaRenderEngine: main: keyPressed: VK_F11");
 			//TODO <tbd>
+			System.out.println("JavaRenderEngine: main: keyPressed: VK_F11");
 		}else if (e.getKeyCode()==KeyEvent.VK_F12) {
-			System.out.println("JavaRenderEngine: main: keyPressed: VK_F12");
-			VolatileImage componentimage = this.activeapp.gc.createCompatibleVolatileImage(this.activeapp.getWidth(),this.activeapp.getHeight(), Transparency.OPAQUE);
-			Graphics2D gfx = componentimage.createGraphics();
-			this.activeapp.paintComponent(gfx);
-			gfx.dispose();
-			File screenshotfile = new File("screenshot1.png");
-			int screenshotnum = 1;
-			while (screenshotfile.exists()) {
-				screenshotnum += 1;
-				screenshotfile = new File("screenshot"+screenshotnum+".png");
+			if (e.isShiftDown()) {
+				new JavaRenderEngine();
+			} else {
+				System.out.println("JavaRenderEngine: main: keyPressed: VK_F12");
+				BufferedImage componentimage = this.activeapp.gc.createCompatibleImage(this.activeapp.getWidth(),this.activeapp.getHeight(), Transparency.OPAQUE);
+				Graphics2D gfx = componentimage.createGraphics();
+				this.activeapp.paintComponent(gfx);
+				gfx.dispose();
+				File screenshotfile = new File("screenshot1.png");
+				int screenshotnum = 1;
+				while (screenshotfile.exists()) {
+					screenshotnum += 1;
+					screenshotfile = new File("screenshot"+screenshotnum+".png");
+				}
+				UtilLib.saveImageFormat(screenshotfile.getPath(), componentimage, new UtilLib.ImageFileFilters.PNGFileFilter());
 			}
-			UtilLib.saveImageFormat(screenshotfile.getPath(), componentimage, new UtilLib.ImageFileFilters.PNGFileFilter());
 		}else {
 			if (this.activeapp!=null) {this.activeapp.keyPressed(e);}
 		}

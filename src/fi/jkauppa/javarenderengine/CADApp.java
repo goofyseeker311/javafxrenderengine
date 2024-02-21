@@ -15,7 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.image.VolatileImage;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -230,7 +230,6 @@ public class CADApp extends AppHandlerPanel {
 									this.entitylist[j].trianglelist[i].mat = this.entitylist[j].trianglelist[i].mat.copy();
 									this.entitylist[j].trianglelist[i].mat.ambientcolor = null;
 									this.entitylist[j].trianglelist[i].mat.ambientfileimage = null;
-									this.entitylist[j].trianglelist[i].mat.ambientsnapimage = null;
 								}
 							}
 						}
@@ -254,7 +253,6 @@ public class CADApp extends AppHandlerPanel {
 			this.drawmat = this.drawmat.copy();
 			this.drawmat.facecolor = newfacecolor;
 			this.drawmat.fileimage = null;
-			this.drawmat.snapimage = null;
 			this.entitybuffer = null;
 			System.out.println("CADApp: keyPressed: key INSERT: draw material color hue positive: r="+colorvalues[0]+" g="+colorvalues[1]+" b="+colorvalues[2]+" tr="+this.drawmat.transparency);
 		} else if (e.getKeyCode()==KeyEvent.VK_DELETE) {
@@ -266,7 +264,6 @@ public class CADApp extends AppHandlerPanel {
 			this.drawmat = this.drawmat.copy();
 			this.drawmat.facecolor = newfacecolor;
 			this.drawmat.fileimage = null;
-			this.drawmat.snapimage = null;
 			this.entitybuffer = null;
 			System.out.println("CADApp: keyPressed: key DELETE: draw material color hue negative: r="+colorvalues[0]+" g="+colorvalues[1]+" b="+colorvalues[2]+" tr="+this.drawmat.transparency);
 		} else if (e.getKeyCode()==KeyEvent.VK_HOME) {
@@ -278,7 +275,6 @@ public class CADApp extends AppHandlerPanel {
 			this.drawmat = this.drawmat.copy();
 			this.drawmat.facecolor = newfacecolor;
 			this.drawmat.fileimage = null;
-			this.drawmat.snapimage = null;
 			this.entitybuffer = null;
 			System.out.println("CADApp: keyPressed: key HOME: draw material color saturation positive: r="+colorvalues[0]+" g="+colorvalues[1]+" b="+colorvalues[2]+" tr="+this.drawmat.transparency);
 		} else if (e.getKeyCode()==KeyEvent.VK_END) {
@@ -290,7 +286,6 @@ public class CADApp extends AppHandlerPanel {
 			this.drawmat = this.drawmat.copy();
 			this.drawmat.facecolor = newfacecolor;
 			this.drawmat.fileimage = null;
-			this.drawmat.snapimage = null;
 			this.entitybuffer = null;
 			System.out.println("CADApp: keyPressed: key END: draw material color saturation negative: r="+colorvalues[0]+" g="+colorvalues[1]+" b="+colorvalues[2]+" tr="+this.drawmat.transparency);
 		} else if (e.getKeyCode()==KeyEvent.VK_PAGE_UP) {
@@ -302,7 +297,6 @@ public class CADApp extends AppHandlerPanel {
 			this.drawmat = this.drawmat.copy();
 			this.drawmat.facecolor = newfacecolor;
 			this.drawmat.fileimage = null;
-			this.drawmat.snapimage = null;
 			this.entitybuffer = null;
 			System.out.println("CADApp: keyPressed: key PAGEUP: draw material color brightness positive: r="+colorvalues[0]+" g="+colorvalues[1]+" b="+colorvalues[2]+" tr="+this.drawmat.transparency);
 		} else if (e.getKeyCode()==KeyEvent.VK_PAGE_DOWN) {
@@ -314,7 +308,6 @@ public class CADApp extends AppHandlerPanel {
 			this.drawmat = this.drawmat.copy();
 			this.drawmat.facecolor = newfacecolor;
 			this.drawmat.fileimage = null;
-			this.drawmat.snapimage = null;
 			this.entitybuffer = null;
 			System.out.println("CADApp: keyPressed: key PAGEDOWN: draw material color brightness negative: r="+colorvalues[0]+" g="+colorvalues[1]+" b="+colorvalues[2]+" tr="+this.drawmat.transparency);
 		} else if (e.getKeyCode()==KeyEvent.VK_MULTIPLY) {
@@ -325,7 +318,7 @@ public class CADApp extends AppHandlerPanel {
 			float[] newemissivecolor = {drawcolorcomp[0]*newemissivity,drawcolorcomp[1]*newemissivity,drawcolorcomp[2]*newemissivity,1.0f};
 			this.drawmat.emissivecolor = new Color(newemissivecolor[0],newemissivecolor[1],newemissivecolor[2],newemissivecolor[3]);
 			if (this.drawmat.fileimage!=null) {
-				this.drawmat.emissivefileimage = gc.createCompatibleVolatileImage(this.drawmat.fileimage.getWidth(), this.drawmat.fileimage.getHeight(), Transparency.TRANSLUCENT);
+				this.drawmat.emissivefileimage = gc.createCompatibleImage(this.drawmat.fileimage.getWidth(), this.drawmat.fileimage.getHeight(), Transparency.TRANSLUCENT);
 				Graphics2D emgfx = this.drawmat.emissivefileimage.createGraphics();
 				emgfx.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, newemissivity));
 				emgfx.drawImage(this.drawmat.fileimage, 0, 0, null);
@@ -340,7 +333,7 @@ public class CADApp extends AppHandlerPanel {
 			float[] newemissivecolor = {drawcolorcomp[0]*newemissivity,drawcolorcomp[1]*newemissivity,drawcolorcomp[2]*newemissivity,1.0f};
 			this.drawmat.emissivecolor = new Color(newemissivecolor[0],newemissivecolor[1],newemissivecolor[2],newemissivecolor[3]);
 			if (this.drawmat.fileimage!=null) {
-				this.drawmat.emissivefileimage = gc.createCompatibleVolatileImage(this.drawmat.fileimage.getWidth(), this.drawmat.fileimage.getHeight(), Transparency.TRANSLUCENT);
+				this.drawmat.emissivefileimage = gc.createCompatibleImage(this.drawmat.fileimage.getWidth(), this.drawmat.fileimage.getHeight(), Transparency.TRANSLUCENT);
 				Graphics2D emgfx = this.drawmat.emissivefileimage.createGraphics();
 				emgfx.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, newemissivity));
 				emgfx.drawImage(this.drawmat.fileimage, 0, 0, null);
@@ -522,10 +515,9 @@ public class CADApp extends AppHandlerPanel {
 				this.imagechooser.setApproveButtonText("Load");
 				if (this.imagechooser.showOpenDialog(null)==JFileChooser.APPROVE_OPTION) {
 					File loadfile = this.imagechooser.getSelectedFile();
-					VolatileImage fileimage = UtilLib.loadImage(loadfile.getPath(), false);
+					BufferedImage fileimage = UtilLib.loadImage(loadfile.getPath(), false);
 					this.drawmat = this.drawmat.copy();
 					this.drawmat.fileimage = fileimage;
-					this.drawmat.snapimage = fileimage.getSnapshot();
 				}
 		    } else if (f3ctrldown) {
 				this.filechooser.setDialogTitle("Load File");
@@ -569,9 +561,9 @@ public class CADApp extends AppHandlerPanel {
 				} else {
 					renderimageview = RenderLib.renderProjectedView(this.campos[0], this.entitylist, this.renderoutputwidth, this.hfov, this.renderoutputheight, this.vfov, this.cameramat, this.unlitrender, 3, this.renderbounces, null, null, null, this.mouselocationx, this.mouselocationy);
 				}
-				VolatileImage renderimage = renderimageview.renderimage;
+				BufferedImage renderimage = renderimageview.renderimage;
 				if (f4down) {
-					VolatileImage blackbgimage = gc.createCompatibleVolatileImage(renderimage.getWidth(), renderimage.getHeight(), Transparency.TRANSLUCENT);
+					BufferedImage blackbgimage = gc.createCompatibleImage(renderimage.getWidth(), renderimage.getHeight(), Transparency.TRANSLUCENT);
 					Graphics2D bbggfx = blackbgimage.createGraphics();
 					bbggfx.setComposite(AlphaComposite.Src);
 					bbggfx.setColor(this.renderbackgroundcolor);
@@ -1026,10 +1018,9 @@ public class CADApp extends AppHandlerPanel {
                 	String filepath = file.getPath();
                 	String filename = file.getName();
                 	if (UtilLib.isImageFilename(filename)) {
-	                    VolatileImage fileimage = UtilLib.loadImage(filepath, false);
+                		BufferedImage fileimage = UtilLib.loadImage(filepath, false);
 						this.drawmat = this.drawmat.copy();
 						this.drawmat.fileimage = fileimage;
-						this.drawmat.snapimage = fileimage.getSnapshot();
                 	} else if (UtilLib.isModelFilename(filename)) {
                 		if (filename.toLowerCase().endsWith(".obj")) {
                 			FileFilter loadfileformat = new OBJFileFilter();
