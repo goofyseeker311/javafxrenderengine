@@ -12,6 +12,7 @@ F7                    -- Model App
 F8                    -- Editor App
 F9                    -- Game App
 F12                   -- save a screenshot image file
+SHIFT-F12             -- open new JavaRenderEngine window
 
 Draw App Keys:
 -- none --            -- placeholder key binding
