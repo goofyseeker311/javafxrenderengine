@@ -5,6 +5,8 @@ import javafx.event.Event;
 import javafx.scene.Group;
 
 public class TemplateFXApp extends AppFXHandler {
+	public TemplateFXApp() {}
 	@Override public void update(Group root) {}
+	@Override public void pulse() {}
 	@Override public void handle(Event event) {}
 }

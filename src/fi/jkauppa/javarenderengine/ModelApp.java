@@ -70,7 +70,7 @@ public class ModelApp extends AppHandlerPanel {
 		g2.setPaint(null);
 		g2.setClip(null);
 		g2.fillRect(0, 0, this.getWidth(), this.getHeight());
-		this.vfov = MathLib.calculateVfov(this.getWidth(), this.getHeight(), hfov);
+		this.vfov = MathLib.calculateVfov(this.getWidth(), this.getHeight(), this.hfov);
 		if (this.renderview!=null) {
 			g2.drawImage(renderview.renderimage, 0, 0, null);
 		}
@@ -189,8 +189,8 @@ public class ModelApp extends AppHandlerPanel {
 			int origindeltay = (int)Math.floor(((double)(this.getHeight()-1))/2.0f);
 			int windowcenterx = windowscreenlocation.x + origindeltax;
 			int windowcentery = windowscreenlocation.y + origindeltay;
-			this.mouselocationx = this.lastrenderwidth/2; 
-			this.mouselocationy = this.lastrenderheight/2; 
+			this.mouselocationx = this.getWidth()/2; 
+			this.mouselocationy = this.getHeight()/2; 
 			try {
 				Robot mouserobot = new Robot();
 				mouserobot.mouseMove(windowcenterx, windowcentery);
@@ -207,7 +207,7 @@ public class ModelApp extends AppHandlerPanel {
 	    	this.camrot.z -= mousedeltax*0.1f;
 	    	this.camrot.x -= mousedeltay*0.1f;
 	    	updateCameraDirections();
-			if ((this.mouselocationx<=0)||(this.mouselocationy<=0)||(this.mouselocationx>=(this.lastrenderwidth-1))||(this.mouselocationy>=(this.lastrenderheight-1))) {
+			if ((this.mouselocationx<=0)||(this.mouselocationy<=0)||(this.mouselocationx>=(this.getWidth()-1))||(this.mouselocationy>=(this.getHeight()-1))) {
 				mouseExited(e);
 			}
 		}

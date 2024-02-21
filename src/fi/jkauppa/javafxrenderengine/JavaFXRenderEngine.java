@@ -9,6 +9,7 @@ import javax.swing.UIManager;
 import fi.jkauppa.javarenderengine.JavaRenderEngine;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -18,15 +19,18 @@ import javafx.scene.SceneAntialiasing;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.stage.Stage;
 
-public class JavaFXRenderEngine extends Application implements EventHandler<Event> {
+public class JavaFXRenderEngine extends Application implements Runnable,EventHandler<Event> {
 	private final int defaultimagecanvaswidth = 1920;
 	private final int defaultimagecanvasheight= 1080;
 	private Stage primaryStage = null;
 	private Group root = new Group();
-	private Scene scene = new Scene(root, defaultimagecanvaswidth, defaultimagecanvasheight, true, SceneAntialiasing.BALANCED);
+	public Scene scene = new Scene(root, defaultimagecanvaswidth, defaultimagecanvasheight, true, SceneAntialiasing.BALANCED);
 	private FrameTick frametick = new FrameTick();
 	private DrawFXApp drawapp = new DrawFXApp();
 	private CADFXApp cadapp = new CADFXApp();
@@ -47,12 +51,18 @@ public class JavaFXRenderEngine extends Application implements EventHandler<Even
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.1");
-    	this.primaryStage.addEventHandler(KeyEvent.ANY, this);
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.2");
+    	this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+    	this.primaryStage.setFullScreenExitHint("");
+    	this.scene.addEventHandler(KeyEvent.ANY, this);
+    	this.scene.addEventHandler(MouseEvent.ANY, this);
+    	this.scene.addEventHandler(ScrollEvent.ANY, this);
+        this.scene.addPreLayoutPulseListener(this);
         this.primaryStage.setScene(this.scene);
         this.setActiveApp(this.drawapp);
         this.primaryStage.show();
         frametick.start();
+        this.primaryStage.requestFocus();
     }
 
     public static abstract class AppFXHandler implements EventHandler<Event> {
@@ -64,6 +74,7 @@ public class JavaFXRenderEngine extends Application implements EventHandler<Even
 			this.newtick = System.currentTimeMillis();
     	}
     	public abstract void update(Group root);
+    	public abstract void pulse();
     }
 
 	private void setActiveApp(AppFXHandler activeappi) {
@@ -73,7 +84,7 @@ public class JavaFXRenderEngine extends Application implements EventHandler<Even
 	@Override public void handle(Event event) {
 		if (event.getEventType().equals(KeyEvent.KEY_PRESSED)) {
 			KeyEvent keyevent = (KeyEvent)event;
-			if ((keyevent.getCode().equals(KeyCode.ENTER))&&(keyevent.isAltDown())) {
+			if ((keyevent.getCode().equals(KeyCode.ENTER))&&(keyevent.isAltDown())&&(!keyevent.isControlDown())&&(!keyevent.isShiftDown())&&(!keyevent.isMetaDown())) {
 				this.primaryStage.setFullScreen(!this.primaryStage.isFullScreen());
 				keyevent.consume();
 			} else if (keyevent.getCode().equals(KeyCode.F5)) {
@@ -119,5 +130,10 @@ public class JavaFXRenderEngine extends Application implements EventHandler<Even
 			activeapp.tick();
 			activeapp.update(root);
 		}
+	}
+
+	@Override public void run() {
+		activeapp.pulse();
+		Platform.requestNextPulse();
 	}
 }
