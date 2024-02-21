@@ -37,7 +37,9 @@ Install JAVA JDK 21 or later at, and double click on the downloaded release java
 https://www.oracle.com/java/technologies/downloads/#java21
 
 To run the older JavaRenderEngine application interface, use console command:
+```
 java -cp javafxrenderengine.jar fi.jkauppa.javarenderengine.JavaRenderEngine
+```
 
 Download JavaFX version 21.0.2 LTS or later for your platform at https://openjfx.io/.
 Make an user library from the JavaFX library .jar files, include them in modulepath in project build path properties,
