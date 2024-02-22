@@ -4,7 +4,6 @@ import java.io.File;
 
 import fi.jkauppa.javafxrenderengine.JavaFXRenderEngine.AppFXHandler;
 import fi.jkauppa.javarenderengine.MathLib;
-import fi.jkauppa.javarenderengine.RenderLib;
 import fi.jkauppa.javarenderengine.UtilLib;
 import fi.jkauppa.javarenderengine.UtilLib.ModelFileFilters.OBJFileFilter;
 import fi.jkauppa.javarenderengine.UtilLib.ModelFileFilters.STLFileFilter;
@@ -12,27 +11,25 @@ import fi.jkauppa.javarenderengine.ModelLib.Direction;
 import fi.jkauppa.javarenderengine.ModelLib.Entity;
 import fi.jkauppa.javarenderengine.ModelLib.Matrix;
 import fi.jkauppa.javarenderengine.ModelLib.Position;
-import fi.jkauppa.javarenderengine.ModelLib.RenderView;
 import fi.jkauppa.javarenderengine.ModelLib.Rotation;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
+import javafx.geometry.Point3D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
-import javafx.scene.ParallelCamera;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.scene.robot.Robot;
+import javafx.scene.transform.Rotate;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 public class ModelFXApp extends AppFXHandler {
-	private ParallelCamera camera = new ParallelCamera();
 	private Scene scene = null;
+	private Group entities = new Group();
 	private int renderwidth = 0;
 	private int renderheight = 0;
 	private Entity[] entitylist = null;
@@ -44,7 +41,6 @@ public class ModelFXApp extends AppFXHandler {
 	private Direction[] lookdirs = MathLib.projectedCameraDirections(cameramat);
 	private Direction[] camdirs = lookdirs;
 	private double hfov = 70.0f;
-	private double vfov = 43.0f;
 	private int polygonfillmode = 1;
 	private boolean unlitrender = false;
 	private boolean leftkeydown = false;
@@ -57,7 +53,6 @@ public class ModelFXApp extends AppFXHandler {
 	private boolean rollleftkeydown = false;
 	private int mouselastlocationx = 0, mouselastlocationy = 0; 
 	private int mouselocationx = 0, mouselocationy = 0;
-	private RenderView renderview = null;
 	
 	public ModelFXApp() {}
 	
@@ -66,20 +61,21 @@ public class ModelFXApp extends AppFXHandler {
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
 		this.scene.setCursor(Cursor.NONE);
-		this.scene.setCamera(camera);
 		this.scene.setFill(Paint.valueOf("BLACK"));
-		root.getChildren().clear();
-		this.vfov = MathLib.calculateVfov(this.renderwidth, this.renderheight, this.hfov);
-		if ((this.renderview!=null)&&(this.renderview.renderimage!=null)) {
-			WritableImage renderimage = SwingFXUtils.toFXImage(this.renderview.renderimage, null);
-	        ImageView renderimageview = new ImageView();
-	        renderimageview.setImage(renderimage);
-	        renderimageview.setFitWidth(this.renderwidth);
-	        renderimageview.setPreserveRatio(true);
-	        renderimageview.setSmooth(true);
-	        renderimageview.setCache(true);
-			root.getChildren().add(renderimageview);
-		}
+		PerspectiveCamera camera = new PerspectiveCamera(true);
+		camera.setFarClip(1000000.0f);
+		camera.setVerticalFieldOfView(false);
+		camera.setFieldOfView(hfov);
+		camera.getTransforms().clear();
+		camera.setTranslateX(campos[0].x);
+		camera.setTranslateY(campos[0].y);
+		camera.setTranslateZ(campos[0].z);
+		camera.getTransforms().add(new Rotate(this.camrot.z, new Point3D(0,0,1)));
+		camera.getTransforms().add(new Rotate(this.camrot.y, new Point3D(0,1,0)));
+		camera.getTransforms().add(new Rotate(this.camrot.x, new Point3D(1,0,0)));
+		camera.getTransforms().add(new Rotate(180, new Point3D(1,0,0)));
+		this.scene.setCamera(camera);
+		root.getChildren().setAll(entities);
 	}
 
 	@Override public void pulse() {
@@ -107,7 +103,6 @@ public class ModelFXApp extends AppFXHandler {
 			this.camrot.y += 1.0f;
 		}
 		updateCameraDirections();
-		(new RenderViewUpdater()).start();
 	}
 	
 	private void updateCameraDirections() {
@@ -187,17 +182,23 @@ public class ModelFXApp extends AppFXHandler {
 		    		if (loadfileextension.equals(objextensionfilter)) {
 		    			Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new OBJFileFilter(), false);
 						this.entitylist = loadentity.childlist;
+						entities.getChildren().clear();
+						RenderFXLib.constructFXScene(entities, this.entitylist);
 		    		} else if (loadfileextension.equals(stlextensionfilter)) {
 		    			Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new STLFileFilter(), false);
 						this.entitylist = loadentity.childlist;
+						entities.getChildren().clear();
+						RenderFXLib.constructFXScene(entities, this.entitylist);
 		    		}
 		    	}
 			}
 		} else if (event.getEventType().equals(MouseEvent.MOUSE_MOVED)) {
 			if (this.scene.getWindow().isFocused()) {
 				MouseEvent mouseevent = (MouseEvent)event;
-				this.mouselastlocationx=this.mouselocationx;this.mouselastlocationy=this.mouselocationy;
-				this.mouselocationx=(int)mouseevent.getX();this.mouselocationy=(int)mouseevent.getY();
+				this.mouselastlocationx=this.mouselocationx;
+				this.mouselastlocationy=this.mouselocationy;
+				this.mouselocationx=(int)mouseevent.getSceneX();
+				this.mouselocationy=(int)mouseevent.getSceneY();
 		    	int mousedeltax = this.mouselocationx - this.mouselastlocationx; 
 		    	int mousedeltay = this.mouselocationy - this.mouselastlocationy;
 				this.camrot = this.camrot.copy();
@@ -220,34 +221,6 @@ public class ModelFXApp extends AppFXHandler {
 				this.mouselocationy = this.renderheight/2; 
 				Robot mouserobot = new Robot();
 				mouserobot.mouseMove(windowcenterx, windowcentery);
-			}
-		}
-	}
-
-	private class RenderViewUpdater extends Thread {
-		private static boolean renderupdaterrunning = false;
-		public void run() {
-			if (!RenderViewUpdater.renderupdaterrunning) {
-				RenderViewUpdater.renderupdaterrunning = true;
-				int bounces = 0;
-				if (polygonfillmode==1) {
-					renderview = RenderLib.renderProjectedView(campos[0], entitylist, renderwidth, hfov, renderheight, vfov, cameramat, unlitrender, 1, bounces, null, null, null, mouselocationx, mouselocationy);
-				} else if (polygonfillmode==2) {
-					renderview = RenderLib.renderCubemapView(campos[0], entitylist, renderwidth, renderheight, (int)Math.floor(((double)renderheight)/2.0f), cameramat, unlitrender, 1, bounces, null, null, null, mouselocationx, mouselocationy);
-				} else if (polygonfillmode==3) {
-					renderview = RenderLib.renderProjectedView(campos[0], entitylist, renderwidth, hfov, renderheight, vfov, cameramat, unlitrender, 2, bounces, null, null, null, mouselocationx, mouselocationy);
-				} else if (polygonfillmode==4) {
-					renderview = RenderLib.renderSpheremapView(campos[0], entitylist, renderwidth, renderheight, cameramat, unlitrender, 1, bounces, null, null, null, mouselocationx, mouselocationy);
-				} else if (polygonfillmode==5) {
-					renderview = RenderLib.renderCubemapView(campos[0], entitylist, renderwidth, renderheight, (int)Math.floor(((double)renderheight)/2.0f), cameramat, unlitrender, 2, bounces, null, null, null, mouselocationx, mouselocationy);
-				} else if (polygonfillmode==6) {
-					renderview = RenderLib.renderProjectedView(campos[0], entitylist, renderwidth, hfov, renderheight, vfov, cameramat, unlitrender, 3, bounces, null, null, null, mouselocationx, mouselocationy);
-				} else if (polygonfillmode==7) {
-					renderview = RenderLib.renderSpheremapView(campos[0], entitylist, renderwidth, renderheight, cameramat, unlitrender, 2, bounces, null, null, null, mouselocationx, mouselocationy);
-				} else if (polygonfillmode==8) {
-					renderview = RenderLib.renderCubemapView(campos[0], entitylist, renderwidth, renderheight, (int)Math.floor(((double)renderheight)/2.0f), cameramat, unlitrender, 3, bounces, null, null, null, mouselocationx, mouselocationy);
-				}
-				RenderViewUpdater.renderupdaterrunning = false;
 			}
 		}
 	}

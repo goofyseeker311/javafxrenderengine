@@ -657,12 +657,12 @@ public class CADFXApp extends AppFXHandler {
 			}
 		} else if (event.getEventType().equals(MouseEvent.MOUSE_MOVED)) {
 			MouseEvent mouseevent = (MouseEvent)event;
-			this.mouselocationx=(int)mouseevent.getX();
-			this.mouselocationy=(int)mouseevent.getY();
+			this.mouselocationx=(int)mouseevent.getSceneX();
+			this.mouselocationy=(int)mouseevent.getSceneY();
 		} else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED)) {
 			MouseEvent mouseevent = (MouseEvent)event;
-			this.mouselocationx=(int)mouseevent.getX();
-			this.mouselocationy=(int)mouseevent.getY();
+			this.mouselocationx=(int)mouseevent.getSceneX();
+			this.mouselocationy=(int)mouseevent.getSceneY();
 		    boolean mouse1ctrldown = ((mouseevent.getButton().equals(MouseButton.PRIMARY))&&(mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
 	    	if (mouse1ctrldown) {
 				if ((this.mouseoververtex!=null)&&(this.mouseoververtex.length>0)) {
@@ -720,8 +720,8 @@ public class CADFXApp extends AppFXHandler {
 			MouseEvent mouseevent = (MouseEvent)event;
 			this.mouselastlocationx=this.mouselocationx;
 			this.mouselastlocationy=this.mouselocationy;
-			this.mouselocationx=(int)mouseevent.getX();
-			this.mouselocationy=(int)mouseevent.getY();
+			this.mouselocationx=(int)mouseevent.getSceneX();
+			this.mouselocationy=(int)mouseevent.getSceneY();
 		    boolean mouse1down = ((mouseevent.getButton().equals(MouseButton.PRIMARY))&&(!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
 	    	if (mouse1down) {
 	    		if (this.erasemode) {

@@ -337,12 +337,12 @@ public class DrawFXApp extends AppFXHandler {
 			}
 		} else if (event.getEventType().equals(MouseEvent.MOUSE_MOVED)) {
 			MouseEvent mouseevent = (MouseEvent)event;
-			this.mouselocationx=(int)mouseevent.getX();
-			this.mouselocationy=(int)mouseevent.getY();
+			this.mouselocationx=(int)mouseevent.getSceneX();
+			this.mouselocationy=(int)mouseevent.getSceneY();
 		} else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED)) {
 			MouseEvent mouseevent = (MouseEvent)event;
-			this.mouselocationx=(int)mouseevent.getX();
-			this.mouselocationy=(int)mouseevent.getY();
+			this.mouselocationx=(int)mouseevent.getSceneX();
+			this.mouselocationy=(int)mouseevent.getSceneY();
 			this.mousestartlocationx=this.mouselocationx;
 			this.mousestartlocationy=this.mouselocationy;
 			this.handle(mouseevent.copyFor(mouseevent.getSource(), this.scene.getWindow(), MouseEvent.MOUSE_DRAGGED));
@@ -365,8 +365,8 @@ public class DrawFXApp extends AppFXHandler {
 			MouseEvent mouseevent = (MouseEvent)event;
 			this.mouselastlocationx=this.mouselocationx;
 			this.mouselastlocationy=this.mouselocationy;
-			this.mouselocationx=(int)mouseevent.getX();
-			this.mouselocationy=(int)mouseevent.getY();
+			this.mouselocationx=(int)mouseevent.getSceneX();
+			this.mouselocationy=(int)mouseevent.getSceneY();
 	    	int mousedeltax = this.mouselocationx - this.mouselastlocationx; 
 	    	int mousedeltay = this.mouselocationy - this.mouselastlocationy;
 			if (this.renderbuffer!=null) {
