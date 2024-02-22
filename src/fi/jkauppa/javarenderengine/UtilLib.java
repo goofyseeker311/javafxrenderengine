@@ -284,7 +284,7 @@ public class UtilLib {
 		return k;
 	}
 
-	static class ImageTransferable implements Transferable {
+	public static class ImageTransferable implements Transferable {
         private Image image;
         public ImageTransferable (Image imagei) {this.image=imagei;}
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {if (isDataFlavorSupported(flavor)) {return image;}else{throw new UnsupportedFlavorException(flavor);}}

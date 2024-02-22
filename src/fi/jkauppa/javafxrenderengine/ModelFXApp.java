@@ -33,6 +33,8 @@ import javafx.stage.FileChooser.ExtensionFilter;
 public class ModelFXApp extends AppFXHandler {
 	private ParallelCamera camera = new ParallelCamera();
 	private Scene scene = null;
+	private int renderwidth = 0;
+	private int renderheight = 0;
 	private Entity[] entitylist = null;
 	private final Position[] defaultcampos = {new Position(0.0f,0.0f,0.0f)};
 	private final Rotation defaultcamrot = new Rotation(0.0f, 0.0f, 0.0f);
@@ -41,8 +43,6 @@ public class ModelFXApp extends AppFXHandler {
 	private Matrix cameramat = MathLib.rotationMatrix(0.0f, 0.0f, 0.0f);
 	private final Direction[] lookdirs = MathLib.projectedCameraDirections(cameramat);
 	private Direction[] camdirs = lookdirs;
-	private int renderwidth = 0;
-	private int renderheight = 0;
 	private double hfov = 70.0f;
 	private double vfov = 43.0f;
 	private int polygonfillmode = 1;
@@ -65,14 +65,13 @@ public class ModelFXApp extends AppFXHandler {
 		this.scene = root.getScene();
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
-		this.scene.getWidth();
 		this.scene.setCursor(Cursor.NONE);
 		this.scene.setCamera(camera);
 		this.scene.setFill(Paint.valueOf("BLACK"));
 		root.getChildren().clear();
 		this.vfov = MathLib.calculateVfov(this.renderwidth, this.renderheight, this.hfov);
-		if ((renderview!=null)&&(renderview.renderimage!=null)) {
-			WritableImage renderimage = SwingFXUtils.toFXImage(renderview.renderimage, null);
+		if ((this.renderview!=null)&&(this.renderview.renderimage!=null)) {
+			WritableImage renderimage = SwingFXUtils.toFXImage(this.renderview.renderimage, null);
 	        ImageView renderimageview = new ImageView();
 	        renderimageview.setImage(renderimage);
 	        renderimageview.setFitWidth(this.renderwidth);
@@ -176,7 +175,7 @@ public class ModelFXApp extends AppFXHandler {
 				}
 			} else if (keyevent.getCode()==KeyCode.F3) {
 	        	FileChooser filechooser = new FileChooser();
-		    	filechooser.setTitle("Open Resource File");
+		    	filechooser.setTitle("Load File");
 		    	ExtensionFilter objextensionfilter = new ExtensionFilter("OBJ Model file", "*.obj");
 		    	ExtensionFilter stlextensionfilter = new ExtensionFilter("STL Model file", "*.stl");
 	        	filechooser.getExtensionFilters().add(objextensionfilter);

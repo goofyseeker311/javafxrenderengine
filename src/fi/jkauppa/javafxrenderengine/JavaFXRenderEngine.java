@@ -18,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.Clipboard;
+import javafx.scene.input.DragEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
@@ -51,12 +52,13 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.2");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.3");
     	this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     	this.primaryStage.setFullScreenExitHint("");
     	this.scene.addEventHandler(KeyEvent.ANY, this);
     	this.scene.addEventHandler(MouseEvent.ANY, this);
     	this.scene.addEventHandler(ScrollEvent.ANY, this);
+    	this.scene.addEventHandler(DragEvent.ANY, this);
         this.scene.addPreLayoutPulseListener(this);
         this.primaryStage.setScene(this.scene);
         this.setActiveApp(this.drawapp);
