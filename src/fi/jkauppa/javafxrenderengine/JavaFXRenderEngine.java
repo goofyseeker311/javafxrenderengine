@@ -3,10 +3,10 @@ package fi.jkauppa.javafxrenderengine;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
-import javax.imageio.ImageIO;
 import javax.swing.UIManager;
 
-import fi.jkauppa.javarenderengine.JavaRenderEngine;
+import fi.jkauppa.javarenderengine.UtilLib;
+import fi.jkauppa.javarenderengine.UtilLib.ImageFileFilters.PNGFileFilter;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -52,7 +52,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.4");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.5");
     	this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     	this.primaryStage.setFullScreenExitHint("");
     	this.scene.addEventHandler(KeyEvent.ANY, this);
@@ -104,21 +104,15 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 			} else if (keyevent.getCode().equals(KeyCode.F11)) {
 				//TODO <tbd>
 			} else if (keyevent.getCode().equals(KeyCode.F12)) {
-				if (keyevent.isShiftDown()) {
-					new JavaRenderEngine();
-				} else {
-					WritableImage writablescreenshot = this.scene.snapshot(null);
-					BufferedImage screenshot = SwingFXUtils.fromFXImage(writablescreenshot, null);
-					File screenshotfile = new File("screenshot1.png");
-					int screenshotnum = 1;
-					while (screenshotfile.exists()) {
-						screenshotnum += 1;
-						screenshotfile = new File("screenshot"+screenshotnum+".png");
-					}
-					try {
-						ImageIO.write(screenshot, "PNG", screenshotfile);
-					} catch (Exception ex) {ex.printStackTrace();}
+				WritableImage writablescreenshot = this.scene.snapshot(null);
+				BufferedImage screenshot = SwingFXUtils.fromFXImage(writablescreenshot, null);
+				File screenshotfile = new File("screenshot1.png");
+				int screenshotnum = 1;
+				while (screenshotfile.exists()) {
+					screenshotnum += 1;
+					screenshotfile = new File("screenshot"+screenshotnum+".png");
 				}
+				UtilLib.saveImageFormat(screenshotfile.getPath(), screenshot, new PNGFileFilter());
 			} else {
 				activeapp.handle(event);
 			}
