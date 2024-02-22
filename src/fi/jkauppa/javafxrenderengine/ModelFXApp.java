@@ -36,12 +36,12 @@ public class ModelFXApp extends AppFXHandler {
 	private int renderwidth = 0;
 	private int renderheight = 0;
 	private Entity[] entitylist = null;
-	private final Position[] defaultcampos = {new Position(0.0f,0.0f,0.0f)};
-	private final Rotation defaultcamrot = new Rotation(0.0f, 0.0f, 0.0f);
+	private Position[] defaultcampos = {new Position(0.0f,0.0f,0.0f)};
+	private Rotation defaultcamrot = new Rotation(0.0f, 0.0f, 0.0f);
 	private Position[] campos = this.defaultcampos;
 	private Rotation camrot = this.defaultcamrot;
 	private Matrix cameramat = MathLib.rotationMatrix(0.0f, 0.0f, 0.0f);
-	private final Direction[] lookdirs = MathLib.projectedCameraDirections(cameramat);
+	private Direction[] lookdirs = MathLib.projectedCameraDirections(cameramat);
 	private Direction[] camdirs = lookdirs;
 	private double hfov = 70.0f;
 	private double vfov = 43.0f;
@@ -55,8 +55,8 @@ public class ModelFXApp extends AppFXHandler {
 	private boolean backwardkeydown = false;
 	private boolean rollrightkeydown = false;
 	private boolean rollleftkeydown = false;
-	private int mouselastlocationx = -1, mouselastlocationy = -1; 
-	private int mouselocationx = -1, mouselocationy = -1;
+	private int mouselastlocationx = 0, mouselastlocationy = 0; 
+	private int mouselocationx = 0, mouselocationy = 0;
 	private RenderView renderview = null;
 	
 	public ModelFXApp() {}
@@ -122,21 +122,21 @@ public class ModelFXApp extends AppFXHandler {
 			KeyEvent keyevent = (KeyEvent)event;
 			if (keyevent.getCode()==KeyCode.A) {
 				this.leftkeydown = false;
-				} else if (keyevent.getCode()==KeyCode.D) {
-					this.rightkeydown = false;
-				} else if (keyevent.getCode()==KeyCode.W) {
-					this.forwardkeydown = false;
-				} else if (keyevent.getCode()==KeyCode.S) {
-					this.backwardkeydown = false;
-				} else if (keyevent.getCode()==KeyCode.SPACE) {
-					this.upwardkeydown = false;
-				} else if (keyevent.getCode()==KeyCode.C) {
-					this.downwardkeydown = false;
-				} else if (keyevent.getCode()==KeyCode.Q) {
-					this.rollleftkeydown = false;
-				} else if (keyevent.getCode()==KeyCode.E) {
-					this.rollrightkeydown = false;
-				}
+			} else if (keyevent.getCode()==KeyCode.D) {
+				this.rightkeydown = false;
+			} else if (keyevent.getCode()==KeyCode.W) {
+				this.forwardkeydown = false;
+			} else if (keyevent.getCode()==KeyCode.S) {
+				this.backwardkeydown = false;
+			} else if (keyevent.getCode()==KeyCode.SPACE) {
+				this.upwardkeydown = false;
+			} else if (keyevent.getCode()==KeyCode.C) {
+				this.downwardkeydown = false;
+			} else if (keyevent.getCode()==KeyCode.Q) {
+				this.rollleftkeydown = false;
+			} else if (keyevent.getCode()==KeyCode.E) {
+				this.rollrightkeydown = false;
+			}
 		} else if (event.getEventType().equals(KeyEvent.KEY_PRESSED)) {
 			KeyEvent keyevent = (KeyEvent)event;
 			if (keyevent.getCode()==KeyCode.BACK_SPACE) {

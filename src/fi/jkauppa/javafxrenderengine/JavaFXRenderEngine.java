@@ -27,8 +27,8 @@ import javafx.scene.input.ScrollEvent;
 import javafx.stage.Stage;
 
 public class JavaFXRenderEngine extends Application implements Runnable,EventHandler<Event> {
-	private final int defaultimagecanvaswidth = 1920;
-	private final int defaultimagecanvasheight= 1080;
+	private int defaultimagecanvaswidth = 1920;
+	private int defaultimagecanvasheight = 1080;
 	private Stage primaryStage = null;
 	private Group root = new Group();
 	public Scene scene = new Scene(root, defaultimagecanvaswidth, defaultimagecanvasheight, true, SceneAntialiasing.BALANCED);
@@ -52,7 +52,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.3");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.4");
     	this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     	this.primaryStage.setFullScreenExitHint("");
     	this.scene.addEventHandler(KeyEvent.ANY, this);
