@@ -522,7 +522,7 @@ public class CADFXApp extends AppFXHandler {
 			} else if (keyevent.getCode()==KeyCode.F2) {
 			    boolean f2shiftdown = ((!keyevent.isControlDown())&&(!keyevent.isAltDown())&&(keyevent.isShiftDown())&&(!keyevent.isMetaDown()));
 	        	FileChooser filechooser = new FileChooser();
-	        	filechooser.setInitialDirectory(new File(System.getProperty("user.home")));
+	        	filechooser.setInitialDirectory(new File(this.userdir));
 		    	filechooser.setTitle("Save File");
 		    	ExtensionFilter objextensionfilter = new ExtensionFilter("OBJ Model file", "*.obj");
 		    	ExtensionFilter stlextensionfilter = new ExtensionFilter("STL Model file", "*.stl");
@@ -531,6 +531,7 @@ public class CADFXApp extends AppFXHandler {
 	        	filechooser.setSelectedExtensionFilter(objextensionfilter);
 		    	File savefile = filechooser.showSaveDialog(this.scene.getWindow());
 		    	if (savefile!=null) {
+					if (savefile.getParent()!=null) {this.userdir = savefile.getParent();}
 		    		ExtensionFilter loadfileextension = filechooser.getSelectedExtensionFilter();
 		    		if (loadfileextension.equals(objextensionfilter)) {
 		    			UtilLib.saveModelFormat(savefile.getPath(), this.entitylist, new OBJFileFilter(), f2shiftdown);
@@ -544,7 +545,7 @@ public class CADFXApp extends AppFXHandler {
 			    if (f3shiftdown) {
 			    	this.snaplinemode = false;
 		        	FileChooser filechooser = new FileChooser();
-		        	filechooser.setInitialDirectory(new File(System.getProperty("user.home")));
+		        	filechooser.setInitialDirectory(new File(this.userdir));
 			    	filechooser.setTitle("Load Texture");
 			    	ExtensionFilter pngextensionfilter = new ExtensionFilter("PNG Image file", "*.png");
 			    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jepg");
@@ -559,13 +560,14 @@ public class CADFXApp extends AppFXHandler {
 		        	filechooser.setSelectedExtensionFilter(pngextensionfilter);
 			    	File loadfile = filechooser.showOpenDialog(this.scene.getWindow());
 			    	if (loadfile!=null) {
+						if (loadfile.getParent()!=null) {this.userdir = loadfile.getParent();}
 						BufferedImage fileimage = UtilLib.loadImage(loadfile.getPath(), false);
 						this.drawmat = this.drawmat.copy();
 						this.drawmat.fileimage = fileimage;
 					}
 			    } else if (f3ctrldown) {
 		        	FileChooser filechooser = new FileChooser();
-		        	filechooser.setInitialDirectory(new File(System.getProperty("user.home")));
+		        	filechooser.setInitialDirectory(new File(this.userdir));
 			    	filechooser.setTitle("Insert Model");
 			    	ExtensionFilter objextensionfilter = new ExtensionFilter("OBJ Model file", "*.obj");
 			    	ExtensionFilter stlextensionfilter = new ExtensionFilter("STL Model file", "*.stl");
@@ -574,6 +576,7 @@ public class CADFXApp extends AppFXHandler {
 		        	filechooser.setSelectedExtensionFilter(objextensionfilter);
 			    	File loadfile = filechooser.showOpenDialog(this.scene.getWindow());
 			    	if (loadfile!=null) {
+						if (loadfile.getParent()!=null) {this.userdir = loadfile.getParent();}
 			    		ExtensionFilter loadfileextension = filechooser.getSelectedExtensionFilter();
 			    		if (loadfileextension.equals(objextensionfilter)) {
 			    			this.entitybuffer = UtilLib.loadModelFormat(loadfile.getPath(), new OBJFileFilter(), false);
@@ -583,7 +586,7 @@ public class CADFXApp extends AppFXHandler {
 					}
 			    } else {
 		        	FileChooser filechooser = new FileChooser();
-		        	filechooser.setInitialDirectory(new File(System.getProperty("user.home")));
+		        	filechooser.setInitialDirectory(new File(this.userdir));
 			    	filechooser.setTitle("Load Model");
 			    	ExtensionFilter objextensionfilter = new ExtensionFilter("OBJ Model file", "*.obj");
 			    	ExtensionFilter stlextensionfilter = new ExtensionFilter("STL Model file", "*.stl");
@@ -592,6 +595,7 @@ public class CADFXApp extends AppFXHandler {
 		        	filechooser.setSelectedExtensionFilter(objextensionfilter);
 			    	File loadfile = filechooser.showOpenDialog(this.scene.getWindow());
 			    	if (loadfile!=null) {
+						if (loadfile.getParent()!=null) {this.userdir = loadfile.getParent();}
 			    		ExtensionFilter loadfileextension = filechooser.getSelectedExtensionFilter();
 			    		if (loadfileextension.equals(objextensionfilter)) {
 			    			Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new OBJFileFilter(), false);
@@ -609,7 +613,7 @@ public class CADFXApp extends AppFXHandler {
 			    boolean f4shiftdown = ((!keyevent.isControlDown())&&(!keyevent.isAltDown())&&(keyevent.isShiftDown())&&(!keyevent.isMetaDown()));
 			    boolean f4ctrldown = ((keyevent.isControlDown())&&(!keyevent.isAltDown())&&(!keyevent.isShiftDown())&&(!keyevent.isMetaDown()));
 	        	FileChooser filechooser = new FileChooser();
-	        	filechooser.setInitialDirectory(new File(System.getProperty("user.home")));
+	        	filechooser.setInitialDirectory(new File(this.userdir));
 		    	filechooser.setTitle("Render Image");
 		    	ExtensionFilter pngextensionfilter = new ExtensionFilter("PNG Image file", "*.png");
 		    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jepg");
@@ -624,6 +628,7 @@ public class CADFXApp extends AppFXHandler {
 	        	filechooser.setSelectedExtensionFilter(pngextensionfilter);
 		    	File savefile = filechooser.showSaveDialog(this.scene.getWindow());
 		    	if (savefile!=null) {
+					if (savefile.getParent()!=null) {this.userdir = savefile.getParent();}
 		    		ExtensionFilter savefileextension = filechooser.getSelectedExtensionFilter();
 					RenderView renderimageview = null;
 					if (f4ctrldown) {

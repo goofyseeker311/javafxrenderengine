@@ -269,7 +269,7 @@ public class DrawFXApp extends AppFXHandler {
 				//TODO help pop-up window
 			} else if (keyevent.getCode()==KeyCode.F2) {
 	        	FileChooser filechooser = new FileChooser();
-	        	filechooser.setInitialDirectory(new File(System.getProperty("user.home")));
+	        	filechooser.setInitialDirectory(new File(this.userdir));
 		    	filechooser.setTitle("Save File");
 		    	ExtensionFilter pngextensionfilter = new ExtensionFilter("PNG Image file", "*.png");
 		    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jepg");
@@ -284,6 +284,7 @@ public class DrawFXApp extends AppFXHandler {
 	        	filechooser.setSelectedExtensionFilter(pngextensionfilter);
 		    	File savefile = filechooser.showSaveDialog(this.scene.getWindow());
 		    	if (savefile!=null) {
+					if (savefile.getParent()!=null) {this.userdir = savefile.getParent();}
 		    		ExtensionFilter savefileextension = filechooser.getSelectedExtensionFilter();
 		    		if (savefileextension.equals(pngextensionfilter)) {
 						UtilLib.saveImageFormat(savefile.getPath(), this.renderbuffer, new PNGFileFilter());
@@ -299,7 +300,7 @@ public class DrawFXApp extends AppFXHandler {
 				}
 			} else if (keyevent.getCode()==KeyCode.F3) {
 	        	FileChooser filechooser = new FileChooser();
-	        	filechooser.setInitialDirectory(new File(System.getProperty("user.home")));
+	        	filechooser.setInitialDirectory(new File(this.userdir));
 		    	filechooser.setTitle("Load File");
 		    	ExtensionFilter pngextensionfilter = new ExtensionFilter("PNG Image file", "*.png");
 		    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jepg");
@@ -314,6 +315,7 @@ public class DrawFXApp extends AppFXHandler {
 	        	filechooser.setSelectedExtensionFilter(pngextensionfilter);
 		    	File loadfile = filechooser.showOpenDialog(this.scene.getWindow());
 		    	if (loadfile!=null) {
+					if (loadfile.getParent()!=null) {this.userdir = loadfile.getParent();}
 					BufferedImage loadimage = UtilLib.loadImage(loadfile.getPath(), false);
 					if (loadimage!=null) {
 					    boolean f3shiftdown = ((!keyevent.isControlDown())&&(!keyevent.isAltDown())&&(keyevent.isShiftDown())&&(!keyevent.isMetaDown()));

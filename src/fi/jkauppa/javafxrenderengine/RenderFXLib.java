@@ -5,6 +5,8 @@ import fi.jkauppa.javarenderengine.ModelLib.Entity;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -42,20 +44,30 @@ public class RenderFXLib {
 				Color tricolor = new Color(tricolorcomp[0], tricolorcomp[1], tricolorcomp[2], tricolorcomp[3]);
 				trimat.setDiffuseColor(tricolor);
 				if ((tri[0].mat.emissivecolor!=null)||(tri[0].mat.emissivefileimage!=null)) {
-					float multiplier = 10.0f;
 					WritableImage emissivemap = null;
 					if (tri[0].mat.emissivefileimage!=null) {
 						emissivemap = SwingFXUtils.toFXImage(tri[0].mat.emissivefileimage, null);
 					} else {
-						float[] emissivecolorcomp = tri[0].mat.emissivecolor.getRGBComponents(new float[4]);
-						float[] boostedcolor = {multiplier*emissivecolorcomp[0], multiplier*emissivecolorcomp[1], multiplier*emissivecolorcomp[2], multiplier*emissivecolorcomp[3]};
-						if (boostedcolor[0]>1.0f) {boostedcolor[0]=1.0f;}
-						if (boostedcolor[1]>1.0f) {boostedcolor[1]=1.0f;}
-						if (boostedcolor[2]>1.0f) {boostedcolor[2]=1.0f;}
-						if (boostedcolor[3]>1.0f) {boostedcolor[3]=1.0f;}
-						Color emissivecolor = new Color(boostedcolor[0],boostedcolor[1],boostedcolor[2],boostedcolor[3]);
 						emissivemap = new WritableImage(1, 1);
+						float[] emissivecolorcomp = tri[0].mat.emissivecolor.getRGBComponents(new float[4]);
+						Color emissivecolor = new Color(emissivecolorcomp[0],emissivecolorcomp[1],emissivecolorcomp[2],emissivecolorcomp[3]);
 						emissivemap.getPixelWriter().setColor(0, 0, emissivecolor);
+					}
+					PixelReader emissivemapreader = emissivemap.getPixelReader();
+					PixelWriter emissivemapwriter = emissivemap.getPixelWriter();
+					for (int y=0;y<emissivemap.getHeight();y++) {
+						for (int x=0;x<emissivemap.getWidth();x++) {
+							float multiplier = 10.0f;
+							Color readercolor = emissivemapreader.getColor(x, y);
+							double[] emissivecolorcomp = {readercolor.getRed(), readercolor.getGreen(), readercolor.getBlue(), readercolor.getOpacity()};
+							double[] boostedcolor = {multiplier*emissivecolorcomp[0], multiplier*emissivecolorcomp[1], multiplier*emissivecolorcomp[2], multiplier*emissivecolorcomp[3]};
+							if (boostedcolor[0]>1.0f) {boostedcolor[0]=1.0f;}
+							if (boostedcolor[1]>1.0f) {boostedcolor[1]=1.0f;}
+							if (boostedcolor[2]>1.0f) {boostedcolor[2]=1.0f;}
+							if (boostedcolor[3]>1.0f) {boostedcolor[3]=1.0f;}
+							Color emissivecolor = new Color(boostedcolor[0],boostedcolor[1],boostedcolor[2],boostedcolor[3]);
+							emissivemapwriter.setColor(x, y, emissivecolor);
+						}
 					}
 					trimat.setSelfIlluminationMap(emissivemap);
 				}

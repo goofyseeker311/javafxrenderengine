@@ -44,8 +44,6 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 	
     public static void main(String[] args) {
 		System.setProperty("sun.java2d.opengl", "true");
-		String userdir = System.getProperty("user.dir");
-		System.out.println("JavaRenderEngine: main: userdir="+userdir);
 		try {UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());} catch (Exception ex) {}
     	launch(args);
     }
@@ -54,7 +52,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.8");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.9");
     	this.primaryStage.getIcons().add(logowimage);
     	this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     	this.primaryStage.setFullScreenExitHint("");
@@ -74,6 +72,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     	public Group root = null;
     	public Scene scene = null;
     	public Group entities = new Group();
+    	public String userdir = System.getProperty("user.dir");
     	public int renderwidth = 0;
     	public int renderheight = 0;
     	public long lastanimtick = System.currentTimeMillis();

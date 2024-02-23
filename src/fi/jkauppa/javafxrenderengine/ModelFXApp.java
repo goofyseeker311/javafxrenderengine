@@ -168,7 +168,7 @@ public class ModelFXApp extends AppFXHandler {
 				}
 			} else if (keyevent.getCode()==KeyCode.F3) {
 	        	FileChooser filechooser = new FileChooser();
-	        	filechooser.setInitialDirectory(new File(System.getProperty("user.home")));
+	        	filechooser.setInitialDirectory(new File(this.userdir));
 		    	filechooser.setTitle("Load Model");
 		    	ExtensionFilter objextensionfilter = new ExtensionFilter("OBJ Model file", "*.obj");
 		    	ExtensionFilter stlextensionfilter = new ExtensionFilter("STL Model file", "*.stl");
@@ -177,6 +177,7 @@ public class ModelFXApp extends AppFXHandler {
 	        	filechooser.setSelectedExtensionFilter(objextensionfilter);
 		    	File loadfile = filechooser.showOpenDialog(this.scene.getWindow());
 		    	if (loadfile!=null) {
+					if (loadfile.getParent()!=null) {this.userdir = loadfile.getParent();}
 		    		ExtensionFilter loadfileextension = filechooser.getSelectedExtensionFilter();
 		    		if (loadfileextension.equals(objextensionfilter)) {
 		    			Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new OBJFileFilter(), false);

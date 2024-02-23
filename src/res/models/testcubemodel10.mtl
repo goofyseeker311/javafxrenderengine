@@ -1958,7 +1958,7 @@ Ke 0.0 0.0 0.0
 Ni 1.45
 d 1.0
 illum 2
-Pr 1.0
+Pr 0.0
 Pm 0.0
 Ps 0.0
 Pc 0.0
@@ -1971,11 +1971,11 @@ newmtl JREMAT124
 Ns 250.0
 Kd 1.0 1.0 1.0
 Ks 0.5 0.5 0.5
-Ke 1.0 1.0 1.0
+Ke 0.01 0.01 0.01
 Ni 1.45
 d 1.0
 illum 2
-Pr 1.0
+Pr 0.0
 Pm 0.0
 Ps 0.0
 Pc 0.0
@@ -1983,5 +1983,5 @@ Pcr 0.03
 aniso 0.0
 anisor 0.0
 map_Kd texturetest.jpeg
-map_Ke texturetest.jpeg
+map_Ke texturetestemissive.png
 
