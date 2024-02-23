@@ -49,10 +49,12 @@ public class ModelFXApp extends AppFXHandler {
 	private int mouselastlocationx = 0, mouselastlocationy = 0; 
 	private int mouselocationx = 0, mouselocationy = 0;
 	
-	public ModelFXApp() {}
-	
-	@Override public void update(Group root) {
+	public ModelFXApp(Group root) {
+		this.root = root;
 		this.scene = root.getScene();
+	}
+	
+	@Override public void update() {
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
 		PerspectiveCamera camera = new PerspectiveCamera(true);
@@ -70,7 +72,7 @@ public class ModelFXApp extends AppFXHandler {
 		this.scene.setCursor(Cursor.NONE);
 		this.scene.setFill(Paint.valueOf("BLACK"));
 		this.scene.setCamera(camera);
-		root.getChildren().setAll(entities);
+		this.root.getChildren().setAll(entities);
 	}
 
 	@Override public void pulse() {
@@ -166,7 +168,8 @@ public class ModelFXApp extends AppFXHandler {
 				}
 			} else if (keyevent.getCode()==KeyCode.F3) {
 	        	FileChooser filechooser = new FileChooser();
-		    	filechooser.setTitle("Load File");
+	        	filechooser.setInitialDirectory(new File(System.getProperty("user.home")));
+		    	filechooser.setTitle("Load Model");
 		    	ExtensionFilter objextensionfilter = new ExtensionFilter("OBJ Model file", "*.obj");
 		    	ExtensionFilter stlextensionfilter = new ExtensionFilter("STL Model file", "*.stl");
 	        	filechooser.getExtensionFilters().add(objextensionfilter);

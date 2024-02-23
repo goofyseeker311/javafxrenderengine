@@ -41,17 +41,22 @@ public class RenderFXLib {
 				float[] tricolorcomp = tri[0].mat.facecolor.getRGBComponents(new float[4]);
 				Color tricolor = new Color(tricolorcomp[0], tricolorcomp[1], tricolorcomp[2], tricolorcomp[3]);
 				trimat.setDiffuseColor(tricolor);
-				if (tri[0].mat.emissivecolor!=null) {
+				if ((tri[0].mat.emissivecolor!=null)||(tri[0].mat.emissivefileimage!=null)) {
 					float multiplier = 10.0f;
-					float[] emissivecolorcomp = tri[0].mat.emissivecolor.getRGBComponents(new float[4]);
-					float[] boostedcolor = {multiplier*emissivecolorcomp[0], multiplier*emissivecolorcomp[1], multiplier*emissivecolorcomp[2], multiplier*emissivecolorcomp[3]};
-					if (boostedcolor[0]>1.0f) {boostedcolor[0]=1.0f;}
-					if (boostedcolor[1]>1.0f) {boostedcolor[1]=1.0f;}
-					if (boostedcolor[2]>1.0f) {boostedcolor[2]=1.0f;}
-					if (boostedcolor[3]>1.0f) {boostedcolor[3]=1.0f;}
-					Color emissivecolor = new Color(boostedcolor[0],boostedcolor[1],boostedcolor[2],boostedcolor[3]);
-					WritableImage emissivemap = new WritableImage(1, 1);
-					emissivemap.getPixelWriter().setColor(0, 0, emissivecolor);
+					WritableImage emissivemap = null;
+					if (tri[0].mat.emissivefileimage!=null) {
+						emissivemap = SwingFXUtils.toFXImage(tri[0].mat.emissivefileimage, null);
+					} else {
+						float[] emissivecolorcomp = tri[0].mat.emissivecolor.getRGBComponents(new float[4]);
+						float[] boostedcolor = {multiplier*emissivecolorcomp[0], multiplier*emissivecolorcomp[1], multiplier*emissivecolorcomp[2], multiplier*emissivecolorcomp[3]};
+						if (boostedcolor[0]>1.0f) {boostedcolor[0]=1.0f;}
+						if (boostedcolor[1]>1.0f) {boostedcolor[1]=1.0f;}
+						if (boostedcolor[2]>1.0f) {boostedcolor[2]=1.0f;}
+						if (boostedcolor[3]>1.0f) {boostedcolor[3]=1.0f;}
+						Color emissivecolor = new Color(boostedcolor[0],boostedcolor[1],boostedcolor[2],boostedcolor[3]);
+						emissivemap = new WritableImage(1, 1);
+						emissivemap.getPixelWriter().setColor(0, 0, emissivecolor);
+					}
 					trimat.setSelfIlluminationMap(emissivemap);
 				}
 				if (tri[0].mat.fileimage!=null) {

@@ -30,7 +30,7 @@ import fi.jkauppa.javarenderengine.ModelLib.Ray;
 import fi.jkauppa.javarenderengine.ModelLib.RenderView;
 import fi.jkauppa.javarenderengine.ModelLib.Sphere;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
-import fi.jkauppa.javarenderengine.ModelLib.Sphere.SphereDistanceComparator;
+import fi.jkauppa.javarenderengine.ModelLib.SphereComparator;
 
 public class RenderLib {
 	private static GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -173,7 +173,7 @@ public class RenderLib {
 		ArrayList<Triangle> mouseoverhittriangle = new ArrayList<Triangle>();
 		if ((entitylist!=null)&&(entitylist.length>0)) {
 			Sphere[] entityspherelist = MathLib.entitySphereList(entitylist);
-			SphereDistanceComparator distcomp = new SphereDistanceComparator(renderview.pos);
+			SphereComparator distcomp = new SphereComparator(renderview.pos);
 			Integer[] sortedentityspherelistind = UtilLib.objectIndexSort(entityspherelist, distcomp);
 			Rectangle[] entityspherelistint = MathLib.projectedSphereIntersection(renderview.pos, entityspherelist, renderwidth, renderheight, renderview.hfov, renderview.vfov, viewrot, nclipplane);
 			for (int k=sortedentityspherelistind.length-1;k>=0;k--) {
@@ -217,7 +217,7 @@ public class RenderLib {
 										mouseoverhittriangle.add(copytrianglelist[it]);
 										mouseoverhitentity.add(entitylist[et]);
 									}
-									Color trianglecolor = trianglePixelShader(renderview.pos, copytriangle[0], copytrianglenormal[0], null, copytriangledir, unlit);
+									Color trianglecolor = trianglePixelShader(copytriangle[0], copytrianglenormal[0], null, copytriangledir, unlit);
 									if (trianglecolor!=null) {
 										if ((bounces<=0)||(copytriangle[0].norm.isZero())) {
 											g2.setComposite(AlphaComposite.SrcOver);
@@ -315,7 +315,7 @@ public class RenderLib {
 			double origindeltay = ((double)(renderheight-1))/2.0f;
 			double halfvres = ((double)(renderheight-1))/2.0f;
 			Sphere[] entityspherelist = MathLib.entitySphereList(entitylist);
-			SphereDistanceComparator distcomp = new SphereDistanceComparator(renderview.pos);
+			SphereComparator distcomp = new SphereComparator(renderview.pos);
 			Integer[] sortedentityspherelistind = UtilLib.objectIndexSort(entityspherelist, distcomp);
 			Rectangle[] entityspherelistint = null;
 			if (spherical)  {
@@ -460,7 +460,7 @@ public class RenderLib {
 															mouseoverhittriangle.add(copytriangle[0]);
 															mouseoverhitentity.add(copyentity[0]);
 														}
-														Color trianglecolor = trianglePixelShader(renderview.pos, copytriangle[0], copytrianglenormal[0], lineuv, camray[0], unlit);
+														Color trianglecolor = trianglePixelShader(copytriangle[0], copytrianglenormal[0], lineuv, camray[0], unlit);
 														if (trianglecolor!=null) {
 															if ((bounces<=0)||(copytriangle[0].norm.isZero())) {
 																g2.setComposite(AlphaComposite.SrcOver);
@@ -568,7 +568,7 @@ public class RenderLib {
 		if ((entitylist!=null)&&(entitylist.length>0)) {
 			Plane[] camfwdplanes = MathLib.planeFromNormalAtPoint(renderview.pos, renderview.fwddirs);
 			Sphere[] entityspherelist = MathLib.entitySphereList(entitylist);
-			SphereDistanceComparator distcomp = new SphereDistanceComparator(renderview.pos);
+			SphereComparator distcomp = new SphereComparator(renderview.pos);
 			Integer[] sortedentityspherelistind = UtilLib.objectIndexSort(entityspherelist, distcomp);
 			Rectangle[] entityspherelistint = null;
 			if (spherical) {
@@ -641,7 +641,7 @@ public class RenderLib {
 														mouseoverhittriangle.add(copytriangle[0]);
 														mouseoverhitentity.add(copyentity[0]);
 													}
-													Color trianglecolor = trianglePixelShader(renderview.pos, copytriangle[0], copytrianglenormal[0], pointuv, camray[0], unlit);
+													Color trianglecolor = trianglePixelShader(copytriangle[0], copytrianglenormal[0], pointuv, camray[0], unlit);
 													if (trianglecolor!=null) {
 														if ((bounces<=0)||(copytriangle[0].norm.isZero())) {
 															g2.setComposite(AlphaComposite.SrcOver);
@@ -938,7 +938,7 @@ public class RenderLib {
 																		Position[] lineuvpos = MathLib.translate(lineuvpoint1, vpixelpointdir12uv[0], vpixelpointlenfrac);
 																		lineuv = new Coordinate(lineuvpos[0].x, lineuvpos[0].y);
 																	}
-																	Color trianglecolor = trianglePixelShader(raypos[0], copytriangle[0], copytrianglenormal[0], lineuv, camray[0], unlit);
+																	Color trianglecolor = trianglePixelShader(copytriangle[0], copytrianglenormal[0], lineuv, camray[0], unlit);
 																	if (trianglecolor!=null) {
 																		if ((bounces<=0)||(copytriangle[0].norm.isZero())) {
 																			g2.setComposite(AlphaComposite.SrcOver);
@@ -1050,7 +1050,7 @@ public class RenderLib {
 												if (tex!=null) {
 													pointuv = new Coordinate(tex.u,1.0f-tex.v);
 												}
-												Color trianglecolor = trianglePixelShader(raypos[0], copytriangle[0], copytrianglenormal[0], pointuv, raydir[0], unlit);
+												Color trianglecolor = trianglePixelShader(copytriangle[0], copytrianglenormal[0], pointuv, raydir[0], unlit);
 												if (trianglecolor!=null) {
 													if ((bounces<=0)||(copytriangle[0].norm.isZero())) {
 														rendercolor[k] = MathLib.sourceOverBlend(rendercolor[k], trianglecolor, 1.0f);
@@ -1107,9 +1107,8 @@ public class RenderLib {
 		return rendercolor;
 	}
 	
-	public static Color trianglePixelShader(Position campos, Triangle triangle, Direction trianglenormal, Coordinate texuv, Direction camray, boolean unlit) {
+	public static Color trianglePixelShader(Triangle triangle, Direction trianglenormal, Coordinate texuv, Direction camray, boolean unlit) {
 		Triangle[] copytriangle = {triangle};
-		Direction[] copytrianglenormal = {trianglenormal};
 		Material copymaterial = copytriangle[0].mat;
 		float roughnessmult = 1.0f-copymaterial.roughness;
 		Color trianglecolor = copymaterial.facecolor;
@@ -1122,7 +1121,9 @@ public class RenderLib {
 		BufferedImage triangletexture = copymaterial.fileimage;
 		Color emissivecolor = copymaterial.emissivecolor;
 		float[] emissivecolorcomp = null;
-		if (emissivecolor!=null) {emissivecolorcomp = emissivecolor.getRGBComponents(new float[4]);}
+		if (emissivecolor!=null) {
+			emissivecolorcomp = emissivecolor.getRGBComponents(new float[4]);
+		}
 		BufferedImage emissivetexture = copymaterial.emissivefileimage;
 		Color lightmapcolor = copymaterial.ambientcolor;
 		float[] lightmapcolorcomp =  null;
@@ -1130,17 +1131,21 @@ public class RenderLib {
 			lightmapcolorcomp = lightmapcolor.getRGBComponents(new float[4]);
 		}
 		BufferedImage lightmaptexture = copymaterial.ambientfileimage;
-		double[] triangleviewangle = MathLib.vectorAngle(camray, copytrianglenormal);
-		if ((copytriangle[0].norm.isZero())&&(triangleviewangle[0]<90.0f)) {
-			triangleviewangle[0] = 180.0f - triangleviewangle[0];
-		}
-		triangleviewangle[0] -= 90.0f;
+		float shadingmultiplier = 1.0f;
 		boolean frontsidevisible = true;
-		if (triangleviewangle[0]<0.0f) {triangleviewangle[0]=0.0f;frontsidevisible=false;}
-		float shadingmultiplier = ((float)triangleviewangle[0])/90.0f;
+		if ((trianglenormal!=null)&&(camray!=null)) {
+			Direction[] copytrianglenormal = {trianglenormal};
+			double[] triangleviewangle = MathLib.vectorAngle(camray, copytrianglenormal);
+			if ((copytriangle[0].norm.isZero())&&(triangleviewangle[0]<90.0f)) {
+				triangleviewangle[0] = 180.0f - triangleviewangle[0];
+			}
+			triangleviewangle[0] -= 90.0f;
+			if (triangleviewangle[0]<0.0f) {triangleviewangle[0]=0.0f;frontsidevisible=false;}
+			shadingmultiplier = ((float)triangleviewangle[0])/90.0f;
+		}
 		if (texuv!=null) {
 			Coordinate[] texuva = {texuv};
-			Coordinate[] texuvzero = MathLib.mod(texuva);
+			Coordinate[] texuvzero = MathLib.mod(texuva, 1.0f);
 			Coordinate texuvz = texuvzero[0];
 			if (lightmaptexture!=null) {
 				int lineuvx = (int)Math.round(texuvz.u*(lightmaptexture.getWidth()-1));

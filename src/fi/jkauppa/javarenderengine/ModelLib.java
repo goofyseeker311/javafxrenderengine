@@ -1,6 +1,7 @@
 package fi.jkauppa.javarenderengine;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,9 +12,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.imageio.ImageIO;
+import fi.jkauppa.javarenderengine.UtilLib.ImageFileFilters.PNGFileFilter;
 
 public class ModelLib {
 	public static class Material implements Comparable<Material> {
@@ -50,27 +52,18 @@ public class ModelLib {
 		public Material(Color facecolori, float transparencyi, BufferedImage fileimagei) {this.facecolor=facecolori;this.transparency=transparencyi;this.fileimage=fileimagei;}
 		@Override public int compareTo(Material o) {
 			int k=-1;
-			if(this.facecolor.getRed()>o.facecolor.getRed()) {
-				k=1;
-			} else if(this.facecolor.getRed()==o.facecolor.getRed()) {
-				if (this.facecolor.getGreen()>o.facecolor.getGreen()) {
-					k=1;
-				} else if (this.facecolor.getGreen()==o.facecolor.getGreen()) {
-					if (this.facecolor.getBlue()>o.facecolor.getBlue()) {
-						k=1;
-					} else if (this.facecolor.getBlue()==o.facecolor.getBlue()) {
-						if(this.facecolor.getAlpha()>o.facecolor.getAlpha()) {
-							k=1;
-						} else if (this.facecolor.getAlpha()==o.facecolor.getAlpha()) {
-							if (this.fileimage==o.fileimage) {
-								k=0;
-							} else if ((this.fileimage!=null)&&(o.fileimage!=null)) {
-								k=this.fileimage.toString().compareTo(o.fileimage.toString());
-							} else if (this.fileimage!=null) {
-								k=1;
-							}
-						}}}}
-			return k;}
+			ColorComparator colorcomp = new ColorComparator();
+			ImageComparator imagecomp = new ImageComparator();
+			k = colorcomp.compare(this.facecolor, o.facecolor);
+			if (k==0) { k = imagecomp.compare(this.fileimage, o.fileimage); }
+			if (k==0) { k = colorcomp.compare(this.ambientcolor, o.ambientcolor); }
+			if (k==0) { k = imagecomp.compare(this.ambientfileimage, o.ambientfileimage); }
+			if (k==0) { k = colorcomp.compare(this.emissivecolor, o.emissivecolor); }
+			if (k==0) { k = imagecomp.compare(this.emissivefileimage, o.emissivefileimage); }
+			if (k==0) { k = colorcomp.compare(this.specularcolor, o.specularcolor); }
+			if (k==0) { k = imagecomp.compare(this.specularfileimage, o.specularfileimage); }
+			return k;
+		}
 		@Override public boolean equals(Object o) {
 			boolean k=false;
 			if ((o!=null)&&(o.getClass().equals(this.getClass()))){
@@ -116,6 +109,68 @@ public class ModelLib {
 		}
 	}
 
+	public static class ColorComparator implements Comparator<Color> {
+		@Override public int compare(Color o1, Color o2) {
+			int k = -1;
+			if (o1==o2) {
+				k=0;
+			} else if((o1!=null)&&(o2!=null)) {
+				float[] o1ccomp = o1.getRGBComponents(new float[4]);
+				float[] o2ccomp = o2.getRGBComponents(new float[4]);
+				if (o1ccomp[0]>o2ccomp[0]) {
+					k=1;
+				} else if (o1ccomp[0]==o2ccomp[0]) {
+					if (o1ccomp[1]>o2ccomp[1]){
+						k=1;
+					} else if (o1ccomp[1]==o2ccomp[1]) {
+						if (o1ccomp[2]>o2ccomp[2]) {
+							k=1;
+						} else if(o1ccomp[2]==o2ccomp[2]) {
+							if (o1ccomp[3]>o2ccomp[3]) {
+								k=1;
+							} else if (o1ccomp[3]==o2ccomp[3]) {
+								k = 0;
+							}
+						}
+					}
+				}
+			} else if (o1!=null) {
+				k=1;
+			}
+			return k;
+		}
+	}
+	public static class ImageComparator implements Comparator<Image> {
+		@Override public int compare(Image o1, Image o2) {
+			int k = -1;
+			if (o1==o2) {
+				k=0;
+			} else if((o1!=null)&&(o2!=null)) {
+				k=o1.toString().compareTo(o2.toString());
+			} else if (o1!=null) {
+				k=1;
+			}
+			return k;
+		}
+	}
+	public static class SphereComparator implements Comparator<Sphere> {
+		public Position origin;
+		public SphereComparator(Position origini) {this.origin = origini;}
+		@Override public int compare(Sphere o1, Sphere o2) {
+			int k = -1;
+			Sphere[] spheres = {o1,o2};
+			Direction[] spheredir = MathLib.vectorFromPoints(this.origin, spheres);
+			double[] spheredist = MathLib.vectorLength(spheredir);				
+			if (spheredist[0]>spheredist[1]) {
+				k = 1;
+			} else if (spheredist[0]==spheredist[1]) {
+				k = 0;
+			}
+			return k;
+		}
+		
+	}
+	
 	public static class RenderView {
 		public BufferedImage renderimage = null;
 		public Cubemap cubemap = null;
@@ -308,23 +363,6 @@ public class ModelLib {
 				}
 			}
 			return k;
-		}
-		public static class SphereDistanceComparator implements Comparator<Sphere> {
-			public Position origin;
-			public SphereDistanceComparator(Position origini) {this.origin = origini;}
-			@Override public int compare(Sphere o1, Sphere o2) {
-				int k = -1;
-				Sphere[] spheres = {o1,o2};
-				Direction[] spheredir = MathLib.vectorFromPoints(this.origin, spheres);
-				double[] spheredist = MathLib.vectorLength(spheredir);				
-				if (spheredist[0]>spheredist[1]) {
-					k = 1;
-				} else if (spheredist[0]==spheredist[1]) {
-					k = 0;
-				}
-				return k;
-			}
-			
 		}
 		public Sphere copy(){Sphere k = new Sphere(this.x,this.y,this.z,this.r); return k;}
 		public void setValue(Sphere value) {this.x=value.x;this.y=value.y;this.z=value.z;this.r=value.r;}
@@ -723,6 +761,7 @@ public class ModelLib {
 		if ((filename!=null)&&(model!=null)) {
 			try {
 				File savemtlfile = new File(filename);
+				TreeMap<Material,String> modelmaterialimages = new TreeMap<Material,String>();
 				BufferedWriter modelobjfile = new BufferedWriter(new FileWriter(savemtlfile, false));
 				for (int i=0;i<model.materials.length;i++) {
 					modelobjfile.write("newmtl "+model.materials[i].materialname);
@@ -771,98 +810,182 @@ public class ModelLib {
 					modelobjfile.newLine();
 					if (model.materials[i].fileimage!=null) {
 						String savefilename = model.materials[i].filename;
+						String parentdirectory = savemtlfile.getParent();
+						Material savefileimagematerial = new Material(Color.WHITE,1.0f,model.materials[i].fileimage);
+						if (modelmaterialimages.containsKey(savefileimagematerial)) {
+							savefilename = modelmaterialimages.get(savefileimagematerial);
+						} else {
+							String imagefilename = new File(parentdirectory, savefilename).getPath();
+							UtilLib.saveImageFormat(imagefilename, savefileimagematerial.fileimage, new PNGFileFilter());
+							modelmaterialimages.put(savefileimagematerial, savefilename);
+						}
 						modelobjfile.write("map_Kd "+savefilename);
 						modelobjfile.newLine();
-						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].fileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].ambientfileimage!=null) {
 						String savefilename = model.materials[i].filename;
 						savefilename = savefilename.substring(0, savefilename.length()-4)+"_ambient.png";
+						String parentdirectory = savemtlfile.getParent();
+						Material savefileimagematerial = new Material(Color.WHITE,1.0f,model.materials[i].ambientfileimage);
+						if (modelmaterialimages.containsKey(savefileimagematerial)) {
+							savefilename = modelmaterialimages.get(savefileimagematerial);
+						} else {
+							String imagefilename = new File(parentdirectory, savefilename).getPath();
+							UtilLib.saveImageFormat(imagefilename, savefileimagematerial.fileimage, new PNGFileFilter());
+							modelmaterialimages.put(savefileimagematerial, savefilename);
+						}
 						modelobjfile.write("map_Ka "+savefilename);
 						modelobjfile.newLine();
-						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].ambientfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].specularfileimage!=null) {
 						String savefilename = model.materials[i].filename;
-						savefilename = savefilename.substring(0, savefilename.length()-4)+"_spec.png";
+						savefilename = savefilename.substring(0, savefilename.length()-4)+"_specular.png";
+						String parentdirectory = savemtlfile.getParent();
+						Material savefileimagematerial = new Material(Color.WHITE,1.0f,model.materials[i].specularfileimage);
+						if (modelmaterialimages.containsKey(savefileimagematerial)) {
+							savefilename = modelmaterialimages.get(savefileimagematerial);
+						} else {
+							String imagefilename = new File(parentdirectory, savefilename).getPath();
+							UtilLib.saveImageFormat(imagefilename, savefileimagematerial.fileimage, new PNGFileFilter());
+							modelmaterialimages.put(savefileimagematerial, savefilename);
+						}
 						modelobjfile.write("map_Ks "+savefilename);
 						modelobjfile.newLine();
-						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].specularfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].specularhighfileimage!=null) {
 						String savefilename = model.materials[i].filename;
 						savefilename = savefilename.substring(0, savefilename.length()-4)+"_spechigh.png";
+						String parentdirectory = savemtlfile.getParent();
+						Material savefileimagematerial = new Material(Color.WHITE,1.0f,model.materials[i].specularhighfileimage);
+						if (modelmaterialimages.containsKey(savefileimagematerial)) {
+							savefilename = modelmaterialimages.get(savefileimagematerial);
+						} else {
+							String imagefilename = new File(parentdirectory, savefilename).getPath();
+							UtilLib.saveImageFormat(imagefilename, savefileimagematerial.fileimage, new PNGFileFilter());
+							modelmaterialimages.put(savefileimagematerial, savefilename);
+						}
 						modelobjfile.write("map_Ns "+savefilename);
 						modelobjfile.newLine();
-						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].specularhighfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].emissivefileimage!=null) {
 						String savefilename = model.materials[i].filename;
 						savefilename = savefilename.substring(0, savefilename.length()-4)+"_emissive.png";
+						String parentdirectory = savemtlfile.getParent();
+						Material savefileimagematerial = new Material(Color.WHITE,1.0f,model.materials[i].emissivefileimage);
+						if (modelmaterialimages.containsKey(savefileimagematerial)) {
+							savefilename = modelmaterialimages.get(savefileimagematerial);
+						} else {
+							String imagefilename = new File(parentdirectory, savefilename).getPath();
+							UtilLib.saveImageFormat(imagefilename, savefileimagematerial.fileimage, new PNGFileFilter());
+							modelmaterialimages.put(savefileimagematerial, savefilename);
+						}
 						modelobjfile.write("map_Ke "+savefilename);
 						modelobjfile.newLine();
-						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].emissivefileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].roughnessfileimage!=null) {
 						String savefilename = model.materials[i].filename;
 						savefilename = savefilename.substring(0, savefilename.length()-4)+"_roughness.png";
+						String parentdirectory = savemtlfile.getParent();
+						Material savefileimagematerial = new Material(Color.WHITE,1.0f,model.materials[i].roughnessfileimage);
+						if (modelmaterialimages.containsKey(savefileimagematerial)) {
+							savefilename = modelmaterialimages.get(savefileimagematerial);
+						} else {
+							String imagefilename = new File(parentdirectory, savefilename).getPath();
+							UtilLib.saveImageFormat(imagefilename, savefileimagematerial.fileimage, new PNGFileFilter());
+							modelmaterialimages.put(savefileimagematerial, savefilename);
+						}
 						modelobjfile.write("map_Pr "+savefilename);
 						modelobjfile.newLine();
-						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].roughnessfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].metallicfileimage!=null) {
 						String savefilename = model.materials[i].filename;
 						savefilename = savefilename.substring(0, savefilename.length()-4)+"_metallic.png";
+						String parentdirectory = savemtlfile.getParent();
+						Material savefileimagematerial = new Material(Color.WHITE,1.0f,model.materials[i].metallicfileimage);
+						if (modelmaterialimages.containsKey(savefileimagematerial)) {
+							savefilename = modelmaterialimages.get(savefileimagematerial);
+						} else {
+							String imagefilename = new File(parentdirectory, savefilename).getPath();
+							UtilLib.saveImageFormat(imagefilename, savefileimagematerial.fileimage, new PNGFileFilter());
+							modelmaterialimages.put(savefileimagematerial, savefilename);
+						}
 						modelobjfile.write("map_Pm "+savefilename);
 						modelobjfile.newLine();
-						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].metallicfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].sheenfileimage!=null) {
 						String savefilename = model.materials[i].filename;
 						savefilename = savefilename.substring(0, savefilename.length()-4)+"_sheen.png";
+						String parentdirectory = savemtlfile.getParent();
+						Material savefileimagematerial = new Material(Color.WHITE,1.0f,model.materials[i].sheenfileimage);
+						if (modelmaterialimages.containsKey(savefileimagematerial)) {
+							savefilename = modelmaterialimages.get(savefileimagematerial);
+						} else {
+							String imagefilename = new File(parentdirectory, savefilename).getPath();
+							UtilLib.saveImageFormat(imagefilename, savefileimagematerial.fileimage, new PNGFileFilter());
+							modelmaterialimages.put(savefileimagematerial, savefilename);
+						}
 						modelobjfile.write("map_Ps "+savefilename);
 						modelobjfile.newLine();
-						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].sheenfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].alphafileimage!=null) {
 						String savefilename = model.materials[i].filename;
 						savefilename = savefilename.substring(0, savefilename.length()-4)+"_alpha.png";
+						String parentdirectory = savemtlfile.getParent();
+						Material savefileimagematerial = new Material(Color.WHITE,1.0f,model.materials[i].alphafileimage);
+						if (modelmaterialimages.containsKey(savefileimagematerial)) {
+							savefilename = modelmaterialimages.get(savefileimagematerial);
+						} else {
+							String imagefilename = new File(parentdirectory, savefilename).getPath();
+							UtilLib.saveImageFormat(imagefilename, savefileimagematerial.fileimage, new PNGFileFilter());
+							modelmaterialimages.put(savefileimagematerial, savefilename);
+						}
 						modelobjfile.write("map_d "+savefilename);
 						modelobjfile.newLine();
-						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].alphafileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].bumpfileimage!=null) {
 						String savefilename = model.materials[i].filename;
 						savefilename = savefilename.substring(0, savefilename.length()-4)+"_bump.png";
+						String parentdirectory = savemtlfile.getParent();
+						Material savefileimagematerial = new Material(Color.WHITE,1.0f,model.materials[i].bumpfileimage);
+						if (modelmaterialimages.containsKey(savefileimagematerial)) {
+							savefilename = modelmaterialimages.get(savefileimagematerial);
+						} else {
+							String imagefilename = new File(parentdirectory, savefilename).getPath();
+							UtilLib.saveImageFormat(imagefilename, savefileimagematerial.fileimage, new PNGFileFilter());
+							modelmaterialimages.put(savefileimagematerial, savefilename);
+						}
 						modelobjfile.write("bump "+savefilename);
 						modelobjfile.newLine();
-						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].bumpfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].dispfileimage!=null) {
 						String savefilename = model.materials[i].filename;
 						savefilename = savefilename.substring(0, savefilename.length()-4)+"_disp.png";
+						String parentdirectory = savemtlfile.getParent();
+						Material savefileimagematerial = new Material(Color.WHITE,1.0f,model.materials[i].dispfileimage);
+						if (modelmaterialimages.containsKey(savefileimagematerial)) {
+							savefilename = modelmaterialimages.get(savefileimagematerial);
+						} else {
+							String imagefilename = new File(parentdirectory, savefilename).getPath();
+							UtilLib.saveImageFormat(imagefilename, savefileimagematerial.fileimage, new PNGFileFilter());
+							modelmaterialimages.put(savefileimagematerial, savefilename);
+						}
 						modelobjfile.write("disp "+savefilename);
 						modelobjfile.newLine();
-						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].dispfileimage, "PNG", imagefile);
 					}
 					if (model.materials[i].decalfileimage!=null) {
 						String savefilename = model.materials[i].filename;
 						savefilename = savefilename.substring(0, savefilename.length()-4)+"_decal.png";
+						String parentdirectory = savemtlfile.getParent();
+						Material savefileimagematerial = new Material(Color.WHITE,1.0f,model.materials[i].decalfileimage);
+						if (modelmaterialimages.containsKey(savefileimagematerial)) {
+							savefilename = modelmaterialimages.get(savefileimagematerial);
+						} else {
+							String imagefilename = new File(parentdirectory, savefilename).getPath();
+							UtilLib.saveImageFormat(imagefilename, savefileimagematerial.fileimage, new PNGFileFilter());
+							modelmaterialimages.put(savefileimagematerial, savefilename);
+						}
 						modelobjfile.write("decal "+savefilename);
 						modelobjfile.newLine();
-						File imagefile = new File(savemtlfile.getParent(), savefilename);
-						ImageIO.write(model.materials[i].decalfileimage, "PNG", imagefile);
 					}
 					modelobjfile.newLine();
 				}
@@ -977,6 +1100,7 @@ public class ModelLib {
 			BufferedReader modelmtlfile = null;
 			try {
 				File loadmtlfile = new File(filename);
+				TreeMap<String,Material> modelmaterialimages = new TreeMap<String,Material>();
 				if (loadresourcefromjar) {
 					modelmtlfile = new BufferedReader(new InputStreamReader(ClassLoader.getSystemClassLoader().getResourceAsStream(loadmtlfile.getPath().replace(File.separatorChar, '/'))));
 				}else {
@@ -996,62 +1120,146 @@ public class ModelLib {
 					    	String farg = fline.substring(7).trim();
 					    	File loadimgfile = new File(loadmtlfile.getParent(),farg);
 					    	modelmaterials.get(modelmaterials.size()-1).filename = farg;
-					    	modelmaterials.get(modelmaterials.size()-1).fileimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    	BufferedImage loadimage = null;
+					    	if (modelmaterialimages.containsKey(loadimgfile.getPath())) {
+					    		loadimage = modelmaterialimages.get(loadimgfile.getPath()).fileimage;
+					    	} else {
+					    		loadimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    		modelmaterialimages.put(loadimgfile.getPath(),new Material(Color.WHITE,1.0f,loadimage));
+					    	}
+				    		modelmaterials.get(modelmaterials.size()-1).fileimage = loadimage;
 					    }else if (fline.toLowerCase().startsWith("map_ka ")) {
 					    	String farg = fline.substring(7).trim();
 					    	File loadimgfile = new File(loadmtlfile.getParent(),farg);
 					    	modelmaterials.get(modelmaterials.size()-1).filename = farg;
-					    	modelmaterials.get(modelmaterials.size()-1).ambientfileimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    	BufferedImage loadimage = null;
+					    	if (modelmaterialimages.containsKey(loadimgfile.getPath())) {
+					    		loadimage = modelmaterialimages.get(loadimgfile.getPath()).fileimage;
+					    	} else {
+					    		loadimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    		modelmaterialimages.put(loadimgfile.getPath(),new Material(Color.WHITE,1.0f,loadimage));
+					    	}
+					    	modelmaterials.get(modelmaterials.size()-1).ambientfileimage = loadimage;
 					    }else if (fline.toLowerCase().startsWith("map_ks ")) {
 					    	String farg = fline.substring(7).trim();
 					    	File loadimgfile = new File(loadmtlfile.getParent(),farg);
 					    	modelmaterials.get(modelmaterials.size()-1).filename = farg;
-					    	modelmaterials.get(modelmaterials.size()-1).specularfileimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    	BufferedImage loadimage = null;
+					    	if (modelmaterialimages.containsKey(loadimgfile.getPath())) {
+					    		loadimage = modelmaterialimages.get(loadimgfile.getPath()).fileimage;
+					    	} else {
+					    		loadimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    		modelmaterialimages.put(loadimgfile.getPath(),new Material(Color.WHITE,1.0f,loadimage));
+					    	}
+					    	modelmaterials.get(modelmaterials.size()-1).specularfileimage = loadimage;
 					    }else if (fline.toLowerCase().startsWith("map_ke ")) {
 					    	String farg = fline.substring(7).trim();
 					    	File loadimgfile = new File(loadmtlfile.getParent(),farg);
 					    	modelmaterials.get(modelmaterials.size()-1).filename = farg;
-					    	modelmaterials.get(modelmaterials.size()-1).emissivefileimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    	BufferedImage loadimage = null;
+					    	if (modelmaterialimages.containsKey(loadimgfile.getPath())) {
+					    		loadimage = modelmaterialimages.get(loadimgfile.getPath()).fileimage;
+					    	} else {
+					    		loadimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    		modelmaterialimages.put(loadimgfile.getPath(),new Material(Color.WHITE,1.0f,loadimage));
+					    	}
+					    	modelmaterials.get(modelmaterials.size()-1).emissivefileimage = loadimage;
 					    }else if (fline.toLowerCase().startsWith("map_pr ")) {
 					    	String farg = fline.substring(7).trim();
 					    	File loadimgfile = new File(loadmtlfile.getParent(),farg);
 					    	modelmaterials.get(modelmaterials.size()-1).filename = farg;
-					    	modelmaterials.get(modelmaterials.size()-1).roughnessfileimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    	BufferedImage loadimage = null;
+					    	if (modelmaterialimages.containsKey(loadimgfile.getPath())) {
+					    		loadimage = modelmaterialimages.get(loadimgfile.getPath()).fileimage;
+					    	} else {
+					    		loadimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    		modelmaterialimages.put(loadimgfile.getPath(),new Material(Color.WHITE,1.0f,loadimage));
+					    	}
+					    	modelmaterials.get(modelmaterials.size()-1).roughnessfileimage = loadimage;
 					    }else if (fline.toLowerCase().startsWith("map_pm ")) {
 					    	String farg = fline.substring(7).trim();
 					    	File loadimgfile = new File(loadmtlfile.getParent(),farg);
 					    	modelmaterials.get(modelmaterials.size()-1).filename = farg;
-					    	modelmaterials.get(modelmaterials.size()-1).metallicfileimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    	BufferedImage loadimage = null;
+					    	if (modelmaterialimages.containsKey(loadimgfile.getPath())) {
+					    		loadimage = modelmaterialimages.get(loadimgfile.getPath()).fileimage;
+					    	} else {
+					    		loadimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    		modelmaterialimages.put(loadimgfile.getPath(),new Material(Color.WHITE,1.0f,loadimage));
+					    	}
+					    	modelmaterials.get(modelmaterials.size()-1).metallicfileimage = loadimage;
 					    }else if (fline.toLowerCase().startsWith("map_ps ")) {
 					    	String farg = fline.substring(7).trim();
 					    	File loadimgfile = new File(loadmtlfile.getParent(),farg);
 					    	modelmaterials.get(modelmaterials.size()-1).filename = farg;
-					    	modelmaterials.get(modelmaterials.size()-1).sheenfileimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    	BufferedImage loadimage = null;
+					    	if (modelmaterialimages.containsKey(loadimgfile.getPath())) {
+					    		loadimage = modelmaterialimages.get(loadimgfile.getPath()).fileimage;
+					    	} else {
+					    		loadimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    		modelmaterialimages.put(loadimgfile.getPath(),new Material(Color.WHITE,1.0f,loadimage));
+					    	}
+					    	modelmaterials.get(modelmaterials.size()-1).sheenfileimage = loadimage;
 					    }else if (fline.toLowerCase().startsWith("map_ns ")) {
 					    	String farg = fline.substring(7).trim();
 					    	File loadimgfile = new File(loadmtlfile.getParent(),farg);
 					    	modelmaterials.get(modelmaterials.size()-1).filename = farg;
-					    	modelmaterials.get(modelmaterials.size()-1).specularhighfileimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    	BufferedImage loadimage = null;
+					    	if (modelmaterialimages.containsKey(loadimgfile.getPath())) {
+					    		loadimage = modelmaterialimages.get(loadimgfile.getPath()).fileimage;
+					    	} else {
+					    		loadimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    		modelmaterialimages.put(loadimgfile.getPath(),new Material(Color.WHITE,1.0f,loadimage));
+					    	}
+					    	modelmaterials.get(modelmaterials.size()-1).specularhighfileimage = loadimage;
 					    }else if (fline.toLowerCase().startsWith("map_d ")) {
 					    	String farg = fline.substring(6).trim();
 					    	File loadimgfile = new File(loadmtlfile.getParent(),farg);
 					    	modelmaterials.get(modelmaterials.size()-1).filename = farg;
-					    	modelmaterials.get(modelmaterials.size()-1).alphafileimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    	BufferedImage loadimage = null;
+					    	if (modelmaterialimages.containsKey(loadimgfile.getPath())) {
+					    		loadimage = modelmaterialimages.get(loadimgfile.getPath()).fileimage;
+					    	} else {
+					    		loadimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    		modelmaterialimages.put(loadimgfile.getPath(),new Material(Color.WHITE,1.0f,loadimage));
+					    	}
+					    	modelmaterials.get(modelmaterials.size()-1).alphafileimage = loadimage;
 					    }else if (fline.toLowerCase().startsWith("bump ")) {
 					    	String farg = fline.substring(5).trim();
 					    	File loadimgfile = new File(loadmtlfile.getParent(),farg);
 					    	modelmaterials.get(modelmaterials.size()-1).filename = farg;
-					    	modelmaterials.get(modelmaterials.size()-1).bumpfileimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    	BufferedImage loadimage = null;
+					    	if (modelmaterialimages.containsKey(loadimgfile.getPath())) {
+					    		loadimage = modelmaterialimages.get(loadimgfile.getPath()).fileimage;
+					    	} else {
+					    		loadimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    		modelmaterialimages.put(loadimgfile.getPath(),new Material(Color.WHITE,1.0f,loadimage));
+					    	}
+					    	modelmaterials.get(modelmaterials.size()-1).bumpfileimage = loadimage;
 					    }else if (fline.toLowerCase().startsWith("disp ")) {
 					    	String farg = fline.substring(5).trim();
 					    	File loadimgfile = new File(loadmtlfile.getParent(),farg);
 					    	modelmaterials.get(modelmaterials.size()-1).filename = farg;
-					    	modelmaterials.get(modelmaterials.size()-1).dispfileimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    	BufferedImage loadimage = null;
+					    	if (modelmaterialimages.containsKey(loadimgfile.getPath())) {
+					    		loadimage = modelmaterialimages.get(loadimgfile.getPath()).fileimage;
+					    	} else {
+					    		loadimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    		modelmaterialimages.put(loadimgfile.getPath(),new Material(Color.WHITE,1.0f,loadimage));
+					    	}
+					    	modelmaterials.get(modelmaterials.size()-1).dispfileimage = loadimage;
 					    }else if (fline.toLowerCase().startsWith("decal ")) {
 					    	String farg = fline.substring(5).trim();
 					    	File loadimgfile = new File(loadmtlfile.getParent(),farg);
 					    	modelmaterials.get(modelmaterials.size()-1).filename = farg;
-					    	modelmaterials.get(modelmaterials.size()-1).decalfileimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    	BufferedImage loadimage = null;
+					    	if (modelmaterialimages.containsKey(loadimgfile.getPath())) {
+					    		loadimage = modelmaterialimages.get(loadimgfile.getPath()).fileimage;
+					    	} else {
+					    		loadimage = UtilLib.loadImage(loadimgfile.getPath(), loadresourcefromjar);
+					    		modelmaterialimages.put(loadimgfile.getPath(),new Material(Color.WHITE,1.0f,loadimage));
+					    	}
+					    	modelmaterials.get(modelmaterials.size()-1).decalfileimage = loadimage;
 					    }else if (fline.toLowerCase().startsWith("kd ")) {
 					    	String farg = fline.substring(3).trim();
 					    	String[] fargsplit = farg.split(" ");

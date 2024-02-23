@@ -2643,12 +2643,12 @@ public class MathLib {
 	public static double mod(double val, double modulo) {
 		return val-Math.floor(val/modulo)*modulo;
 	}
-	public static Coordinate[] mod(Coordinate[] tex) {
+	public static Coordinate[] mod(Coordinate[] tex, double modulo) {
 		Coordinate[] k = null;
 		if (tex!=null) {
 			k = new Coordinate[tex.length];
 			for (int i=0;i<tex.length;i++) {
-				k[i] = new Coordinate(mod(tex[i].u,1.0f), mod(tex[i].v,1.0f));
+				k[i] = new Coordinate(mod(tex[i].u, modulo), mod(tex[i].v, modulo));
 			}
 		}
 		return k;

@@ -33,12 +33,14 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 	private Group root = new Group();
 	public Scene scene = new Scene(root, defaultimagecanvaswidth, defaultimagecanvasheight, true, SceneAntialiasing.BALANCED);
 	private FrameTick frametick = new FrameTick();
-	private DrawFXApp drawapp = new DrawFXApp();
-	private CADFXApp cadapp = new CADFXApp();
-	private ModelFXApp modelapp = new ModelFXApp();
-	private EditorFXApp editorapp = new EditorFXApp();
-	private GameFXApp gameapp = new GameFXApp();
+	private DrawFXApp drawapp = new DrawFXApp(root);
+	private CADFXApp cadapp = new CADFXApp(root);
+	private ModelFXApp modelapp = new ModelFXApp(root);
+	private EditorFXApp editorapp = new EditorFXApp(root);
+	private GameFXApp gameapp = new GameFXApp(root);
 	private AppFXHandler activeapp = null;
+	private BufferedImage logoimage = UtilLib.loadImage("res/icons/logo.png", true);
+	private WritableImage logowimage = SwingFXUtils.toFXImage(logoimage, null);
 	
     public static void main(String[] args) {
 		System.setProperty("sun.java2d.opengl", "true");
@@ -52,7 +54,8 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.7");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.8");
+    	this.primaryStage.getIcons().add(logowimage);
     	this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     	this.primaryStage.setFullScreenExitHint("");
     	this.scene.addEventHandler(KeyEvent.ANY, this);
@@ -68,6 +71,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     }
 
     public static abstract class AppFXHandler implements EventHandler<Event> {
+    	public Group root = null;
     	public Scene scene = null;
     	public Group entities = new Group();
     	public int renderwidth = 0;
@@ -81,6 +85,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 		public double diffpulsetime = (double)(this.nowpulsetime - this.lastpulsetime);
 		public double diffpulsetimesec = this.diffpulsetime/1000.0f;
     	public Clipboard cb = Clipboard.getSystemClipboard();
+    	public AppFXHandler() {}
     	public void animtick() {
 			this.lastanimtick = this.nowanimtick;
 			this.nowanimtick = System.currentTimeMillis();
@@ -93,7 +98,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     		this.diffpulsetime = (double)(this.nowpulsetime - this.lastpulsetime);
     		this.diffpulsetimesec = this.diffpulsetime/1000.0f;
     	}
-    	public abstract void update(Group root);
+    	public abstract void update();
     	public abstract void pulse();
     }
 
@@ -142,7 +147,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 	private class FrameTick extends AnimationTimer {
 		@Override public void handle(long now) {
 			activeapp.animtick();
-			activeapp.update(root);
+			activeapp.update();
 		}
 	}
 

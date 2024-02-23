@@ -7,9 +7,11 @@ import javafx.scene.Group;
 import javafx.scene.paint.Paint;
 
 public class EditorFXApp extends AppFXHandler {
-	public EditorFXApp() {}
-	@Override public void update(Group root) {
+	public EditorFXApp(Group root) {
+		this.root = root;
 		this.scene = root.getScene();
+	}
+	@Override public void update() {
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
 		this.scene.setCursor(Cursor.DEFAULT);

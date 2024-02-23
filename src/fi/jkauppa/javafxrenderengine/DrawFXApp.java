@@ -66,7 +66,9 @@ public class DrawFXApp extends AppFXHandler {
 	private int mouselastlocationx = -1, mouselastlocationy = -1;  
 	private int mouselocationx = -1, mouselocationy = -1;
 	
-	public DrawFXApp() {
+	public DrawFXApp(Group root) {
+		this.root = root;
+		this.scene = root.getScene();
 		BufferedImage bgpatternimage = gc.createCompatibleImage(64, 64, Transparency.OPAQUE);
 		Graphics2D pgfx = bgpatternimage.createGraphics();
 		pgfx.setColor(Color.WHITE);
@@ -77,11 +79,10 @@ public class DrawFXApp extends AppFXHandler {
 		pgfx.dispose();
 		this.bgpattern = new TexturePaint(bgpatternimage,new Rectangle(0, 0, 64, 64));
 	}
-	@Override public void update(Group root) {
-		this.scene = root.getScene();
+	@Override public void update() {
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
-		root.getChildren().clear();
+		this.root.getChildren().clear();
 		if ((renderbuffer==null)||(renderbuffer.getWidth()!=this.renderwidth)||(renderbuffer.getHeight()!=this.renderheight)) {
 			BufferedImage oldimage = this.renderbuffer;
 			this.outputbuffer = gc.createCompatibleImage(this.renderwidth,this.renderheight, Transparency.TRANSLUCENT);
@@ -268,6 +269,7 @@ public class DrawFXApp extends AppFXHandler {
 				//TODO help pop-up window
 			} else if (keyevent.getCode()==KeyCode.F2) {
 	        	FileChooser filechooser = new FileChooser();
+	        	filechooser.setInitialDirectory(new File(System.getProperty("user.home")));
 		    	filechooser.setTitle("Save File");
 		    	ExtensionFilter pngextensionfilter = new ExtensionFilter("PNG Image file", "*.png");
 		    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jepg");
@@ -297,6 +299,7 @@ public class DrawFXApp extends AppFXHandler {
 				}
 			} else if (keyevent.getCode()==KeyCode.F3) {
 	        	FileChooser filechooser = new FileChooser();
+	        	filechooser.setInitialDirectory(new File(System.getProperty("user.home")));
 		    	filechooser.setTitle("Load File");
 		    	ExtensionFilter pngextensionfilter = new ExtensionFilter("PNG Image file", "*.png");
 		    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jepg");
