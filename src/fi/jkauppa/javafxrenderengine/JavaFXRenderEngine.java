@@ -52,7 +52,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.6");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.7");
     	this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     	this.primaryStage.setFullScreenExitHint("");
     	this.scene.addEventHandler(KeyEvent.ANY, this);
@@ -68,12 +68,30 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     }
 
     public static abstract class AppFXHandler implements EventHandler<Event> {
-    	public long lasttick = System.currentTimeMillis();
-    	public long newtick = this.lasttick;
+    	public Scene scene = null;
+    	public Group entities = new Group();
+    	public int renderwidth = 0;
+    	public int renderheight = 0;
+    	public long lastanimtick = System.currentTimeMillis();
+    	public long nowanimtick = this.lastanimtick;
+		public double diffanimtick = (double)(this.nowanimtick - this.lastanimtick);
+		public double diffanimticksec = this.diffanimtick/1000.0f;
+    	public long nowpulsetime = System.currentTimeMillis();
+    	public long lastpulsetime = this.nowpulsetime;
+		public double diffpulsetime = (double)(this.nowpulsetime - this.lastpulsetime);
+		public double diffpulsetimesec = this.diffpulsetime/1000.0f;
     	public Clipboard cb = Clipboard.getSystemClipboard();
-    	public void tick() {
-			this.lasttick = this.newtick;
-			this.newtick = System.currentTimeMillis();
+    	public void animtick() {
+			this.lastanimtick = this.nowanimtick;
+			this.nowanimtick = System.currentTimeMillis();
+			this.diffanimtick = (double)(this.nowanimtick - this.lastanimtick);
+			this.diffanimticksec = this.diffanimtick/1000.0f;
+    	}
+    	public void pulsetick() {
+    		this.lastpulsetime = this.nowpulsetime;
+    		this.nowpulsetime = System.currentTimeMillis();
+    		this.diffpulsetime = (double)(this.nowpulsetime - this.lastpulsetime);
+    		this.diffpulsetimesec = this.diffpulsetime/1000.0f;
     	}
     	public abstract void update(Group root);
     	public abstract void pulse();
@@ -123,12 +141,13 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 	
 	private class FrameTick extends AnimationTimer {
 		@Override public void handle(long now) {
-			activeapp.tick();
+			activeapp.animtick();
 			activeapp.update(root);
 		}
 	}
 
 	@Override public void run() {
+		activeapp.pulsetick();
 		activeapp.pulse();
 		Platform.requestNextPulse();
 	}

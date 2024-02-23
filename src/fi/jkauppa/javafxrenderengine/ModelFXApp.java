@@ -17,7 +17,6 @@ import javafx.geometry.Point3D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
-import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -28,10 +27,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 public class ModelFXApp extends AppFXHandler {
-	private Scene scene = null;
-	private Group entities = new Group();
-	private int renderwidth = 0;
-	private int renderheight = 0;
 	private Entity[] entitylist = null;
 	private Position[] defaultcampos = {new Position(0.0f,0.0f,0.0f)};
 	private Rotation defaultcamrot = new Rotation(0.0f, 0.0f, 0.0f);
@@ -60,8 +55,6 @@ public class ModelFXApp extends AppFXHandler {
 		this.scene = root.getScene();
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
-		this.scene.setCursor(Cursor.NONE);
-		this.scene.setFill(Paint.valueOf("BLACK"));
 		PerspectiveCamera camera = new PerspectiveCamera(true);
 		camera.setFarClip(1000000.0f);
 		camera.setVerticalFieldOfView(false);
@@ -74,12 +67,14 @@ public class ModelFXApp extends AppFXHandler {
 		camera.getTransforms().add(new Rotate(this.camrot.y, new Point3D(0,1,0)));
 		camera.getTransforms().add(new Rotate(this.camrot.x, new Point3D(1,0,0)));
 		camera.getTransforms().add(new Rotate(180, new Point3D(1,0,0)));
+		this.scene.setCursor(Cursor.NONE);
+		this.scene.setFill(Paint.valueOf("BLACK"));
 		this.scene.setCamera(camera);
 		root.getChildren().setAll(entities);
 	}
 
 	@Override public void pulse() {
-		double movementstep = 20.0f;
+		double movementstep = 1000.0f*this.diffpulsetimesec;
 		if (this.leftkeydown) {
 			this.campos = MathLib.translate(campos, this.camdirs[1], -movementstep);
 		} else if (this.rightkeydown) {
@@ -97,10 +92,10 @@ public class ModelFXApp extends AppFXHandler {
 		}
 		if (this.rollleftkeydown) {
 			this.camrot = this.camrot.copy();
-			this.camrot.y -= 1.0f;
+			this.camrot.y -= 50.0f*this.diffpulsetimesec;
 		} else if (this.rollrightkeydown) {
 			this.camrot = this.camrot.copy();
-			this.camrot.y += 1.0f;
+			this.camrot.y += 50.0f*this.diffpulsetimesec;
 		}
 		updateCameraDirections();
 	}
@@ -136,6 +131,7 @@ public class ModelFXApp extends AppFXHandler {
 			KeyEvent keyevent = (KeyEvent)event;
 			if (keyevent.getCode()==KeyCode.BACK_SPACE) {
 				this.entitylist = null;
+				this.entities.getChildren().clear();
 				this.campos = this.defaultcampos;
 				this.camrot = this.defaultcamrot;
 				updateCameraDirections();
@@ -183,12 +179,12 @@ public class ModelFXApp extends AppFXHandler {
 		    			Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new OBJFileFilter(), false);
 						this.entitylist = loadentity.childlist;
 						entities.getChildren().clear();
-						RenderFXLib.constructFXScene(entities, this.entitylist);
+						RenderFXLib.constructFXScene(entities, this.entitylist, this.unlitrender);
 		    		} else if (loadfileextension.equals(stlextensionfilter)) {
 		    			Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new STLFileFilter(), false);
 						this.entitylist = loadentity.childlist;
 						entities.getChildren().clear();
-						RenderFXLib.constructFXScene(entities, this.entitylist);
+						RenderFXLib.constructFXScene(entities, this.entitylist, this.unlitrender);
 		    		}
 		    	}
 			}
@@ -211,14 +207,14 @@ public class ModelFXApp extends AppFXHandler {
 			}
 		} else if (event.getEventType().equals(MouseEvent.MOUSE_EXITED)) {
 			if (this.scene.getWindow().isFocused()) {
-				int windowscreenlocationx = (int)this.scene.getWindow().getX();
-				int windowscreenlocationy = (int)this.scene.getWindow().getY();
+				int scenescreenlocationx = (int)this.scene.getWindow().getX()+(int)this.scene.getX();
+				int scenescreenlocationy = (int)this.scene.getWindow().getY()+(int)this.scene.getY();
 				int origindeltax = (int)Math.floor(((double)(this.renderwidth-1))/2.0f);
 				int origindeltay = (int)Math.floor(((double)(this.renderheight-1))/2.0f);
-				int windowcenterx = windowscreenlocationx + origindeltax;
-				int windowcentery = windowscreenlocationy + origindeltay;
-				this.mouselocationx = this.renderwidth/2; 
-				this.mouselocationy = this.renderheight/2; 
+				int windowcenterx = scenescreenlocationx + origindeltax;
+				int windowcentery = scenescreenlocationy + origindeltay;
+				this.mouselocationx = (this.renderwidth-1)/2; 
+				this.mouselocationy = (this.renderheight-1)/2; 
 				Robot mouserobot = new Robot();
 				mouserobot.mouseMove(windowcenterx, windowcentery);
 			}

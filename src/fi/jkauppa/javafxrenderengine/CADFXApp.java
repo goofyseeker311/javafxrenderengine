@@ -46,7 +46,6 @@ import javafx.event.Event;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.ParallelCamera;
-import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.DragEvent;
@@ -62,10 +61,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 public class CADFXApp extends AppFXHandler {
-	private ParallelCamera camera = new ParallelCamera();
-	private Scene scene = null;
-	private int renderwidth = 0;
-	private int renderheight = 0;
 	private GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	private GraphicsDevice gd = ge.getDefaultScreenDevice();
 	private GraphicsConfiguration gc = gd.getDefaultConfiguration();
@@ -126,9 +121,6 @@ public class CADFXApp extends AppFXHandler {
 		this.scene = root.getScene();
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
-		this.scene.setCursor(Cursor.CROSSHAIR);
-		this.scene.setCamera(camera);
-		this.scene.setFill(Paint.valueOf("BLACK"));
 		root.getChildren().clear();
 		this.vfov = MathLib.calculateVfov(this.renderwidth, this.renderheight, this.hfov);
 		if ((this.renderview!=null)&&(this.renderview.renderimage!=null)) {
@@ -141,12 +133,16 @@ public class CADFXApp extends AppFXHandler {
 	        renderimageview.setCache(true);
 			root.getChildren().add(renderimageview);
 		}
+		ParallelCamera camera = new ParallelCamera();
+		this.scene.setCursor(Cursor.CROSSHAIR);
+		this.scene.setFill(Paint.valueOf("BLACK"));
+		this.scene.setCamera(camera);
 	}
 	
 	@Override public void pulse() {
-		double movementstep = 1.0f;
+		double movementstep = 1000.0f*this.diffpulsetimesec;
 		if (this.snaplinemode) {
-			movementstep = this.gridstep;
+			movementstep *= this.gridstep;
 		}
 		if (this.leftkeydown) {
 			this.campos = MathLib.translate(campos, this.camdirs[1], -movementstep);
@@ -180,20 +176,20 @@ public class CADFXApp extends AppFXHandler {
 		}
 		if (this.yawleftkeydown) {
 			this.camrot = this.camrot.copy();
-        	this.camrot.z += (movementstep/((double)this.gridstep))*1.0f;
+        	this.camrot.z += (movementstep/((double)this.gridstep));
 			System.out.println("CADApp: keyPressed: key ARROW-LEFT: camera yaw rotation left="+this.camrot.x+","+this.camrot.y+","+this.camrot.z);
 		} else if (this.yawrightkeydown) {
 			this.camrot = this.camrot.copy();
-        	this.camrot.z -= (movementstep/((double)this.gridstep))*1.0f;
+        	this.camrot.z -= (movementstep/((double)this.gridstep));
 			System.out.println("CADApp: keyPressed: key ARROW-RIGHT: camera yaw rotation right="+this.camrot.x+","+this.camrot.y+","+this.camrot.z);
 		}
 		if (this.pitchupkeydown) {
 			this.camrot = this.camrot.copy();
-        	this.camrot.x += (movementstep/((double)this.gridstep))*1.0f;
+        	this.camrot.x += (movementstep/((double)this.gridstep));
 			System.out.println("CADApp: keyPressed: key ARROW-DOWN: camera yaw rotation down="+this.camrot.x+","+this.camrot.y+","+this.camrot.z);
 		} else if (this.pitchdownkeydown) {
 			this.camrot = this.camrot.copy();
-        	this.camrot.x -= (movementstep/((double)this.gridstep))*1.0f;
+        	this.camrot.x -= (movementstep/((double)this.gridstep));
 			System.out.println("CADApp: keyPressed: key ARROW-UP: camera yaw rotation up="+this.camrot.x+","+this.camrot.y+","+this.camrot.z);
 		}
 		updateCameraDirections();

@@ -27,7 +27,6 @@ import javafx.event.Event;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.ParallelCamera;
-import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -45,10 +44,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 public class DrawFXApp extends AppFXHandler {
-	private ParallelCamera camera = new ParallelCamera();
-	private Scene scene = null;
-	private int renderwidth = 0;
-	private int renderheight = 0;
 	private GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	private GraphicsDevice gd = ge.getDefaultScreenDevice();
 	private GraphicsConfiguration gc = gd.getDefaultConfiguration();
@@ -86,9 +81,6 @@ public class DrawFXApp extends AppFXHandler {
 		this.scene = root.getScene();
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
-		this.scene.setCursor(Cursor.DEFAULT);
-		this.scene.setCamera(camera);
-		this.scene.setFill(Paint.valueOf("WHITE"));
 		root.getChildren().clear();
 		if ((renderbuffer==null)||(renderbuffer.getWidth()!=this.renderwidth)||(renderbuffer.getHeight()!=this.renderheight)) {
 			BufferedImage oldimage = this.renderbuffer;
@@ -134,6 +126,10 @@ public class DrawFXApp extends AppFXHandler {
 	        renderimageview.setCache(true);
 			root.getChildren().add(renderimageview);
 		}
+		ParallelCamera camera = new ParallelCamera();
+		this.scene.setCursor(Cursor.DEFAULT);
+		this.scene.setFill(Paint.valueOf("WHITE"));
+		this.scene.setCamera(camera);
 	}
 	
 	@Override public void pulse() {}
