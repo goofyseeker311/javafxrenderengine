@@ -149,5 +149,6 @@ After generating application .jar, add platform specific javafx jars and binarie
 # Licence (FSNLR -- Free Software No License Required)
 This is free software which does not require any license agreement under government enforcement to limit it's freedom of usage for any purpose.
 
-Example render:
+Example renders:
 ![render2](https://github.com/goofyseeker311/javafxrenderengine/assets/19920254/3f70b282-b0c0-4c44-94d1-eff5b81afcf5)
+![render3](https://github.com/goofyseeker311/javafxrenderengine/assets/19920254/524cbfa0-9c2f-46da-b73b-518201a737ab)
