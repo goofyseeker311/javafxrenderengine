@@ -33,6 +33,7 @@ import fi.jkauppa.javarenderengine.ModelLib.Plane;
 import fi.jkauppa.javarenderengine.ModelLib.Position;
 import fi.jkauppa.javarenderengine.ModelLib.RenderView;
 import fi.jkauppa.javarenderengine.ModelLib.Rotation;
+import fi.jkauppa.javarenderengine.ModelLib.Sphere;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
 import fi.jkauppa.javarenderengine.UtilLib.ImageFileFilters.BMPFileFilter;
 import fi.jkauppa.javarenderengine.UtilLib.ImageFileFilters.GIFFileFilter;
@@ -847,7 +848,7 @@ public class CADFXApp extends AppFXHandler {
 		    			mousetriangle = this.mouseovertriangle[this.mouseovertriangle.length-1];
 		    		}
 					if (mousetriangle!=null) {
-			        	int mousedeltax = this.mouselocationx - this.mouselastlocationx; 
+			        	int mousedeltax = this.mouselocationx - this.mouselastlocationx;
 			        	int mousedeltay = this.mouselocationy - this.mouselastlocationy;
 			    		double movementstep = 1.0f;
 			    		if (this.snaplinemode) {
@@ -923,7 +924,20 @@ public class CADFXApp extends AppFXHandler {
 	    	}
 		    boolean mouse3shiftdown = ((mouseevent.getButton().equals(MouseButton.SECONDARY))&&(!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
 		    if (mouse3shiftdown) {
-		    	//TODO <tbd>
+		    	if (this.selecteddragentity!=null) {
+	    			Entity selectedentity = this.selecteddragentity[0];
+	    			Line[] selectedentitylinelist = MathLib.generateLineList(this.selecteddragentity);
+	    			Sphere[] selectedentitysphere = MathLib.entitySphereList(this.selecteddragentity);
+	    			Position[] selectedentitypos = MathLib.sphereVertexList(selectedentitysphere);
+	    			this.linelisttree.removeAll(Arrays.asList(selectedentitylinelist));
+		        	int mousedeltax = this.mouselocationx - this.mouselastlocationx;
+		        	int mousedeltay = this.mouselocationy - this.mouselastlocationy;
+	    			selectedentity.rotateSelfAroundAxisPos(selectedentitypos[0], this.camdirs[1], mousedeltay);
+	    			selectedentity.rotateSelfAroundAxisPos(selectedentitypos[0], this.camdirs[2], -mousedeltax);
+	    			Line[] movedentitylinelist = MathLib.generateLineList(this.selecteddragentity);
+	    			this.linelisttree.addAll(Arrays.asList(movedentitylinelist));
+	    			System.out.println("CADApp: mouseDragged: key SHIFT-DRAG-RMB: rotate entity ="+selectedentity.sphereboundaryvolume.x+" "+selectedentity.sphereboundaryvolume.y+" "+selectedentity.sphereboundaryvolume.z);
+		    	}
 		    }
 		    boolean mouse3altdown = ((mouseevent.getButton().equals(MouseButton.SECONDARY))&&(!mouseevent.isControlDown())&&(mouseevent.isAltDown())&&(!mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
 	    	if (mouse3altdown) {

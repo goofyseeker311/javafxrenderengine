@@ -154,7 +154,7 @@ public class ModelLib {
 		}
 	}
 	public static class SphereComparator implements Comparator<Sphere> {
-		public Position origin;
+		public Position origin = new Position(0.0f,0.0f,0.0f);
 		public SphereComparator(Position origini) {this.origin = origini;}
 		@Override public int compare(Sphere o1, Sphere o2) {
 			int k = -1;
@@ -209,7 +209,7 @@ public class ModelLib {
 		public RenderView sphereview=null;
 	}
 	
-	public static class Position implements Comparable<Position> {public double x,y,z; public Coordinate tex; public Material mat; public Position(double xi,double yi,double zi){this.x=xi;this.y=yi;this.z=zi;}
+	public static class Position implements Comparable<Position> {public double x=0,y=0,z=0; public Coordinate tex=new Coordinate(0.0f,0.0f); public Material mat=new Material(); public Position(double xi,double yi,double zi){this.x=xi;this.y=yi;this.z=zi;}
 		@Override public int compareTo(Position o){
 			int k = -1;
 			if (this.z>o.z) {
@@ -237,7 +237,7 @@ public class ModelLib {
 			}
 			return k;
 		}
-		public Position copy(){Position k=new Position(this.x,this.y,this.z); k.tex=this.tex; return k;}
+		public Position copy(){Position k=new Position(this.x,this.y,this.z); k.tex=this.tex.copy();k.mat=this.mat.copy(); return k;}
 		public Position invert(){Position k=this.copy(); k.x=-k.x;k.y=-k.y;k.z=-k.z; return k;}
 		public boolean isZero(){return (this.x==0.0f)&&(this.y==0.0f)&&(this.z==0.0f);}
 		public boolean isFinite(){return (Double.isFinite(this.x))&&(Double.isFinite(this.y))&&(Double.isFinite(this.z));}
@@ -246,8 +246,10 @@ public class ModelLib {
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
 		public Position translate(Position pos) {Position[]k={this};k=MathLib.translate(k,pos);return k[0];}
 		public Position translate(Direction dir, double mult) {Position[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public Position rotateAroundAxisPos(Position pos, Direction axis, double angle) {Position[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 	}
-	public static class Direction implements Comparable<Direction> {public double dx,dy,dz; public Direction(double dxi,double dyi,double dzi){this.dx=dxi;this.dy=dyi;this.dz=dzi;}
+	public static class Direction implements Comparable<Direction> {public double dx=0,dy=0,dz=0; public Direction(double dxi,double dyi,double dzi){this.dx=dxi;this.dy=dyi;this.dz=dzi;}
 		@Override public int compareTo(Direction o){
 			int k = -1;
 			if (this.dz>o.dz) {
@@ -284,8 +286,20 @@ public class ModelLib {
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
 		public Direction translate(Position pos) {Direction[]k={this};k=MathLib.translate(k,pos);return k[0];}
 		public Direction translate(Direction dir, double mult) {Direction[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public Direction rotateAroundAxisPos(Position pos, Direction axis, double angle) {Direction[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 	}
-	public static class Coordinate implements Comparable<Coordinate> {public double u,v; public Coordinate(double ui,double vi){this.u=ui;this.v=vi;}
+	public static class Axis { public Position pos; public Direction fwd=new Direction(1.0f,0.0f,0.0f),rgt=new Direction(0.0f,1.0f,0.0f),up=new Direction(0.0f,0.0f,1.0f); public Axis(Position posi, Direction fwdi, Direction rgti, Direction upi){this.pos=posi;this.fwd=fwdi;this.rgt=rgti;this.up=upi;}
+		public Axis copy(){return new Axis(this.pos.copy(),this.fwd.copy(),this.rgt.copy(),this.up.copy());}
+		public void setValue(Axis value) {this.pos=value.pos;this.fwd=value.fwd;this.rgt=value.rgt;this.up=value.up;}
+		public void translateSelf(Position pos) {setValue(translate(pos));}
+		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
+		public Axis translate(Position pos) {Axis[]k={this};k=MathLib.translate(k,pos);return k[0];}
+		public Axis translate(Direction dir, double mult) {Axis[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public Axis rotateAroundAxisPos(Position pos, Direction axis, double angle) {Axis[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
+	}
+	public static class Coordinate implements Comparable<Coordinate> {public double u=0,v=0; public Coordinate(double ui,double vi){this.u=ui;this.v=vi;}
 	@Override public int compareTo(Coordinate o){
 		int k = -1;
 		if (this.u>o.u) {
@@ -318,6 +332,8 @@ public class ModelLib {
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
 		public Coordinate translate(Position pos) {Coordinate[]k={this};k=MathLib.translate(k,pos);return k[0];}
 		public Coordinate translate(Direction dir, double mult) {Coordinate[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public Coordinate rotateAroundAxisPos(Position pos, Direction axis, double angle) {Coordinate[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 	}
 	public static class Rotation {public double x,y,z; public Rotation(double xi,double yi,double zi){this.x=xi;this.y=yi;this.z=zi;}
 		@Override public boolean equals(Object o) {
@@ -332,7 +348,7 @@ public class ModelLib {
 		}
 		public Rotation copy(){return new Rotation(this.x,this.y,this.z);}
 	}
-	public static class Sphere implements Comparable<Sphere> {public double x,y,z,r; public Sphere(double xi,double yi,double zi,double ri){this.x=xi;this.y=yi;this.z=zi;this.r=ri;}
+	public static class Sphere implements Comparable<Sphere> {public double x=0,y=0,z=0,r=0; public Sphere(double xi,double yi,double zi,double ri){this.x=xi;this.y=yi;this.z=zi;this.r=ri;}
 		@Override public int compareTo(Sphere o) {
 			int k = -1;
 			if (this.z>o.z) {
@@ -370,49 +386,64 @@ public class ModelLib {
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
 		public Sphere translate(Position pos) {Sphere[]k={this};k=MathLib.translate(k,pos);return k[0];}
 		public Sphere translate(Direction dir, double mult) {Sphere[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public Sphere rotateAroundAxisPos(Position pos, Direction axis, double angle) {Sphere[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 	}
-	public static class AxisAlignedBoundingBox {public Position pos1,pos2; public AxisAlignedBoundingBox(Position pos1i, Position pos2i){this.pos1=pos1i;this.pos2=pos2i;}
-		public AxisAlignedBoundingBox copy(){AxisAlignedBoundingBox k = new AxisAlignedBoundingBox(this.pos1,this.pos2); return k;}
-		public void setValue(AxisAlignedBoundingBox value) {this.pos1=value.pos1;this.pos2=value.pos2;}
+	public static class AxisAlignedBoundingBox {public Position pos1=new Position(0.0f,0.0f,0.0f),pos2=new Position(0.0f,0.0f,0.0f); public Axis axis=new Axis(new Position(0.0f,0.0f,0.0f),new Direction(0.0f,0.0f,0.0f),new Direction(0.0f,0.0f,0.0f),new Direction(0.0f,0.0f,0.0f)); public AxisAlignedBoundingBox(Position pos1i, Position pos2i, Axis axisi){this.pos1=pos1i;this.pos2=pos2i;this.axis=axisi;}
+		public AxisAlignedBoundingBox copy(){AxisAlignedBoundingBox k=new AxisAlignedBoundingBox(this.pos1.copy(),this.pos2.copy(),this.axis.copy()); return k;}
+		public void setValue(AxisAlignedBoundingBox value) {this.pos1=value.pos1;this.pos2=value.pos2;this.axis=value.axis;}
 		public void translateSelf(Position pos) {setValue(translate(pos));}
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
 		public AxisAlignedBoundingBox translate(Position pos) {AxisAlignedBoundingBox[]k={this};k=MathLib.translate(k,pos);return k[0];}
 		public AxisAlignedBoundingBox translate(Direction dir, double mult) {AxisAlignedBoundingBox[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public AxisAlignedBoundingBox rotateAroundAxisPos(Position pos, Direction axis, double angle) {AxisAlignedBoundingBox[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 	}
-	public static class Cuboid {public Position pos1,pos2,pos3,pos4,pos5,pos6,pos7,pos8; public Cuboid(Position pos1i,Position pos2i,Position pos3i,Position pos4i,Position pos5i,Position pos6i,Position pos7i,Position pos8i){this.pos1=pos1i;this.pos2=pos2i;this.pos3=pos3i;this.pos4=pos4i;this.pos5=pos5i;this.pos6=pos6i;this.pos7=pos7i;this.pos8=pos8i;}
+	public static class Cuboid {public Position pos1=new Position(0.0f,0.0f,0.0f),pos2=new Position(0.0f,0.0f,0.0f),pos3=new Position(0.0f,0.0f,0.0f),pos4=new Position(0.0f,0.0f,0.0f),pos5=new Position(0.0f,0.0f,0.0f),pos6=new Position(0.0f,0.0f,0.0f),pos7=new Position(0.0f,0.0f,0.0f),pos8=new Position(0.0f,0.0f,0.0f); public Cuboid(Position pos1i,Position pos2i,Position pos3i,Position pos4i,Position pos5i,Position pos6i,Position pos7i,Position pos8i){this.pos1=pos1i;this.pos2=pos2i;this.pos3=pos3i;this.pos4=pos4i;this.pos5=pos5i;this.pos6=pos6i;this.pos7=pos7i;this.pos8=pos8i;}
 		public Cuboid copy(){Cuboid k = new Cuboid(this.pos1.copy(),this.pos2.copy(),this.pos3.copy(),this.pos4.copy(),this.pos5.copy(),this.pos6.copy(),this.pos7.copy(),this.pos8.copy()); return k;}
 		public void setValue(Cuboid value) {this.pos1=value.pos1;this.pos2=value.pos2;this.pos3=value.pos3;this.pos4=value.pos4;this.pos5=value.pos5;this.pos6=value.pos6;this.pos7=value.pos7;this.pos8=value.pos8;}
 		public void translateSelf(Position pos) {setValue(translate(pos));}
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
 		public Cuboid translate(Position pos) {Cuboid[]k={this};k=MathLib.translate(k,pos);return k[0];}
 		public Cuboid translate(Direction dir, double mult) {Cuboid[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public Cuboid rotateAroundAxisPos(Position pos, Direction axis, double angle) {Cuboid[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 	}
-	public static class Quad {public Position pos1,pos2,pos3,pos4; public Quad(Position pos1i,Position pos2i,Position pos3i,Position pos4i){this.pos1=pos1i;this.pos2=pos2i;this.pos3=pos3i;this.pos4=pos4i;}
-		public Quad copy(){Quad k = new Quad(this.pos1.copy(),this.pos2.copy(),this.pos3.copy(),this.pos4.copy()); return k;}
+	public static class Quad {public Position pos1=new Position(0.0f,0.0f,0.0f),pos2=new Position(0.0f,0.0f,0.0f),pos3=new Position(0.0f,0.0f,0.0f),pos4=new Position(0.0f,0.0f,0.0f); public Direction norm=new Direction(0.0f,0.0f,0.0f); public Material mat=new Material(); public Material[] lmatl=null; public Quad(Position pos1i,Position pos2i,Position pos3i,Position pos4i){this.pos1=pos1i;this.pos2=pos2i;this.pos3=pos3i;this.pos4=pos4i;}
+		public Quad copy(){Quad k = new Quad(this.pos1.copy(),this.pos2.copy(),this.pos3.copy(),this.pos4.copy()); k.norm=this.norm.copy();k.mat=this.mat.copy();k.lmatl=this.lmatl; return k;}
 		public void setValue(Quad value) {this.pos1=value.pos1;this.pos2=value.pos2;this.pos3=value.pos3;this.pos4=value.pos4;}
 		public void translateSelf(Position pos) {setValue(translate(pos));}
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
 		public Quad translate(Position pos) {Quad[]k={this};k=MathLib.translate(k,pos);return k[0];}
 		public Quad translate(Direction dir, double mult) {Quad[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public Quad rotateAroundAxisPos(Position pos, Direction axis, double angle) {Quad[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 	}
-	public static class Arc {public Position origin; public double r,ang1,ang2; public Arc(Position origini, double ri, double ang1i, double ang2i){this.origin=origini;this.r=ri;this.ang1=ang1i;this.ang2=ang2i;}}
-	public static class Circle {public Position origin; public double r; public Circle(Position origini, double ri){this.origin=origini;this.r=ri;}}
-	public static class Ray {public Position pos; public Direction dir; public Ray(Position posi, Direction diri){this.pos=posi;this.dir=diri;}
+	public static class Arc {public Position origin=new Position(0.0f,0.0f,0.0f); public double r=0,ang1=0,ang2=0; public Arc(Position origini, double ri, double ang1i, double ang2i){this.origin=origini;this.r=ri;this.ang1=ang1i;this.ang2=ang2i;}}
+	public static class Circle {public Position origin=new Position(0.0f,0.0f,0.0f); public double r=0; public Circle(Position origini, double ri){this.origin=origini;this.r=ri;}}
+	public static class Ray {public Position pos=new Position(0.0f,0.0f,0.0f); public Direction dir=new Direction(0.0f,0.0f,0.0f); public Ray(Position posi, Direction diri){this.pos=posi;this.dir=diri;}
+		public Ray copy(){Ray k = new Ray(this.pos.copy(),this.dir.copy()); return k;}
 		public Ray invert(){return new Ray(this.pos, this.dir.invert());}
 		public void setValue(Ray value) {this.pos=value.pos;this.dir=value.dir;}
 		public void translateSelf(Position pos) {setValue(translate(pos));}
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
 		public Ray translate(Position pos) {Position[]k={this.pos};k=MathLib.translate(k,pos);return new Ray(k[0],this.dir);}
 		public Ray translate(Direction dir, double mult) {Position[]k={this.pos};k=MathLib.translate(k,dir,mult);return new Ray(k[0],this.dir);}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public Ray rotateAroundAxisPos(Position pos, Direction axis, double angle) {Ray[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 	}
-	public static class PlaneRay {public Position pos; public Direction dir; public Plane plane; public double vfov; public PlaneRay(Position posi, Direction diri, Plane planei, double vfovi){this.pos=posi;this.dir=diri;this.plane=planei;this.vfov=vfovi;}
+	public static class PlaneRay {public Position pos=new Position(0.0f,0.0f,0.0f); public Direction dir=new Direction(0.0f,0.0f,0.0f); public Plane plane=new Plane(0, 0, 0, 0); public double vfov=0; public PlaneRay(Position posi, Direction diri, Plane planei, double vfovi){this.pos=posi;this.dir=diri;this.plane=planei;this.vfov=vfovi;}
+		public PlaneRay copy(){PlaneRay k=new PlaneRay(this.pos.copy(),this.dir.copy(),this.plane.copy(),this.vfov); return k;}
 		public void setValue(PlaneRay value) {this.pos=value.pos;this.dir=value.dir;this.plane=value.plane;this.vfov=value.vfov;}
 		public void translateSelf(Position pos) {setValue(translate(pos));}
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
 		public PlaneRay translate(Position pos) {Position[]k={this.pos};Plane[]k2={this.plane};k=MathLib.translate(k,pos);k2=MathLib.translate(k2,pos);return new PlaneRay(k[0],this.dir,k2[0],this.vfov);}
 		public PlaneRay translate(Direction dir, double mult) {Position[]k={this.pos};Plane[]k2={this.plane};k=MathLib.translate(k,dir,mult);k2=MathLib.translate(k2,dir,mult);return new PlaneRay(k[0],this.dir,k2[0],this.vfov);}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public PlaneRay rotateAroundAxisPos(Position pos, Direction axis, double angle) {PlaneRay[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 	}
-	public static class Plane {public double a,b,c,d; public Plane(double ai,double bi,double ci,double di){this.a=ai;this.b=bi;this.c=ci;this.d=di;}
+	public static class Plane {public double a=0,b=0,c=0,d=0; public Plane(double ai,double bi,double ci,double di){this.a=ai;this.b=bi;this.c=ci;this.d=di;}
+		public Plane copy(){Plane k = new Plane(this.a,this.b,this.c,this.d); return k;}
 		public Plane invert(){return new Plane(-this.a,-this.b,-this.c,-this.d);}
 		public boolean isFinite(){return (Double.isFinite(this.a))&&(Double.isFinite(this.b))&&(Double.isFinite(this.c))&&(Double.isFinite(this.d));}
 		public void setValue(Plane value) {this.a=value.a;this.b=value.b;this.c=value.c;this.d=value.d;}
@@ -420,8 +451,10 @@ public class ModelLib {
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
 		public Plane translate(Position pos) {Plane[]k={this};k=MathLib.translate(k,pos);return k[0];}
 		public Plane translate(Direction dir, double mult) {Plane[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public Plane rotateAroundAxisPos(Position pos, Direction axis, double angle) {Plane[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 	}
-	public static class Line implements Comparable<Line> {public Position pos1,pos2; public Material mat; public Line(Position pos1i,Position pos2i){this.pos1=pos1i;this.pos2=pos2i;}
+	public static class Line implements Comparable<Line> {public Position pos1=new Position(0.0f,0.0f,0.0f),pos2=new Position(0.0f,0.0f,0.0f); public Material mat=new Material(); public Line(Position pos1i,Position pos2i){this.pos1=pos1i;this.pos2=pos2i;}
 		@Override public int compareTo(Line o){
 			int k=-1;
 			Line ts=this.sort();
@@ -459,7 +492,7 @@ public class ModelLib {
 			}
 			return k;
 		}
-		public Line copy(){Line k = new Line(new Position(this.pos1.x,this.pos1.y,this.pos1.z),new Position(this.pos2.x,this.pos2.y,this.pos2.z)); return k;}
+		public Line copy(){Line k = new Line(this.pos1.copy(),this.pos2.copy()); return k;}
 		public Line swap(){return new Line(this.pos2,this.pos1);}
 		public Line sort(){Line k=this;if (this.pos1.compareTo(this.pos2)==1) {k=this.swap();}return k;}
 		public boolean isFinite(){return (this.pos1!=null)&&(this.pos2!=null)&&(this.pos1.isFinite())&&(this.pos2.isFinite());}
@@ -468,8 +501,10 @@ public class ModelLib {
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
 		public Line translate(Position pos) {Line[]k={this};k=MathLib.translate(k,pos);return k[0];}
 		public Line translate(Direction dir, double mult) {Line[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public Line rotateAroundAxisPos(Position pos, Direction axis, double angle) {Line[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 	}
-	public static class Tetrahedron implements Comparable<Tetrahedron> {public Position pos1,pos2,pos3,pos4; public Tetrahedron(Position pos1i,Position pos2i, Position pos3i,Position pos4i){this.pos1=pos1i;this.pos2=pos2i;this.pos3=pos3i;this.pos4=pos4i;}
+	public static class Tetrahedron implements Comparable<Tetrahedron> {public Position pos1=new Position(0.0f,0.0f,0.0f),pos2=new Position(0.0f,0.0f,0.0f),pos3=new Position(0.0f,0.0f,0.0f),pos4=new Position(0.0f,0.0f,0.0f); public Tetrahedron(Position pos1i,Position pos2i, Position pos3i,Position pos4i){this.pos1=pos1i;this.pos2=pos2i;this.pos3=pos3i;this.pos4=pos4i;}
 		@Override public int compareTo(Tetrahedron o) {
 			int k = -1;
 			Position[] tposarray = {this.pos1,this.pos2,this.pos3,this.pos4};
@@ -540,8 +575,10 @@ public class ModelLib {
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
 		public Tetrahedron translate(Position pos) {Tetrahedron[]k={this};k=MathLib.translate(k,pos);return k[0];}
 		public Tetrahedron translate(Direction dir, double mult) {Tetrahedron[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public Tetrahedron rotateAroundAxisPos(Position pos, Direction axis, double angle) {Tetrahedron[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 	}
-	public static class Triangle implements Comparable<Triangle> {public Position pos1,pos2,pos3; public Direction norm; public Material mat = null; public Material[] lmatl = null;
+	public static class Triangle implements Comparable<Triangle> {public Position pos1=new Position(0.0f,0.0f,0.0f),pos2=new Position(0.0f,0.0f,0.0f),pos3=new Position(0.0f,0.0f,0.0f); public Direction norm=new Direction(0.0f,0.0f,0.0f); public Material mat=new Material(); public Material[] lmatl=null;
 		public Triangle(Position pos1i,Position pos2i,Position pos3i) {this.pos1=pos1i;this.pos2=pos2i;this.pos3=pos3i;}
 		@Override public int compareTo(Triangle o) {
 			int k = -1;
@@ -594,16 +631,19 @@ public class ModelLib {
 			}
 			return k;
 		}
-		public Triangle copy(){Triangle k=new Triangle(this.pos1.copy(),this.pos2.copy(),this.pos3.copy());k.norm=this.norm;k.mat=this.mat;k.lmatl=this.lmatl;return k;}
+		public Triangle copy(){Triangle k=new Triangle(this.pos1.copy(),this.pos2.copy(),this.pos3.copy());k.norm=this.norm.copy();k.mat=this.mat.copy();k.lmatl=this.lmatl;return k;}
 		public void setValue(Triangle value) {this.pos1=value.pos1;this.pos2=value.pos2;this.pos3=value.pos3;this.norm=value.norm;this.mat=value.mat;this.lmatl=value.lmatl;}
 		public void translateSelf(Position pos) {setValue(translate(pos));}
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
 		public Triangle translate(Position pos) {Triangle[]k={this};k=MathLib.translate(k,pos);return k[0];}
 		public Triangle translate(Direction dir, double mult) {Triangle[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public Triangle rotateAroundAxisPos(Position pos, Direction axis, double angle) {Triangle[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 	}
 	public static class Entity implements Comparable<Entity> {
 		public Entity[] childlist = null;
 		public Triangle[] trianglelist = null;
+		public Quad[] quadlist = null;
 		public Line[] linelist = null;
 		public Position[] vertexlist = null;
 		public Sphere sphereboundaryvolume = null;
@@ -640,6 +680,17 @@ public class ModelLib {
 			if (this.vertexlist!=null) {k.vertexlist=new Position[this.vertexlist.length]; for (int i=0;i<k.vertexlist.length;i++) {k.vertexlist[i] = this.vertexlist[i].translate(dir,mult);}}
 			if (this.sphereboundaryvolume!=null) {k.sphereboundaryvolume = this.sphereboundaryvolume.translate(dir,mult);}
 			if (this.aabbboundaryvolume!=null) {k.aabbboundaryvolume = this.aabbboundaryvolume.translate(dir,mult);}
+			return k;
+		}
+		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
+		public Entity rotateAroundAxisPos(Position pos, Direction axis, double angle) {
+			Entity k = this.copy();
+			if (this.childlist!=null) {k.childlist=new Entity[this.childlist.length]; for (int i=0;i<k.childlist.length;i++) {k.childlist[i] = this.childlist[i].rotateAroundAxisPos(pos,axis,angle);}}
+			if (this.trianglelist!=null) {k.trianglelist=new Triangle[this.trianglelist.length]; for (int i=0;i<k.trianglelist.length;i++) {k.trianglelist[i] = this.trianglelist[i].rotateAroundAxisPos(pos,axis,angle);}}
+			if (this.linelist!=null) {k.linelist=new Line[this.linelist.length]; for (int i=0;i<k.linelist.length;i++) {k.linelist[i] = this.linelist[i].rotateAroundAxisPos(pos,axis,angle);}}
+			if (this.vertexlist!=null) {k.vertexlist=new Position[this.vertexlist.length]; for (int i=0;i<k.vertexlist.length;i++) {k.vertexlist[i] = this.vertexlist[i].rotateAroundAxisPos(pos,axis,angle);}}
+			if (this.sphereboundaryvolume!=null) {k.sphereboundaryvolume = this.sphereboundaryvolume.rotateAroundAxisPos(pos,axis,angle);}
+			if (this.aabbboundaryvolume!=null) {k.aabbboundaryvolume = this.aabbboundaryvolume.rotateAroundAxisPos(pos,axis,angle);}
 			return k;
 		}
 	}

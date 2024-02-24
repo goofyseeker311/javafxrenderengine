@@ -5,6 +5,9 @@ import java.io.File;
 
 import javax.swing.UIManager;
 
+import fi.jkauppa.javarenderengine.ModelLib.Direction;
+import fi.jkauppa.javarenderengine.ModelLib.Position;
+import fi.jkauppa.javarenderengine.MathLib;
 import fi.jkauppa.javarenderengine.UtilLib;
 import fi.jkauppa.javarenderengine.UtilLib.ImageFileFilters.PNGFileFilter;
 import javafx.animation.AnimationTimer;
@@ -45,6 +48,14 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     public static void main(String[] args) {
 		System.setProperty("sun.java2d.opengl", "true");
 		try {UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());} catch (Exception ex) {}
+		
+		Position[] vraappoints = {new Position(1.0f,0.0f,0.0f), new Position(1.0f,1.0f,-1.0f)};
+		Position[] vraaparound = { new Position(2.0f,0.0f,0.0f) };
+		Direction[] vraapaaxis = { new Direction(0.0f,0.0f,1.0f) };
+		double[] vraapaangle = { 180.0f };
+		Position[] vraapprot = MathLib.rotateAroundAxisPos(vraappoints, vraaparound[0], vraapaaxis[0], vraapaangle[0]);
+		for (int i=0;i<vraapprot.length;i++) {System.out.println("JavaFXRenderEngine: vraapprot="+vraapprot[i].x+" "+vraapprot[i].y+" "+vraapprot[i].z);}
+		
     	launch(args);
     }
     @Override public void init() {}
@@ -52,7 +63,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.1.9");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.2.0");
     	this.primaryStage.getIcons().add(logowimage);
     	this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     	this.primaryStage.setFullScreenExitHint("");

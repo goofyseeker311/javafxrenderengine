@@ -352,8 +352,8 @@ public class DrawFXApp extends AppFXHandler {
 			if (this.renderbuffer!=null) {
 				Graphics2D renderbuffergfx = this.renderbuffer.createGraphics();
 				renderbuffergfx.setColor(this.drawcolor);
-			    boolean mouse1up = mouseevent.getButton()==MouseButton.PRIMARY;
-			    boolean mouse3up = mouseevent.getButton()==MouseButton.SECONDARY;
+			    boolean mouse1up = mouseevent.getButton().equals(MouseButton.PRIMARY);
+			    boolean mouse3up = mouseevent.getButton().equals(MouseButton.SECONDARY);
 				if (mouse1up||mouse3up) {
 					if (this.drawlinemode) {
 						this.drawlinemode=false;
