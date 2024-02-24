@@ -63,7 +63,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.2.1");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.2.2");
     	this.primaryStage.getIcons().add(logowimage);
     	this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     	this.primaryStage.setFullScreenExitHint("");

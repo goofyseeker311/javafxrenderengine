@@ -302,17 +302,9 @@ public class DrawFXApp extends AppFXHandler {
 	        	FileChooser filechooser = new FileChooser();
 	        	filechooser.setInitialDirectory(new File(this.userdir));
 		    	filechooser.setTitle("Load File");
-		    	ExtensionFilter pngextensionfilter = new ExtensionFilter("PNG Image file", "*.png");
-		    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jpeg");
-		    	ExtensionFilter gifextensionfilter = new ExtensionFilter("GIF Image file", "*.gif");
-		    	ExtensionFilter bmpextensionfilter = new ExtensionFilter("BMP Image file", "*.bmp");
-		    	ExtensionFilter wbmpextensionfilter = new ExtensionFilter("WBMP Image file", "*.wbmp");
-	        	filechooser.getExtensionFilters().add(pngextensionfilter);
-	        	filechooser.getExtensionFilters().add(jpgextensionfilter);
-	        	filechooser.getExtensionFilters().add(gifextensionfilter);
-	        	filechooser.getExtensionFilters().add(bmpextensionfilter);
-	        	filechooser.getExtensionFilters().add(wbmpextensionfilter);
-	        	filechooser.setSelectedExtensionFilter(pngextensionfilter);
+		    	ExtensionFilter imageextensionfilter = new ExtensionFilter("Image files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.wbmp");
+	        	filechooser.getExtensionFilters().add(imageextensionfilter);
+	        	filechooser.setSelectedExtensionFilter(imageextensionfilter);
 		    	File loadfile = filechooser.showOpenDialog(this.scene.getWindow());
 		    	if (loadfile!=null) {
 					if (loadfile.getParent()!=null) {this.userdir = loadfile.getParent();}

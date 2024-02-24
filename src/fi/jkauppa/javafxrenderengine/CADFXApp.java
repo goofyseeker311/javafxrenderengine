@@ -548,17 +548,9 @@ public class CADFXApp extends AppFXHandler {
 		        	FileChooser filechooser = new FileChooser();
 		        	filechooser.setInitialDirectory(new File(this.userdir));
 			    	filechooser.setTitle("Load Texture");
-			    	ExtensionFilter pngextensionfilter = new ExtensionFilter("PNG Image file", "*.png");
-			    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jpeg");
-			    	ExtensionFilter gifextensionfilter = new ExtensionFilter("GIF Image file", "*.gif");
-			    	ExtensionFilter bmpextensionfilter = new ExtensionFilter("BMP Image file", "*.bmp");
-			    	ExtensionFilter wbmpextensionfilter = new ExtensionFilter("WBMP Image file", "*.wbmp");
-		        	filechooser.getExtensionFilters().add(pngextensionfilter);
-		        	filechooser.getExtensionFilters().add(jpgextensionfilter);
-		        	filechooser.getExtensionFilters().add(gifextensionfilter);
-		        	filechooser.getExtensionFilters().add(bmpextensionfilter);
-		        	filechooser.getExtensionFilters().add(wbmpextensionfilter);
-		        	filechooser.setSelectedExtensionFilter(pngextensionfilter);
+			    	ExtensionFilter imageextensionfilter = new ExtensionFilter("Image files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.wbmp");
+		        	filechooser.getExtensionFilters().add(imageextensionfilter);
+		        	filechooser.setSelectedExtensionFilter(imageextensionfilter);
 			    	File loadfile = filechooser.showOpenDialog(this.scene.getWindow());
 			    	if (loadfile!=null) {
 						if (loadfile.getParent()!=null) {this.userdir = loadfile.getParent();}
@@ -631,37 +623,20 @@ public class CADFXApp extends AppFXHandler {
 		    	if (savefile!=null) {
 					if (savefile.getParent()!=null) {this.userdir = savefile.getParent();}
 		    		ExtensionFilter savefileextension = filechooser.getSelectedExtensionFilter();
-					RenderView renderimageview = null;
-					if (f4ctrldown) {
-						renderimageview = RenderLib.renderCubemapView(this.campos[0], this.entitylist, this.rendercubemapoutputwidth, this.rendercubemapoutputheight, this.rendercubemapoutputsize, this.cameramat, this.unlitrender, 3, this.renderbounces, null, null, null, this.mouselocationx, this.mouselocationy);
-					} else if (f4shiftdown) {
-						renderimageview = RenderLib.renderSpheremapView(this.campos[0], this.entitylist, this.renderspheremapoutputwidth, this.renderspheremapoutputheight, this.cameramat, this.unlitrender, 2, this.renderbounces, null, null, null, this.mouselocationx, this.mouselocationy);
-					} else {
-						renderimageview = RenderLib.renderProjectedView(this.campos[0], this.entitylist, this.renderoutputwidth, this.hfov, this.renderoutputheight, this.vfov, this.cameramat, this.unlitrender, 3, this.renderbounces, null, null, null, this.mouselocationx, this.mouselocationy);
-					}
-					BufferedImage renderimage = renderimageview.renderimage;
-					if (f4down) {
-						BufferedImage blackbgimage = gc.createCompatibleImage(renderimage.getWidth(), renderimage.getHeight(), Transparency.TRANSLUCENT);
-						Graphics2D bbggfx = blackbgimage.createGraphics();
-						bbggfx.setComposite(AlphaComposite.Src);
-						bbggfx.setColor(this.renderbackgroundcolor);
-						bbggfx.fillRect(0, 0, renderimage.getWidth(), renderimage.getHeight());
-						bbggfx.setComposite(AlphaComposite.SrcOver);
-						bbggfx.drawImage(renderimage, 0, 0, null);
-						bbggfx.dispose();
-						renderimage = blackbgimage;
-					}
-		    		if (savefileextension.equals(pngextensionfilter)) {
-						UtilLib.saveImageFormat(savefile.getPath(), renderimage, new PNGFileFilter());
-		    		} else if (savefileextension.equals(jpgextensionfilter)) {
-		    			UtilLib.saveImageFormat(savefile.getPath(), renderimage, new JPGFileFilter());
+		    		FileFilter saveformat = new PNGFileFilter();
+		    		if (savefileextension.equals(jpgextensionfilter)) {
+		    			saveformat = new JPGFileFilter();
 		    		} else if (savefileextension.equals(gifextensionfilter)) {
-		    			UtilLib.saveImageFormat(savefile.getPath(), renderimage, new GIFFileFilter());
+		    			saveformat = new GIFFileFilter();
 		    		} else if (savefileextension.equals(bmpextensionfilter)) {
-		    			UtilLib.saveImageFormat(savefile.getPath(), renderimage, new BMPFileFilter());
+		    			saveformat = new BMPFileFilter();
 		    		} else if (savefileextension.equals(wbmpextensionfilter)) {
-		    			UtilLib.saveImageFormat(savefile.getPath(), renderimage, new WBMPFileFilter());
-			    	} 
+		    			saveformat = new WBMPFileFilter();
+			    	}
+		    		boolean rendercubemap = f4ctrldown;
+		    		boolean renderspheremap = f4shiftdown;
+		    		boolean renderbackground = f4down;
+		    		(new ImageRenderer(savefile.getPath(), saveformat, rendercubemap, renderspheremap, renderbackground)).start();
 				}
 			}
 		} else if (event.getEventType().equals(MouseEvent.MOUSE_MOVED)) {
@@ -1217,6 +1192,44 @@ public class CADFXApp extends AppFXHandler {
 				RenderLib.renderSurfaceFaceLightmapCubemapView(entitylist, 32, bounces, 3);
 				EntityLightMapUpdater.entitylightmapupdaterrunning = false;
 			}
+		}
+	}
+
+	private class ImageRenderer extends Thread {
+		private String filename;
+		private FileFilter saveformat;
+		private boolean rendercubemap;
+		private boolean renderspheremap;
+		private boolean renderbackground;
+		public ImageRenderer(String filenamei, FileFilter saveformati, boolean rendercubemapi, boolean renderspheremapi, boolean renderbackgroundi) {
+			this.filename = filenamei;
+			this.saveformat = saveformati;
+			this.rendercubemap = rendercubemapi;
+			this.renderspheremap = renderspheremapi;
+			this.renderbackground = renderbackgroundi;
+		}
+		public void run() {
+			RenderView renderimageview = null;
+			if (rendercubemap) {
+				renderimageview = RenderLib.renderCubemapView(campos[0], entitylist, rendercubemapoutputwidth, rendercubemapoutputheight, rendercubemapoutputsize, cameramat, unlitrender, 3, renderbounces, null, null, null, mouselocationx, mouselocationy);
+			} else if (renderspheremap) {
+				renderimageview = RenderLib.renderSpheremapView(campos[0], entitylist, renderspheremapoutputwidth, renderspheremapoutputheight, cameramat, unlitrender, 2, renderbounces, null, null, null, mouselocationx, mouselocationy);
+			} else {
+				renderimageview = RenderLib.renderProjectedView(campos[0], entitylist, renderoutputwidth, hfov, renderoutputheight, vfov, cameramat, unlitrender, 3, renderbounces, null, null, null, mouselocationx, mouselocationy);
+			}
+			BufferedImage renderimage = renderimageview.renderimage;
+			if (renderbackground) {
+				BufferedImage blackbgimage = gc.createCompatibleImage(renderimage.getWidth(), renderimage.getHeight(), Transparency.TRANSLUCENT);
+				Graphics2D bbggfx = blackbgimage.createGraphics();
+				bbggfx.setComposite(AlphaComposite.Src);
+				bbggfx.setColor(renderbackgroundcolor);
+				bbggfx.fillRect(0, 0, renderimage.getWidth(), renderimage.getHeight());
+				bbggfx.setComposite(AlphaComposite.SrcOver);
+				bbggfx.drawImage(renderimage, 0, 0, null);
+				bbggfx.dispose();
+				renderimage = blackbgimage;
+			}
+    		UtilLib.saveImageFormat(filename, renderimage, saveformat);
 		}
 	}
 	
