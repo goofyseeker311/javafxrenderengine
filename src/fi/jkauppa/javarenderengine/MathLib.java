@@ -2867,7 +2867,7 @@ public class MathLib {
 				double[] hanglea = vectorAngle(vpointhdir, camfwddir);
 				double[] vanglea = vectorAngle(vpointhdir, vpointvdir);
 				if (!Double.isFinite(hanglea[0])) {hanglea[0]=0.0f;};
-				if (!Double.isFinite(vanglea[0])) {vanglea[0]=90.0f;};
+				if (!Double.isFinite(vanglea[0])) {vanglea[0]=halfvfov;};
 				double hangle = ((rightpointsdist[i][0]>=0.0)?1.0f:-1.0f)*hanglea[0];
 				double vangle = ((uppointsdist[i][0]>=0.0)?1.0f:-1.0f)*vanglea[0];
 				double hind = halfhreshfovmult*hangle+origindeltax;
@@ -2957,15 +2957,21 @@ public class MathLib {
 		return k;
 	}
 	public static Rectangle[] spheremapSphereIntersection(Position vpos, Sphere[] vsphere, int hres, int vres, Matrix vmat, Plane nclipplane) {
-		//TODO fix incorrect pole and back side overlapping sphere rectangle area
 		Rectangle[] k = null;
 		if ((vpos!=null)&&(vsphere!=null)&&(vmat!=null)) {
 			k = new Rectangle[vsphere.length];
+			Direction[] camdirs = projectedCameraDirections(vmat);
+			Plane[] camplanes = planeFromNormalAtPoint(vpos, camdirs);
+			Plane[] camupplane = {camplanes[2]};
+			Direction[] dirup = {camdirs[2]};
 			Position[] vpoint = sphereVertexList(vsphere);
+			double[][] poleint = MathLib.rayPointDistance(vpos, dirup, vpoint);
 			Direction[] lvec = vectorFromPoints(vpos, vsphere);
 			double[] lvecl = vectorLength(lvec);
-			double halfhfov = 360.0f/2.0f;
-			double halfvfov = 180.0f/2.0f;
+			double hfov = 360.0f;
+			double vfov = 180.0f;
+			double halfhfov = hfov/2.0f;
+			double halfvfov = vfov/2.0f;
 			double halfhreshfovmult = (((double)(hres-1))/2.0f)/halfhfov;
 			double halfvresvfovmult = (((double)(vres-1))/2.0f)/halfvfov;
 			double origindeltax = ((double)(hres-1))/2.0f;
@@ -2973,7 +2979,7 @@ public class MathLib {
 			Direction[] dirrightupvectors = projectedCameraDirections(vmat);
 			Plane[] dirrightupplanes = planeFromNormalAtPoint(vpos, dirrightupvectors);
 			double[][] fwdintpointsdist = planePointDistance(vpoint, dirrightupplanes);
-			for (int i=0;i<vpoint.length;i++) {
+			for (int i=0;i<vsphere.length;i++) {
 				double prjspherehalfang = asind(vsphere[i].r/lvecl[i]);
 				if (!Double.isFinite(prjspherehalfang)) {prjspherehalfang = 180.0f;}
 				Direction camfwdvector = new Direction(1.0f, 0.0f, 0.0f);
@@ -2986,21 +2992,40 @@ public class MathLib {
 				double hangle2 = hangle+prjspherehalfang;
 				double vangle1 = vangle-prjspherehalfang;
 				double vangle2 = vangle+prjspherehalfang;
-				if (hangle1<-halfhfov) {hangle1=-halfhfov;}
-				if (hangle2>halfhfov) {hangle2=halfhfov;}
+				if (hangle1<-halfhfov) {hangle1+=hfov;}
+				if (hangle2>halfhfov) {hangle2-=hfov;}
 				if (vangle1<-halfvfov) {vangle1=-halfvfov;}
 				if (vangle2>halfvfov) {vangle2=halfvfov;}
-				int hcenterind1 = (int)Math.ceil(halfhreshfovmult*hangle1+origindeltax);
-				int hcenterind2 = (int)Math.floor(halfhreshfovmult*hangle2+origindeltax);
+				int hcenterind1 = 0;
+				int hcenterind2 = 0;
+				if (hangle1>hangle2) {
+					hcenterind1 = (int)Math.floor(halfhreshfovmult*hangle1+origindeltax);
+					hcenterind2 = (int)Math.ceil(halfhreshfovmult*hangle2+origindeltax);
+				} else {
+					hcenterind1 = (int)Math.ceil(halfhreshfovmult*hangle1+origindeltax);
+					hcenterind2 = (int)Math.floor(halfhreshfovmult*hangle2+origindeltax);
+				}
 				int vcenterind1 = (int)Math.ceil(halfvresvfovmult*vangle1+origindeltay);
 				int vcenterind2 = (int)Math.floor(halfvresvfovmult*vangle2+origindeltay);
-				if (hcenterind1<0) {hcenterind1=0;}
-				if (hcenterind2>=hres) {hcenterind2=hres-1;}
+				if (poleint[0][i]<vsphere[i].r) {
+					hcenterind1 = 0;
+					hcenterind2 = hres-1;
+					Position[] poleintpos = {vpoint[i]};
+					double[][] poleintdist = planePointDistance(poleintpos, camupplane);
+					if (poleintdist[0][0]<-vsphere[i].r) {
+						vcenterind1 = 0;
+					} else if (poleintdist[0][0]>vsphere[i].r) {
+						vcenterind2 = vres-1;
+					} else {
+						vcenterind1 = 0;
+						vcenterind2 = vres-1;
+					}
+				}
 				if (vcenterind1<0) {vcenterind1=0;}
 				if (vcenterind2>=vres) {vcenterind2=vres-1;}
 				int spherewidth = hcenterind2-hcenterind1+1;
 				int sphereheight = vcenterind2-vcenterind1+1;
-				if ((spherewidth>0)&&(sphereheight>0)) {
+				if ((spherewidth!=0)&&(sphereheight!=0)) {
 					k[i] = new Rectangle(hcenterind1,vcenterind1,spherewidth,sphereheight);
 				}
 			}
