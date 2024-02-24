@@ -100,10 +100,10 @@ SHIFT-F2              -- save model file dialog (surface only)
 F3                    -- load model file dialog
 CTRL-F3               -- load insert model file dialog
 SHIFT-F3              -- load texture image file dialog
-F4                    -- render and save projected view 7680x4320 image with black opaque background
-CTRL-F4               -- render and save cube map view 12288x8192 image with transparent background
-SHIFT-F4              -- render and save sphere map 15360x4320 image with transparent background
-CTRL-SHIFT-F4         -- render and save projected view 8K image with transparent background
+F4                    -- render and save projected view 3840x2160 image with black opaque background
+CTRL-F4               -- render and save cube map view 6144x4096 image with transparent background
+SHIFT-F4              -- render and save sphere map 7680x4320 image with transparent background
+CTRL-SHIFT-F4         -- render and save projected view 4K image with transparent background
 
 Model App Keys:
 BACKSPACE             -- remove loaded model and reset camera location
@@ -151,4 +151,5 @@ This is free software which does not require any license agreement under governm
 
 Example renders:
 ![render2](https://github.com/goofyseeker311/javafxrenderengine/assets/19920254/3f70b282-b0c0-4c44-94d1-eff5b81afcf5)
-![render3](https://github.com/goofyseeker311/javafxrenderengine/assets/19920254/524cbfa0-9c2f-46da-b73b-518201a737ab)
+![render3](https://github.com/goofyseeker311/javafxrenderengine/assets/19920254/733d8953-3d23-495f-a6c4-bc279eaeac52)
+
