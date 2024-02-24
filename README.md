@@ -152,4 +152,4 @@ This is free software which does not require any license agreement under governm
 Example renders:
 ![render2](https://github.com/goofyseeker311/javafxrenderengine/assets/19920254/3f70b282-b0c0-4c44-94d1-eff5b81afcf5)
 ![render3](https://github.com/goofyseeker311/javafxrenderengine/assets/19920254/733d8953-3d23-495f-a6c4-bc279eaeac52)
-
+![render4](https://github.com/goofyseeker311/javafxrenderengine/assets/19920254/6f3d2aff-da9e-44db-896a-7a4ef5b53e32)
