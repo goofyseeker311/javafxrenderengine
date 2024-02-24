@@ -349,7 +349,8 @@ public class RenderLib {
 								Direction copytriangledir = copyviewtrianglespheredir[it];
 								int jstart = copytrianglelistint[it].x;
 								int jend = copytrianglelistint[it].x+copytrianglelistint[it].width-1;
-								for (int j=jstart;j<=jend;j++) {
+								for (int j=jstart;((jstart<=jend)&&(j<=jend))||((jstart>jend)&&((j>=jstart)||(j<=jend)));j++) {
+									if (j>=renderwidth) {j=0;}
 									PlaneRay[] camplaneray = {renderview.planerays[j]};
 									Position[] camposa = {camplaneray[0].pos};
 									Direction[] camfwddir = {camplaneray[0].dir};
@@ -611,7 +612,8 @@ public class RenderLib {
 									int istart = copytrianglelistint[it].x;
 									int iend = copytrianglelistint[it].x+copytrianglelistint[it].width-1;
 									for (int j=jstart;j<=jend;j++) {
-										for (int i=istart;i<=iend;i++) {
+										for (int i=istart;((istart<=iend)&&(i<=iend))||((istart>iend)&&((i>=istart)||(i<=iend)));i++) {
+											if (i>=renderwidth) {i=0;}
 											Direction[] camray = {renderview.rays[j][i]};
 											Ray[] ray = {new Ray(campos, camray[0])};
 											Plane[] camfwdplane = null;

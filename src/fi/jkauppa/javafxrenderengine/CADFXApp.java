@@ -70,8 +70,8 @@ public class CADFXApp extends AppFXHandler {
 	private boolean texturemode = false;
 	private boolean erasemode = false;
 	private Material drawmat = new Material(Color.getHSBColor(0.0f, 0.0f, 1.0f),1.0f,null);
-	private int renderoutputwidth = 7680, renderoutputheight = 4320;
-	private int rendercubemapoutputsize = 4096, rendercubemapoutputwidth = 3*rendercubemapoutputsize, rendercubemapoutputheight = 2*rendercubemapoutputsize;
+	private int renderoutputwidth = 3840, renderoutputheight = 2160;
+	private int rendercubemapoutputsize = 2048, rendercubemapoutputwidth = 3*rendercubemapoutputsize, rendercubemapoutputheight = 2*rendercubemapoutputsize;
 	private int renderspheremapoutputwidth = 2*renderoutputwidth, renderspheremapoutputheight = renderoutputheight;
 	private int renderbounces = 2;
 	private Color renderbackgroundcolor = Color.BLACK;

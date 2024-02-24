@@ -2878,7 +2878,6 @@ public class MathLib {
 		return k;
 	}
 	public static Rectangle[] spheremapTriangleIntersection(Position vpos, Triangle[] vtri, int hres, int vres, Matrix vmat, Plane nclipplane) {
-		//TODO fix incorrect backside crossing triangle x-inverted two-part area and vertical maximum 0 to vres-1 height
 		Rectangle[] k = null;
 		if ((vpos!=null)&&(vtri!=null)&&(vmat!=null)) {
 			k = new Rectangle[vtri.length];
@@ -2919,8 +2918,18 @@ public class MathLib {
 					boolean vtripospixel13crossingbehind = vtripospixel13dif>halfhres;
 					boolean vtripospixel23crossingbehind = vtripospixel23dif>halfhres;
 					if (vtripospixel12crossingbehind||vtripospixel13crossingbehind||vtripospixel23crossingbehind) {
-						minx = 0;
-						maxx = hres-1;
+						double frontsideflippedminx = Double.POSITIVE_INFINITY;
+						double frontsideflippedmaxx = Double.NEGATIVE_INFINITY;
+						double[] frontsideflippedxcoords = {vtripospixels[0].u, vtripospixels[1].u, vtripospixels[2].u};
+						for (int i=0;i<frontsideflippedxcoords.length;i++) {
+							frontsideflippedxcoords[i] = (frontsideflippedxcoords[i]<halfhres)?(halfhres-frontsideflippedxcoords[i]):(hres-frontsideflippedxcoords[i]+halfhres);
+							if (frontsideflippedxcoords[i]<frontsideflippedminx) {frontsideflippedminx = frontsideflippedxcoords[i];}
+							if (frontsideflippedxcoords[i]>frontsideflippedmaxx) {frontsideflippedmaxx = frontsideflippedxcoords[i];}
+						}
+						double normalminx = (frontsideflippedminx<halfhres)?(halfhres-frontsideflippedminx):(hres-frontsideflippedminx+halfhres);
+						double normalmaxx = (frontsideflippedmaxx<halfhres)?(halfhres-frontsideflippedmaxx):(hres-frontsideflippedmaxx+halfhres);
+						minx = normalmaxx;
+						maxx = normalminx;
 					}
 					if (poleint[0][j]!=null) {
 						minx = 0;
