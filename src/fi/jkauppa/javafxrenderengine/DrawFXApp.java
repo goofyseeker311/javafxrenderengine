@@ -272,7 +272,7 @@ public class DrawFXApp extends AppFXHandler {
 	        	filechooser.setInitialDirectory(new File(this.userdir));
 		    	filechooser.setTitle("Save File");
 		    	ExtensionFilter pngextensionfilter = new ExtensionFilter("PNG Image file", "*.png");
-		    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jepg");
+		    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jpeg");
 		    	ExtensionFilter gifextensionfilter = new ExtensionFilter("GIF Image file", "*.gif");
 		    	ExtensionFilter bmpextensionfilter = new ExtensionFilter("BMP Image file", "*.bmp");
 		    	ExtensionFilter wbmpextensionfilter = new ExtensionFilter("WBMP Image file", "*.wbmp");
@@ -303,7 +303,7 @@ public class DrawFXApp extends AppFXHandler {
 	        	filechooser.setInitialDirectory(new File(this.userdir));
 		    	filechooser.setTitle("Load File");
 		    	ExtensionFilter pngextensionfilter = new ExtensionFilter("PNG Image file", "*.png");
-		    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jepg");
+		    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jpeg");
 		    	ExtensionFilter gifextensionfilter = new ExtensionFilter("GIF Image file", "*.gif");
 		    	ExtensionFilter bmpextensionfilter = new ExtensionFilter("BMP Image file", "*.bmp");
 		    	ExtensionFilter wbmpextensionfilter = new ExtensionFilter("WBMP Image file", "*.wbmp");

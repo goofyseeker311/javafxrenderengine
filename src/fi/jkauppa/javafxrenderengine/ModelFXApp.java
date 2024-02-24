@@ -60,11 +60,11 @@ public class ModelFXApp extends AppFXHandler {
 		PerspectiveCamera camera = new PerspectiveCamera(true);
 		camera.setFarClip(1000000.0f);
 		camera.setVerticalFieldOfView(false);
-		camera.setFieldOfView(hfov);
+		camera.setFieldOfView(this.hfov);
 		camera.getTransforms().clear();
-		camera.setTranslateX(campos[0].x);
-		camera.setTranslateY(campos[0].y);
-		camera.setTranslateZ(campos[0].z);
+		camera.setTranslateX(this.campos[0].x);
+		camera.setTranslateY(this.campos[0].y);
+		camera.setTranslateZ(this.campos[0].z);
 		camera.getTransforms().add(new Rotate(this.camrot.z, new Point3D(0,0,1)));
 		camera.getTransforms().add(new Rotate(this.camrot.y, new Point3D(0,1,0)));
 		camera.getTransforms().add(new Rotate(this.camrot.x, new Point3D(1,0,0)));
@@ -76,6 +76,10 @@ public class ModelFXApp extends AppFXHandler {
 	}
 
 	@Override public void pulse() {
+		updateCamera();
+	}
+	
+	private void updateCamera() {
 		double movementstep = 1000.0f*this.diffpulsetimesec;
 		if (this.leftkeydown) {
 			this.campos = MathLib.translate(campos, this.camdirs[1], -movementstep);
@@ -94,15 +98,11 @@ public class ModelFXApp extends AppFXHandler {
 		}
 		if (this.rollleftkeydown) {
 			this.camrot = this.camrot.copy();
-			this.camrot.y -= 50.0f*this.diffpulsetimesec;
+			this.camrot.y -= movementstep/20.0f;
 		} else if (this.rollrightkeydown) {
 			this.camrot = this.camrot.copy();
-			this.camrot.y += 50.0f*this.diffpulsetimesec;
+			this.camrot.y += movementstep/20.0f;
 		}
-		updateCameraDirections();
-	}
-	
-	private void updateCameraDirections() {
 		Matrix camrotmat = MathLib.rotationMatrixLookHorizontalRoll(this.camrot);
 		Direction[] camlookdirs = MathLib.matrixMultiply(this.lookdirs, camrotmat);
 		this.cameramat = camrotmat;
@@ -136,7 +136,6 @@ public class ModelFXApp extends AppFXHandler {
 				this.entities.getChildren().clear();
 				this.campos = this.defaultcampos;
 				this.camrot = this.defaultcamrot;
-				updateCameraDirections();
 			} else if (keyevent.getCode()==KeyCode.A) {
 				this.leftkeydown = true;
 			} else if (keyevent.getCode()==KeyCode.D) {
@@ -204,7 +203,6 @@ public class ModelFXApp extends AppFXHandler {
 				this.camrot = this.camrot.copy();
 		    	this.camrot.z -= mousedeltax*0.1f;
 		    	this.camrot.x -= mousedeltay*0.1f;
-		    	updateCameraDirections();
 				if ((this.mouselocationx<=0)||(this.mouselocationy<=0)||(this.mouselocationx>=(this.renderwidth-1))||(this.mouselocationy>=(this.renderheight-1))) {
 					this.handle(mouseevent.copyFor(mouseevent.getSource(), this.scene.getWindow(), MouseEvent.MOUSE_EXITED));
 				}

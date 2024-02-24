@@ -143,6 +143,10 @@ public class CADFXApp extends AppFXHandler {
 	}
 	
 	@Override public void pulse() {
+		updateCamera();
+	}
+
+	private void updateCamera() {
 		double movementstep = 1000.0f*this.diffpulsetimesec;
 		if (this.snaplinemode) {
 			movementstep *= this.gridstep;
@@ -195,11 +199,6 @@ public class CADFXApp extends AppFXHandler {
         	this.camrot.x -= (movementstep/((double)this.gridstep));
 			System.out.println("CADApp: keyPressed: key ARROW-UP: camera yaw rotation up="+this.camrot.x+","+this.camrot.y+","+this.camrot.z);
 		}
-		updateCameraDirections();
-		(new RenderViewUpdater()).start();
-	}
-
-	private void updateCameraDirections() {
 		Matrix camrotmat = MathLib.rotationMatrixLookHorizontalRoll(this.camrot);
 		Direction[] camlookdirs = MathLib.projectedCameraDirections(camrotmat);
 		Position[] editposa = MathLib.translate(this.campos, camlookdirs[0], this.defaultcamdist);
@@ -207,6 +206,7 @@ public class CADFXApp extends AppFXHandler {
 		this.editpos = editposa[0];
 		this.cameramat = camrotmat;
 		this.camdirs = camlookdirs;
+		(new RenderViewUpdater()).start();
 	}
 	
 	@Override public void handle(Event event) {
@@ -549,7 +549,7 @@ public class CADFXApp extends AppFXHandler {
 		        	filechooser.setInitialDirectory(new File(this.userdir));
 			    	filechooser.setTitle("Load Texture");
 			    	ExtensionFilter pngextensionfilter = new ExtensionFilter("PNG Image file", "*.png");
-			    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jepg");
+			    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jpeg");
 			    	ExtensionFilter gifextensionfilter = new ExtensionFilter("GIF Image file", "*.gif");
 			    	ExtensionFilter bmpextensionfilter = new ExtensionFilter("BMP Image file", "*.bmp");
 			    	ExtensionFilter wbmpextensionfilter = new ExtensionFilter("WBMP Image file", "*.wbmp");
@@ -617,7 +617,7 @@ public class CADFXApp extends AppFXHandler {
 	        	filechooser.setInitialDirectory(new File(this.userdir));
 		    	filechooser.setTitle("Render Image");
 		    	ExtensionFilter pngextensionfilter = new ExtensionFilter("PNG Image file", "*.png");
-		    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jepg");
+		    	ExtensionFilter jpgextensionfilter = new ExtensionFilter("JPG Image file", "*.jpg", "*.jpeg");
 		    	ExtensionFilter gifextensionfilter = new ExtensionFilter("GIF Image file", "*.gif");
 		    	ExtensionFilter bmpextensionfilter = new ExtensionFilter("BMP Image file", "*.bmp");
 		    	ExtensionFilter wbmpextensionfilter = new ExtensionFilter("WBMP Image file", "*.wbmp");
@@ -1043,7 +1043,7 @@ public class CADFXApp extends AppFXHandler {
 		    		}
 					if (mousetriangle!=null) {
 			        	AffineTransform textr = new AffineTransform();
-			        	textr.shear(0.01f*scrollticksX,0.0f);
+			        	textr.shear(0.01f*scrollticksY,0.0f);
 			        	Point2D pos1tex = new Point2D.Double(mousetriangle.pos1.tex.u,mousetriangle.pos1.tex.v); 
 			        	Point2D pos2tex = new Point2D.Double(mousetriangle.pos2.tex.u,mousetriangle.pos2.tex.v); 
 			        	Point2D pos3tex = new Point2D.Double(mousetriangle.pos3.tex.u,mousetriangle.pos3.tex.v); 

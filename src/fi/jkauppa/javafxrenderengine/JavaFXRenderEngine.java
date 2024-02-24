@@ -86,27 +86,17 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     	public String userdir = System.getProperty("user.dir");
     	public int renderwidth = 0;
     	public int renderheight = 0;
-    	public long lastanimtick = System.currentTimeMillis();
-    	public long nowanimtick = this.lastanimtick;
-		public double diffanimtick = (double)(this.nowanimtick - this.lastanimtick);
-		public double diffanimticksec = this.diffanimtick/1000.0f;
-    	public long nowpulsetime = System.currentTimeMillis();
-    	public long lastpulsetime = this.nowpulsetime;
+    	public long lastpulsetime = System.currentTimeMillis();
+    	public long nowpulsetime = this.lastpulsetime;
 		public double diffpulsetime = (double)(this.nowpulsetime - this.lastpulsetime);
 		public double diffpulsetimesec = this.diffpulsetime/1000.0f;
     	public Clipboard cb = Clipboard.getSystemClipboard();
     	public AppFXHandler() {}
-    	public void animtick() {
-			this.lastanimtick = this.nowanimtick;
-			this.nowanimtick = System.currentTimeMillis();
-			this.diffanimtick = (double)(this.nowanimtick - this.lastanimtick);
-			this.diffanimticksec = this.diffanimtick/1000.0f;
-    	}
     	public void pulsetick() {
-    		this.lastpulsetime = this.nowpulsetime;
-    		this.nowpulsetime = System.currentTimeMillis();
-    		this.diffpulsetime = (double)(this.nowpulsetime - this.lastpulsetime);
-    		this.diffpulsetimesec = this.diffpulsetime/1000.0f;
+			this.lastpulsetime = this.nowpulsetime;
+			this.nowpulsetime = System.currentTimeMillis();
+			this.diffpulsetime = (double)(this.nowpulsetime - this.lastpulsetime);
+			this.diffpulsetimesec = this.diffpulsetime/1000.0f;
     	}
     	public abstract void update();
     	public abstract void pulse();
@@ -156,7 +146,6 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 	
 	private class FrameTick extends AnimationTimer {
 		@Override public void handle(long now) {
-			activeapp.animtick();
 			activeapp.update();
 		}
 	}
