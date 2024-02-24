@@ -3010,9 +3010,9 @@ public class MathLib {
 			if (vertexlist[i].z<zmin) {zmin=vertexlist[i].z;}
 			if (vertexlist[i].z>zmax) {zmax=vertexlist[i].z;}
 		}
-		double centerposx = xmin+xmax;
-		double centerposy = ymin+ymax;
-		double centerposz = zmin+zmax;
+		double centerposx = (xmin+xmax)/2.0f;
+		double centerposy = (ymin+ymax)/2.0f;
+		double centerposz = (zmin+zmax)/2.0f;
 		Axis newaxis = new Axis(new Position(centerposx,centerposy,centerposz),new Direction(1.0f,0.0f,0.0f),new Direction(0.0f,1.0f,0.0f),new Direction(0.0f,0.0f,1.0f));
 		return new AxisAlignedBoundingBox(new Position(xmin,ymin,zmin),new Position(xmax,ymax,zmax), newaxis);
 	}
