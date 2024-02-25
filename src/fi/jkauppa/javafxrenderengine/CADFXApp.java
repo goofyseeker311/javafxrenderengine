@@ -34,6 +34,7 @@ import fi.jkauppa.javarenderengine.ModelLib.Plane;
 import fi.jkauppa.javarenderengine.ModelLib.Position;
 import fi.jkauppa.javarenderengine.ModelLib.RenderView;
 import fi.jkauppa.javarenderengine.ModelLib.Rotation;
+import fi.jkauppa.javarenderengine.ModelLib.Scaling;
 import fi.jkauppa.javarenderengine.ModelLib.Sphere;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
 import fi.jkauppa.javarenderengine.UtilLib.ImageFileFilters.BMPFileFilter;
@@ -880,7 +881,7 @@ public class CADFXApp extends AppFXHandler {
 					System.out.println("CADApp: mouseDragged: key CTRL-DRAG-CMB: camera rotation angles="+this.camrot.x+","+this.camrot.y+","+this.camrot.z);
 	    		}
 	    	}
-		    boolean mouse3down = ((mouseevent.getButton().equals(MouseButton.SECONDARY))&&(!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
+		    boolean mouse3down = ((mouseevent.getButton().equals(MouseButton.SECONDARY))&&(!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
 	    	if (mouse3down) {
 	    		if ((this.erasemode)&&(this.entitylist!=null)) {
 		    		if ((this.mouseoverentity!=null)&&(mouseoverentity.length>0)) {
@@ -908,16 +909,28 @@ public class CADFXApp extends AppFXHandler {
 	    			System.out.println("CADApp: mouseDragged: key DRAG-RMB: move entity ="+selectedentity.sphereboundaryvolume.x+" "+selectedentity.sphereboundaryvolume.y+" "+selectedentity.sphereboundaryvolume.z);
 	    		}
 	    	}
-		    boolean mouse3shiftdown = ((mouseevent.getButton().equals(MouseButton.SECONDARY))&&(!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
-		    if (mouse3shiftdown) {
+		    boolean mouse3altdown = ((mouseevent.getButton().equals(MouseButton.SECONDARY))&&(!mouseevent.isControlDown())&&(mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
+	    	if (mouse3altdown) {
     			if (this.entitybuffer!=null) {
     				Sphere[] entitycentersphere = {this.entitybuffer.sphereboundaryvolume};
 	    			Position[] entitycenterspherepos = MathLib.sphereVertexList(entitycentersphere);
 		        	int mousedeltax = this.mouselocationx - this.mouselastlocationx;
 		        	int mousedeltay = this.mouselocationy - this.mouselastlocationy;
+		        	double scalemultx = ((double)mousedeltax)/10000.0f;
+		        	double scalemulty = ((double)mousedeltay)/10000.0f;
+		        	if (mouseevent.isShiftDown()) {
+		        		scalemultx *= this.gridstep;
+		        		scalemulty *= this.gridstep;
+		        	}
+		        	scalemultx = 1.0f+scalemultx;
+		        	scalemulty = 1.0f-scalemulty;
     				for (int i=0;i<this.entitybuffer.childlist.length;i++) {
-    					this.entitybuffer.childlist[i].rotateSelfAroundAxisPos(entitycenterspherepos[0], this.camdirs[1], mousedeltay);
-    					this.entitybuffer.childlist[i].rotateSelfAroundAxisPos(entitycenterspherepos[0], this.camdirs[2], -mousedeltax);
+    					this.entitybuffer.childlist[i].scaleSelfAroundPos(entitycenterspherepos[0], new Scaling(scalemultx, scalemultx, scalemultx));
+    					this.entitybuffer.childlist[i].scaleSelfAroundPos(entitycenterspherepos[0], new Scaling(1, 1, scalemulty));
+    				}
+    				for (int i=0;i<this.entitybuffer.linelist.length;i++) {
+    					this.entitybuffer.linelist[i].scaleSelfAroundPos(entitycenterspherepos[0], new Scaling(scalemultx, scalemultx, scalemultx));
+    					this.entitybuffer.linelist[i].scaleSelfAroundPos(entitycenterspherepos[0], new Scaling(1, 1, scalemulty));
     				}
     			} else if (this.selecteddragentity!=null) {
 	    			Entity selectedentity = this.selecteddragentity[0];
@@ -927,21 +940,64 @@ public class CADFXApp extends AppFXHandler {
 	    			this.linelisttree.removeAll(Arrays.asList(selectedentitylinelist));
 		        	int mousedeltax = this.mouselocationx - this.mouselastlocationx;
 		        	int mousedeltay = this.mouselocationy - this.mouselastlocationy;
-	    			selectedentity.rotateSelfAroundAxisPos(selectedentitypos[0], this.camdirs[1], mousedeltay);
-	    			selectedentity.rotateSelfAroundAxisPos(selectedentitypos[0], this.camdirs[2], -mousedeltax);
+		        	double scalemultx = ((double)mousedeltax)/10000.0f;
+		        	double scalemulty = ((double)mousedeltay)/10000.0f;
+		        	if (mouseevent.isShiftDown()) {
+		        		scalemultx *= this.gridstep;
+		        		scalemulty *= this.gridstep;
+		        	}
+		        	scalemultx = 1.0f+scalemultx;
+		        	scalemulty = 1.0f-scalemulty;
+	    			selectedentity.scaleSelfAroundPos(selectedentitypos[0], new Scaling(scalemultx, scalemultx, scalemultx));
+	    			selectedentity.scaleSelfAroundPos(selectedentitypos[0], new Scaling(1, 1, scalemulty));
 	    			Line[] movedentitylinelist = MathLib.generateLineList(this.selecteddragentity);
 	    			this.linelisttree.addAll(Arrays.asList(movedentitylinelist));
 	    			this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
 	    			System.out.println("CADApp: mouseDragged: key SHIFT-DRAG-RMB: rotate entity ="+selectedentity.sphereboundaryvolume.x+" "+selectedentity.sphereboundaryvolume.y+" "+selectedentity.sphereboundaryvolume.z);
 		    	}
-		    }
-		    boolean mouse3altdown = ((mouseevent.getButton().equals(MouseButton.SECONDARY))&&(!mouseevent.isControlDown())&&(mouseevent.isAltDown())&&(!mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
-	    	if (mouse3altdown) {
-	    		//TODO <tbd>
 	    	}
-		    boolean mouse3ctrldown = ((mouseevent.getButton().equals(MouseButton.SECONDARY))&&(mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
+		    boolean mouse3ctrldown = ((mouseevent.getButton().equals(MouseButton.SECONDARY))&&(mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
 	    	if (mouse3ctrldown) {
-	    		//TODO <tbd>
+    			if (this.entitybuffer!=null) {
+    				Sphere[] entitycentersphere = {this.entitybuffer.sphereboundaryvolume};
+	    			Position[] entitycenterspherepos = MathLib.sphereVertexList(entitycentersphere);
+		        	int mousedeltax = this.mouselocationx - this.mouselastlocationx;
+		        	int mousedeltay = this.mouselocationy - this.mouselastlocationy;
+		        	double rotmultx = -((double)mousedeltax)/100.0f;
+		        	double rotmulty = ((double)mousedeltay)/100.0f;
+		        	if (mouseevent.isShiftDown()) {
+		        		rotmultx *= this.gridstep;
+		        		rotmulty *= this.gridstep;
+		        	}
+    				for (int i=0;i<this.entitybuffer.childlist.length;i++) {
+    					this.entitybuffer.childlist[i].rotateSelfAroundAxisPos(entitycenterspherepos[0], this.camdirs[1], rotmulty);
+    					this.entitybuffer.childlist[i].rotateSelfAroundAxisPos(entitycenterspherepos[0], this.camdirs[2], rotmultx);
+    				}
+    				for (int i=0;i<this.entitybuffer.linelist.length;i++) {
+    					this.entitybuffer.linelist[i].rotateSelfAroundAxisPos(entitycenterspherepos[0], this.camdirs[1], rotmulty);
+    					this.entitybuffer.linelist[i].rotateSelfAroundAxisPos(entitycenterspherepos[0], this.camdirs[2], rotmultx);
+    				}
+    			} else if (this.selecteddragentity!=null) {
+	    			Entity selectedentity = this.selecteddragentity[0];
+	    			Line[] selectedentitylinelist = MathLib.generateLineList(this.selecteddragentity);
+	    			Sphere[] selectedentitysphere = MathLib.entitySphereList(this.selecteddragentity);
+	    			Position[] selectedentitypos = MathLib.sphereVertexList(selectedentitysphere);
+	    			this.linelisttree.removeAll(Arrays.asList(selectedentitylinelist));
+		        	int mousedeltax = this.mouselocationx - this.mouselastlocationx;
+		        	int mousedeltay = this.mouselocationy - this.mouselastlocationy;
+		        	double rotmultx = -((double)mousedeltax)/100.0f;
+		        	double rotmulty = ((double)mousedeltay)/100.0f;
+		        	if (mouseevent.isShiftDown()) {
+		        		rotmultx *= this.gridstep;
+		        		rotmulty *= this.gridstep;
+		        	}
+	    			selectedentity.rotateSelfAroundAxisPos(selectedentitypos[0], this.camdirs[1], rotmulty);
+	    			selectedentity.rotateSelfAroundAxisPos(selectedentitypos[0], this.camdirs[2], rotmultx);
+	    			Line[] movedentitylinelist = MathLib.generateLineList(this.selecteddragentity);
+	    			this.linelisttree.addAll(Arrays.asList(movedentitylinelist));
+	    			this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
+	    			System.out.println("CADApp: mouseDragged: key SHIFT-DRAG-RMB: rotate entity ="+selectedentity.sphereboundaryvolume.x+" "+selectedentity.sphereboundaryvolume.y+" "+selectedentity.sphereboundaryvolume.z);
+		    	}
 	    	}
 		} else if (event.getEventType().equals(ScrollEvent.SCROLL)) {
 			ScrollEvent scrollevent = (ScrollEvent)event;

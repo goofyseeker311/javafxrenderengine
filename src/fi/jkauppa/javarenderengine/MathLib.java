@@ -24,6 +24,7 @@ import fi.jkauppa.javarenderengine.ModelLib.Quad;
 import fi.jkauppa.javarenderengine.ModelLib.Ray;
 import fi.jkauppa.javarenderengine.ModelLib.RenderView;
 import fi.jkauppa.javarenderengine.ModelLib.Rotation;
+import fi.jkauppa.javarenderengine.ModelLib.Scaling;
 import fi.jkauppa.javarenderengine.ModelLib.Sphere;
 import fi.jkauppa.javarenderengine.ModelLib.Tetrahedron;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
@@ -217,14 +218,13 @@ public class MathLib {
 		}
 		return k;
 	}
-	public static Direction[] planerayNormal(PlaneRay[] vplaneray) {
-		Direction[] k = null;
+	public static Plane[] planerayPlane(PlaneRay[] vplaneray) {
+		Plane[] k = null;
 		if (vplaneray!=null) {
-			k = new Direction[vplaneray.length];
+			k = new Plane[vplaneray.length];
 			for (int n=0;n<vplaneray.length;n++) {
-				k[n] = new Direction(vplaneray[n].plane.a,vplaneray[n].plane.b,vplaneray[n].plane.c);
+				k[n] = vplaneray[n].plane;
 			}
-			k = normalizeVector(k);
 		}
 		return k;
 	}
@@ -1084,6 +1084,10 @@ public class MathLib {
 				k[n].x = vsph[n].x*vmat.a11+vsph[n].y*vmat.a12+vsph[n].z*vmat.a13;
 				k[n].y = vsph[n].x*vmat.a21+vsph[n].y*vmat.a22+vsph[n].z*vmat.a23;
 				k[n].z = vsph[n].x*vmat.a31+vsph[n].y*vmat.a32+vsph[n].z*vmat.a33;
+				double diamax = vmat.a11;
+				if (vmat.a22>diamax) {diamax = vmat.a22;}
+				if (vmat.a22>diamax) {diamax = vmat.a33;}
+				k[n].r = vsph[n].r*diamax;
 			}
 		}
 		return k;
@@ -1341,9 +1345,10 @@ public class MathLib {
 				k[n].pos.y = vplaneray[n].pos.y+vpos.y;
 				k[n].pos.z = vplaneray[n].pos.z+vpos.z;
 				PlaneRay[] vplaneraya = {vplaneray[n]};
-				Direction[] vplaneraynormal = planerayNormal(vplaneraya);
-				Plane[] vplanerayplane = planeFromNormalAtPoint(k[n].pos, vplaneraynormal);
-				k[n].plane = vplanerayplane[0];
+				Plane[] vplanerayplane = planerayPlane(vplaneraya);
+				Direction[] vplaneraynormal = planeNormal(vplanerayplane);
+				Plane[] vplanerayplanetr = planeFromNormalAtPoint(k[n].pos, vplaneraynormal);
+				k[n].plane = vplanerayplanetr[0];
 			}
 		}
 		return k;
@@ -1573,9 +1578,10 @@ public class MathLib {
 				k[n].pos.y = vplaneray[n].pos.y+mult*vdir.dy;
 				k[n].pos.z = vplaneray[n].pos.z+mult*vdir.dz;
 				PlaneRay[] vplaneraya = {vplaneray[n]};
-				Direction[] vplaneraynormal = planerayNormal(vplaneraya);
-				Plane[] vplanerayplane = planeFromNormalAtPoint(k[n].pos, vplaneraynormal);
-				k[n].plane = vplanerayplane[0];
+				Plane[] vplanerayplane = planerayPlane(vplaneraya);
+				Direction[] vplaneraynormal = planeNormal(vplanerayplane);
+				Plane[] vplanerayplanetr = planeFromNormalAtPoint(k[n].pos, vplaneraynormal);
+				k[n].plane = vplanerayplanetr[0];
 			}
 		}
 		return k;
@@ -1793,8 +1799,8 @@ public class MathLib {
 			if (axis==null) {axisa = zerodira;}
 			Matrix rotmat = rotationMatrixAroundAxis(axisa[0], axisr);
 			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
-			Position[] vraypos = MathLib.rayPosition(vray);
-			Direction[] vraydir = MathLib.rayDirection(vray);
+			Position[] vraypos = rayPosition(vray);
+			Direction[] vraydir = rayDirection(vray);
 			Position[] vrayposrot = translate(vraypos, posdir[0], -1.0f);
 			vrayposrot = matrixMultiply(vrayposrot, rotmat);
 			vrayposrot = translate(vrayposrot, posdir[0], 1.0f);
@@ -1859,7 +1865,8 @@ public class MathLib {
 			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
 			Position[] vplanerayspos = planerayPosition(vplaneray);
 			Direction[] vplaneraysdir = planerayDirection(vplaneray);
-			Direction[] vplaneraysnorm = planerayNormal(vplaneray);
+			Plane[] vplaneraysplane = planerayPlane(vplaneray);
+			Direction[] vplaneraysnorm = planeNormal(vplaneraysplane);
 			double[] vplaneraysvfov = planerayVfov(vplaneray);
 			Direction[] vplaneraysnormrot = matrixMultiply(vplaneraysnorm, rotmat);
 			Position[] vplaneraysposrot = translate(vplanerayspos, posdir[0], -1.0f);
@@ -1963,12 +1970,242 @@ public class MathLib {
 		}
 		return k;
 	}
+
+	//TODO implement rest of the scale functions for different primitives
+	public static Position[] scaleAroundPos(Position[] vpos, Position pos, Scaling scale) {
+		Position[] k = null;
+		if (vpos!=null) {
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			Position[] vposscale = translate(vpos, posdir[0], -1.0f);
+			vposscale = matrixMultiply(vposscale, scalemat);
+			vposscale = translate(vposscale, posdir[0], 1.0f);
+			k = vposscale;
+		}
+		return k;
+	}
+	public static Direction[] scaleAroundPos(Direction[] vdir, Position pos, Scaling scale) {
+		Direction[] k = null;
+		if (vdir!=null) {
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			Direction[] vdirscale = translate(vdir, posdir[0], -1.0f);
+			vdirscale = matrixMultiply(vdirscale, scalemat);
+			vdirscale = translate(vdirscale, posdir[0], 1.0f);
+			k = vdirscale;
+		}
+		return k;
+	}
+	public static Axis[] scaleAroundPos(Axis[] vaxis, Position pos, Scaling scale) {
+		Axis[] k = null;
+		if (vaxis!=null) {
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			Axis[] vaxisscale = translate(vaxis, posdir[0], -1.0f);
+			vaxisscale = matrixMultiply(vaxisscale, scalemat);
+			vaxisscale = translate(vaxisscale, posdir[0], 1.0f);
+			k = vaxisscale;
+		}
+		return k;
+	}
+	public static Coordinate[] scaleAroundPos(Coordinate[] vcoord, Position pos, Scaling scale) {
+		Coordinate[] k = null;
+		if (vcoord!=null) {
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			Coordinate[] vcoordscale = translate(vcoord, posdir[0], -1.0f);
+			vcoordscale = matrixMultiply(vcoordscale, scalemat);
+			vcoordscale = translate(vcoordscale, posdir[0], 1.0f);
+			k = vcoordscale;
+		}
+		return k;
+	}
+	public static Line[] scaleAroundPos(Line[] vline, Position pos, Scaling scale) {
+		Line[] k = null;
+		if (vline!=null) {
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			Line[] vlinescale = translate(vline, posdir[0], -1.0f);
+			vlinescale = matrixMultiply(vlinescale, scalemat);
+			vlinescale = translate(vlinescale, posdir[0], 1.0f);
+			k = vlinescale;
+		}
+		return k;
+	}
+	public static Ray[] scaleAroundPos(Ray[] vray, Position pos, Scaling scale) {
+		Ray[] k = null;
+		if (vray!=null) {
+			k = new Ray[vray.length];
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			Position[] vraypos = rayPosition(vray);
+			Position[] vrayposscale = translate(vraypos, posdir[0], -1.0f);
+			vrayposscale = matrixMultiply(vrayposscale, scalemat);
+			vrayposscale = translate(vrayposscale, posdir[0], 1.0f);
+			for (int i=0;i<vray.length;i++) {
+				k[i] = new Ray(vrayposscale[i],vray[i].dir);
+			}
+		}
+		return k;
+	}
+	public static Sphere[] scaleAroundPos(Sphere[] vsph, Position pos, Scaling scale) {
+		Sphere[] k = null;
+		if (vsph!=null) {
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			Sphere[] vsphscale = translate(vsph, posdir[0], -1.0f);
+			vsphscale = matrixMultiply(vsphscale, scalemat);
+			vsphscale = translate(vsphscale, posdir[0], 1.0f);
+			k = vsphscale;
+		}
+		return k;
+	}
+	public static Plane[] scaleAroundPos(Plane[] vplane, Position pos, Scaling scale) {
+		Plane[] k = null;
+		if (vplane!=null) {
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			Direction[] vplanenorm = planeNormal(vplane);
+			Position[] vplanepos = pointOnPlane(vplane);
+			Position[] vplaneposscale = translate(vplanepos, posdir[0], -1.0f);
+			vplaneposscale = matrixMultiply(vplaneposscale, scalemat);
+			vplaneposscale = translate(vplaneposscale, posdir[0], 1.0f);
+			Plane[] vscaleplane = planeFromNormalAtPoint(vplaneposscale, vplanenorm);
+			k = vscaleplane;
+		}
+		return k;
+	}
+	public static PlaneRay[] scaleAroundPos(PlaneRay[] vplaneray, Position pos, Scaling scale) {
+		PlaneRay[] k = null;
+		if (vplaneray!=null) {
+			k = new PlaneRay[vplaneray.length];
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			Position[] vplaneraypos = planerayPosition(vplaneray);
+			Plane[] vplanerayplane = planerayPlane(vplaneray);
+			Direction[] vplanerayplanenorm = planeNormal(vplanerayplane);
+			Position[] vplanerayposscale = translate(vplaneraypos, posdir[0], -1.0f);
+			vplanerayposscale = matrixMultiply(vplanerayposscale, scalemat);
+			vplanerayposscale = translate(vplanerayposscale, posdir[0], 1.0f);
+			Plane[] vscaleplane = planeFromNormalAtPoint(vplanerayposscale, vplanerayplanenorm);
+			for (int i=0;i<vplaneray.length;i++) {
+				k[i] = new PlaneRay(vplanerayposscale[i],vplaneray[i].dir,vscaleplane[i],vplaneray[i].vfov);
+			}
+		}
+		return k;
+	}
+	public static Triangle[] scaleAroundPos(Triangle[] vtri, Position pos, Scaling scale) {
+		Triangle[] k = null;
+		if (vtri!=null) {
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			Triangle[] vtriscale = translate(vtri, posdir[0], -1.0f);
+			vtriscale = matrixMultiply(vtriscale, scalemat);
+			vtriscale = translate(vtriscale, posdir[0], 1.0f);
+			k = vtriscale;
+		}
+		return k;
+	}
+	public static Cuboid[] scaleAroundPos(Cuboid[] vcuboid, Position pos, Scaling scale) {
+		Cuboid[] k = null;
+		if (vcuboid!=null) {
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			Cuboid[] vcuboidscale = translate(vcuboid, posdir[0], -1.0f);
+			vcuboidscale = matrixMultiply(vcuboidscale, scalemat);
+			vcuboidscale = translate(vcuboidscale, posdir[0], 1.0f);
+			k = vcuboidscale;
+		}
+		return k;
+	}
+	public static Quad[] scaleAroundPos(Quad[] vquad, Position pos, Scaling scale) {
+		Quad[] k = null;
+		if (vquad!=null) {
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			Quad[] vquadscale = translate(vquad, posdir[0], -1.0f);
+			vquadscale = matrixMultiply(vquadscale, scalemat);
+			vquadscale = translate(vquadscale, posdir[0], 1.0f);
+			k = vquadscale;
+		}
+		return k;
+	}
+	public static Tetrahedron[] scaleAroundPos(Tetrahedron[] vtetra, Position pos, Scaling scale) {
+		Tetrahedron[] k = null;
+		if (vtetra!=null) {
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			Tetrahedron[] vtetrascale = translate(vtetra, posdir[0], -1.0f);
+			vtetrascale = matrixMultiply(vtetrascale, scalemat);
+			vtetrascale = translate(vtetrascale, posdir[0], 1.0f);
+			k = vtetrascale;
+		}
+		return k;
+	}
+	public static AxisAlignedBoundingBox[] scaleAroundPos(AxisAlignedBoundingBox[] vaabb, Position pos, Scaling scale) {
+		AxisAlignedBoundingBox[] k = null;
+		if (vaabb!=null) {
+			Position[] zeroposa = {new Position(0.0f,0.0f,0.0f)};
+			Position[] posa = {pos};
+			if (pos==null) {posa = zeroposa;}
+			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
+			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
+			AxisAlignedBoundingBox[] vaabbscale = translate(vaabb, posdir[0], -1.0f);
+			vaabbscale = matrixMultiply(vaabbscale, scalemat);
+			vaabbscale = translate(vaabbscale, posdir[0], 1.0f);
+			k = vaabbscale;
+		}
+		return k;
+	}
 	
 	public static Matrix rotationMatrix(double xaxisr, double yaxisr, double zaxisr) {
 		Matrix xrot = new Matrix(1,0,0,0,cosd(xaxisr),-sind(xaxisr),0,sind(xaxisr),cosd(xaxisr));
 		Matrix yrot = new Matrix(cosd(yaxisr),0,sind(yaxisr),0,1,0,-sind(yaxisr),0,cosd(yaxisr));
 		Matrix zrot = new Matrix(cosd(zaxisr),-sind(zaxisr),0,sind(zaxisr),cosd(zaxisr),0,0,0,1);
 		return matrixMultiply(zrot,matrixMultiply(yrot, xrot));
+	}
+	public static Matrix scalingMatrix(double xaxiss, double yaxiss, double zaxiss) {
+		Matrix scale = new Matrix(xaxiss,0,0,0,yaxiss,0,0,0,zaxiss);
+		return scale;
 	}
 	public static Matrix rotationMatrixAroundAxis(Direction axis, double axisr) {
 		Direction[] axisa = {axis};
@@ -2965,7 +3202,7 @@ public class MathLib {
 			Plane[] camupplane = {camplanes[2]};
 			Direction[] dirup = {camdirs[2]};
 			Position[] vpoint = sphereVertexList(vsphere);
-			double[][] poleint = MathLib.rayPointDistance(vpos, dirup, vpoint);
+			double[][] poleint = rayPointDistance(vpos, dirup, vpoint);
 			Direction[] lvec = vectorFromPoints(vpos, vsphere);
 			double[] lvecl = vectorLength(lvec);
 			double hfov = 360.0f;
