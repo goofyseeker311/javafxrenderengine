@@ -57,7 +57,7 @@ QE                    -- camera tilt change left/right (looping)
 BACKSPACE             -- removes all vector lines
 SHIFT-BACKSPACE       -- reset camera to starting location
 CTRL-BACKSPACE        -- reset all entity triangle surface light maps to zero
-DRAG-LMB              -- material drag triangle paint and place entity (minmax)
+DRAG-LMB              -- material drag triangle paint, and place entity (minmax)
 SHIFT-LMB             -- material picker at cursor
 CTRL-DRAG-LMB         -- move line vertex
 ALT-DRAG-LMB          -- vector line drag draw (in vector line mode)
