@@ -36,6 +36,7 @@ public class RenderFXLib {
 			trimesh.getNormals().addAll(trinorms);
 			trimesh.getFaces().addAll(trifacenorm);
 			MeshView trimeshview = new MeshView();
+			tri[0].hwent = trimeshview;
 			trimeshview.setMesh(trimesh);
 			trimeshview.setCullFace(CullFace.NONE);
 			PhongMaterial trimat = new PhongMaterial();
