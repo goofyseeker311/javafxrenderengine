@@ -1,11 +1,11 @@
 package fi.jkauppa.javafxrenderengine;
 
+import fi.jkauppa.javarenderengine.RenderLib;
+import fi.jkauppa.javarenderengine.ModelLib.Coordinate;
 import fi.jkauppa.javarenderengine.ModelLib.Direction;
 import fi.jkauppa.javarenderengine.ModelLib.Entity;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
-import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
@@ -39,42 +39,36 @@ public class RenderFXLib {
 			trimeshview.setMesh(trimesh);
 			trimeshview.setCullFace(CullFace.NONE);
 			PhongMaterial trimat = new PhongMaterial();
-			if (tri[0].mat!=null) {
-				float[] tricolorcomp = tri[0].mat.facecolor.getRGBComponents(new float[4]);
-				Color tricolor = new Color(tricolorcomp[0], tricolorcomp[1], tricolorcomp[2], tricolorcomp[3]);
-				trimat.setDiffuseColor(tricolor);
-				if ((tri[0].mat.emissivecolor!=null)||(tri[0].mat.emissivefileimage!=null)) {
-					WritableImage emissivemap = null;
-					if (tri[0].mat.emissivefileimage!=null) {
-						emissivemap = SwingFXUtils.toFXImage(tri[0].mat.emissivefileimage, null);
-					} else {
-						emissivemap = new WritableImage(1, 1);
-						float[] emissivecolorcomp = tri[0].mat.emissivecolor.getRGBComponents(new float[4]);
-						Color emissivecolor = new Color(emissivecolorcomp[0],emissivecolorcomp[1],emissivecolorcomp[2],emissivecolorcomp[3]);
-						emissivemap.getPixelWriter().setColor(0, 0, emissivecolor);
-					}
-					PixelReader emissivemapreader = emissivemap.getPixelReader();
-					PixelWriter emissivemapwriter = emissivemap.getPixelWriter();
-					for (int y=0;y<emissivemap.getHeight();y++) {
-						for (int x=0;x<emissivemap.getWidth();x++) {
-							float multiplier = 10.0f;
-							Color readercolor = emissivemapreader.getColor(x, y);
-							double[] emissivecolorcomp = {readercolor.getRed(), readercolor.getGreen(), readercolor.getBlue(), readercolor.getOpacity()};
-							double[] boostedcolor = {multiplier*emissivecolorcomp[0], multiplier*emissivecolorcomp[1], multiplier*emissivecolorcomp[2], multiplier*emissivecolorcomp[3]};
-							if (boostedcolor[0]>1.0f) {boostedcolor[0]=1.0f;}
-							if (boostedcolor[1]>1.0f) {boostedcolor[1]=1.0f;}
-							if (boostedcolor[2]>1.0f) {boostedcolor[2]=1.0f;}
-							if (boostedcolor[3]>1.0f) {boostedcolor[3]=1.0f;}
-							Color emissivecolor = new Color(boostedcolor[0],boostedcolor[1],boostedcolor[2],boostedcolor[3]);
-							emissivemapwriter.setColor(x, y, emissivecolor);
+			WritableImage diffusemap = null;
+			if (tri[0].mat.fileimage!=null) {
+				diffusemap = new WritableImage(tri[0].mat.fileimage.getWidth(), tri[0].mat.fileimage.getHeight());
+			}
+			if ((diffusemap==null)&&(tri[0].mat.emissivefileimage!=null)) {
+				diffusemap = new WritableImage(tri[0].mat.emissivefileimage.getWidth(), tri[0].mat.emissivefileimage.getHeight());
+			}
+			if (diffusemap==null) {
+				java.awt.Color trianglecolor = RenderLib.trianglePixelShader(tri[0], null, null, null, unlit);
+				float[] trianglecolorcomp = trianglecolor.getRGBComponents(new float[4]);
+				Color shadertrianglecolor = new Color(trianglecolorcomp[0], trianglecolorcomp[1], trianglecolorcomp[2], trianglecolorcomp[3]);
+				trimat.setDiffuseColor(shadertrianglecolor);
+			} else {
+				PixelWriter diffusemapwriter = diffusemap.getPixelWriter();
+				for (int y=0;y<diffusemap.getHeight();y++) {
+					for (int x=0;x<diffusemap.getWidth();x++) {
+						double ucoord = ((double)x)/((double)(diffusemap.getWidth()-1));
+						double vcoord = ((double)y)/((double)(diffusemap.getHeight()-1));
+						Coordinate texuv = new Coordinate(ucoord, vcoord);
+						java.awt.Color trianglecolor = RenderLib.trianglePixelShader(tri[0], null, texuv, null, unlit);
+						if (trianglecolor!=null) {
+							float[] trianglecolorcomp = trianglecolor.getRGBComponents(new float[4]);
+							Color shadertrianglecolor = new Color(trianglecolorcomp[0], trianglecolorcomp[1], trianglecolorcomp[2], trianglecolorcomp[3]);
+							diffusemapwriter.setColor(x, y, shadertrianglecolor);
+						} else {
+							diffusemapwriter.setColor(x, y, Color.TRANSPARENT);
 						}
 					}
-					trimat.setSelfIlluminationMap(emissivemap);
 				}
-				if (tri[0].mat.fileimage!=null) {
-					WritableImage tridifimg = SwingFXUtils.toFXImage(tri[0].mat.fileimage, null);
-					trimat.setDiffuseMap(tridifimg);
-				}
+				trimat.setDiffuseMap(diffusemap);
 			}
 			trimeshview.setMaterial(trimat);
 			root.getChildren().add(trimeshview);

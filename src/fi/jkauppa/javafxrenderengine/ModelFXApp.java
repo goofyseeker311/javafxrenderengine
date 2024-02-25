@@ -48,6 +48,8 @@ public class ModelFXApp extends AppFXHandler {
 	private boolean rollleftkeydown = false;
 	private int mouselastlocationx = 0, mouselastlocationy = 0; 
 	private int mouselocationx = 0, mouselocationy = 0;
+	private Group defaultsceneroot = new Group();
+	private Group unlitsceneroot = new Group();
 	
 	public ModelFXApp(Group root) {
 		this.root = root;
@@ -72,7 +74,12 @@ public class ModelFXApp extends AppFXHandler {
 		this.scene.setCursor(Cursor.NONE);
 		this.scene.setFill(Paint.valueOf("BLACK"));
 		this.scene.setCamera(camera);
-		this.root.getChildren().setAll(entities);
+		if (this.unlitrender) {
+			this.entities = this.unlitsceneroot;
+		} else {
+			this.entities = this.defaultsceneroot;
+		}
+		this.root.getChildren().setAll(this.entities);
 	}
 
 	@Override public void pulse() {
@@ -182,12 +189,14 @@ public class ModelFXApp extends AppFXHandler {
 		    			Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new OBJFileFilter(), false);
 						this.entitylist = loadentity.childlist;
 						entities.getChildren().clear();
-						RenderFXLib.constructFXScene(entities, this.entitylist, this.unlitrender);
+						RenderFXLib.constructFXScene(this.defaultsceneroot, this.entitylist, false);
+						RenderFXLib.constructFXScene(this.unlitsceneroot, this.entitylist, true);
 		    		} else if (loadfileextension.equals(stlextensionfilter)) {
 		    			Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new STLFileFilter(), false);
 						this.entitylist = loadentity.childlist;
 						entities.getChildren().clear();
-						RenderFXLib.constructFXScene(entities, this.entitylist, this.unlitrender);
+						RenderFXLib.constructFXScene(this.defaultsceneroot, this.entitylist, false);
+						RenderFXLib.constructFXScene(this.unlitsceneroot, this.entitylist, true);
 		    		}
 		    	}
 			}
