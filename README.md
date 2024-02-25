@@ -57,15 +57,15 @@ QE                    -- camera tilt change left/right (looping)
 BACKSPACE             -- removes all vector lines
 SHIFT-BACKSPACE       -- reset camera to starting location
 CTRL-BACKSPACE        -- reset all entity triangle surface light maps to zero
-DRAG-LMB              -- material drag triangle paint
+DRAG-LMB              -- material drag triangle paint and place entity (minmax)
 SHIFT-LMB             -- material picker at cursor
 CTRL-DRAG-LMB         -- move line vertex
 ALT-DRAG-LMB          -- vector line drag draw (in vector line mode)
 PERIOD-DRAG-LMB       -- remove line vertex or triangle surface
 PERIOD-DRAG-RMB       -- remove entity
 DRAG-RMB              -- move/ground entity (minmax)
-SHIFT-DRAG-RMB        -- rotate entity (looping)
-CTRL-DRAG-RMB         -- scale entity (minmax)
+CTRL-DRAG-RMB         -- rotate entity (looping)
+ALT-DRAG-RMB          -- scale entity (minmax)
 SHIFT                 -- toggle snap to grid/vertex, drag multiple vertex, and speed movement
 DRAG-CMB              -- camera location view position sideways pan (minmax)
 CTRL-DRAG-CMB         -- change forward looking movement direction (looping)
