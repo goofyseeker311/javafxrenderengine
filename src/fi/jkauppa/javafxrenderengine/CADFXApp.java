@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.swing.filechooser.FileFilter;
@@ -100,7 +101,8 @@ public class CADFXApp extends AppFXHandler {
 	private double hfov = 70.0f;
 	private double vfov = 43.0f;
 	private int gridstep = 20;
-	private TreeSet<Line> linelisttree = new TreeSet<Line>();
+	private Set<Line> linelisttree = new TreeSet<Line>();
+	private Line[] linelist = null;
 	private Entity[] entitylist = null;
 	private boolean leftkeydown = false;
 	private boolean rightkeydown = false;
@@ -267,6 +269,7 @@ public class CADFXApp extends AppFXHandler {
 				} else {
 					if (!keyevent.isShiftDown()) {
 						this.linelisttree.clear();
+						this.linelist = null;
 						this.entitylist = null;
 					}
 					this.campos = this.defaultcampos;
@@ -594,10 +597,12 @@ public class CADFXApp extends AppFXHandler {
 			    			Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new OBJFileFilter(), false);
 							this.entitylist = loadentity.childlist;
 							this.linelisttree.addAll(Arrays.asList(loadentity.linelist));
+							this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
 			    		} else if (loadfileextension.equals(stlextensionfilter)) {
 				    		Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new STLFileFilter(), false);
 							this.entitylist = loadentity.childlist;
 							this.linelisttree.addAll(Arrays.asList(loadentity.linelist));
+							this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
 			    		}
 					}
 			    }
@@ -709,14 +714,14 @@ public class CADFXApp extends AppFXHandler {
 		    boolean mouse1down = ((mouseevent.getButton().equals(MouseButton.PRIMARY))&&(!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
 	    	if (mouse1down) {
 	    		if (this.erasemode) {
-	        		if ((this.mouseoverline!=null)&&(this.mouseoverline.length>0)) {
+	        		if ((this.polygonfillmode==1)&&(this.mouseoverline!=null)&&(this.mouseoverline.length>0)) {
 	        			for (int i=0;i<this.mouseoverline.length;i++) {
 	        				System.out.println("CADApp: mouseDragged: key PERIOD-LMB: erase line="+this.mouseoverline[i].pos1.x+" "+this.mouseoverline[i].pos1.y+" "+this.mouseoverline[i].pos1.z+" "+this.mouseoverline[i].pos2.x+" "+this.mouseoverline[i].pos2.y+" "+this.mouseoverline[i].pos2.z);
 	        				this.linelisttree.remove(this.mouseoverline[i]);
 	        			}
 	    				(new EntityListUpdater()).start();
 	    			}
-	        		if ((this.mouseoverentity!=null)&&(mouseoverentity.length>0)&&(this.entitylist!=null)) {
+	        		if ((this.polygonfillmode!=1)&&(this.mouseoverentity!=null)&&(mouseoverentity.length>0)&&(this.entitylist!=null)) {
 		    			Entity[] mouseentity = {this.mouseoverentity[this.mouseoverentity.length-1]};
 				    	Triangle mousetriangle = null;
 			    		if ((this.renderview!=null)&&(this.renderview.tbuffer!=null)) {
@@ -735,6 +740,7 @@ public class CADFXApp extends AppFXHandler {
 							Line[] mouseentitytrianglelinelist = MathLib.generateLineList(mouseentity[0].trianglelist);
 							mouseentitylinelistarray.removeAll(Arrays.asList(mouseentitytrianglelinelist));
 			    			this.linelisttree.removeAll(mouseentitylinelistarray);
+			    			this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
 						}
 		    		}
 	    		} else if (this.entitybuffer!=null) {
@@ -756,6 +762,7 @@ public class CADFXApp extends AppFXHandler {
 						this.entitylist = copyentitybuffer;
 					}
 					this.linelisttree.addAll(Arrays.asList(copyentitybufferlinelist));
+					this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
 	    		} else {
 			    	Triangle mousetriangle = null;
 		    		if ((this.renderview!=null)&&(this.renderview.tbuffer!=null)) {
@@ -883,23 +890,36 @@ public class CADFXApp extends AppFXHandler {
 		    			ArrayList<Entity> entitylistarray = new ArrayList<Entity>(Arrays.asList(this.entitylist));
 		    			entitylistarray.remove(mouseentity[0]);
 		    			this.entitylist = entitylistarray.toArray(new Entity[entitylistarray.size()]);
+		    			this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
 		    		}
+	    		} else if (this.entitybuffer!=null) {
+	    			//TODO place insert model on mouse-over ground position
 	    		} else if (this.selecteddragentity!=null) {
 	    			Entity selectedentity = this.selecteddragentity[0];
 	    			Line[] selectedentitylinelist = MathLib.generateLineList(this.selecteddragentity);
 	    			this.linelisttree.removeAll(Arrays.asList(selectedentitylinelist));
 	        		Position[] drawposarray = {this.mousepos};
 	    			Direction[] drawmovedir = MathLib.vectorFromPoints(this.drawstartpos, drawposarray);
+	    			this.drawstartpos = drawposarray[0];
 	    			selectedentity.translateSelf(drawmovedir[0], 1.0f);
 	    			Line[] movedentitylinelist = MathLib.generateLineList(this.selecteddragentity);
 	    			this.linelisttree.addAll(Arrays.asList(movedentitylinelist));
-	    			this.drawstartpos = drawposarray[0];
+	    			this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
 	    			System.out.println("CADApp: mouseDragged: key DRAG-RMB: move entity ="+selectedentity.sphereboundaryvolume.x+" "+selectedentity.sphereboundaryvolume.y+" "+selectedentity.sphereboundaryvolume.z);
 	    		}
 	    	}
 		    boolean mouse3shiftdown = ((mouseevent.getButton().equals(MouseButton.SECONDARY))&&(!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
 		    if (mouse3shiftdown) {
-		    	if (this.selecteddragentity!=null) {
+    			if (this.entitybuffer!=null) {
+    				Sphere[] entitycentersphere = {this.entitybuffer.sphereboundaryvolume};
+	    			Position[] entitycenterspherepos = MathLib.sphereVertexList(entitycentersphere);
+		        	int mousedeltax = this.mouselocationx - this.mouselastlocationx;
+		        	int mousedeltay = this.mouselocationy - this.mouselastlocationy;
+    				for (int i=0;i<this.entitybuffer.childlist.length;i++) {
+    					this.entitybuffer.childlist[i].rotateSelfAroundAxisPos(entitycenterspherepos[0], this.camdirs[1], mousedeltay);
+    					this.entitybuffer.childlist[i].rotateSelfAroundAxisPos(entitycenterspherepos[0], this.camdirs[2], -mousedeltax);
+    				}
+    			} else if (this.selecteddragentity!=null) {
 	    			Entity selectedentity = this.selecteddragentity[0];
 	    			Line[] selectedentitylinelist = MathLib.generateLineList(this.selecteddragentity);
 	    			Sphere[] selectedentitysphere = MathLib.entitySphereList(this.selecteddragentity);
@@ -911,6 +931,7 @@ public class CADFXApp extends AppFXHandler {
 	    			selectedentity.rotateSelfAroundAxisPos(selectedentitypos[0], this.camdirs[2], -mousedeltax);
 	    			Line[] movedentitylinelist = MathLib.generateLineList(this.selecteddragentity);
 	    			this.linelisttree.addAll(Arrays.asList(movedentitylinelist));
+	    			this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
 	    			System.out.println("CADApp: mouseDragged: key SHIFT-DRAG-RMB: rotate entity ="+selectedentity.sphereboundaryvolume.x+" "+selectedentity.sphereboundaryvolume.y+" "+selectedentity.sphereboundaryvolume.z);
 		    	}
 		    }
@@ -1111,6 +1132,7 @@ public class CADFXApp extends AppFXHandler {
 					}
 				}
 				entitylist = newentitylist;
+    			linelist = linelisttree.toArray(new Line[linelisttree.size()]);
 				EntityListUpdater.entitylistupdaterrunning = false;
 			}
 		}
@@ -1123,7 +1145,7 @@ public class CADFXApp extends AppFXHandler {
 				RenderViewUpdater.renderupdaterrunning = true;
 				int bounces = 0;
 				if (polygonfillmode==1) {
-					Line[] linelist = linelisttree.toArray(new Line[linelisttree.size()]);
+					RenderView mouseoverview = RenderLib.renderProjectedView(campos[0], entitylist, renderwidth, hfov, renderheight, vfov, cameramat, unlitrender, 1, bounces, null, null, null, mouselocationx, mouselocationy);
 					RenderView drawrenderview = RenderLib.renderProjectedLineViewHardware(campos[0], linelist, renderwidth, hfov, renderheight, vfov, true, cameramat, mouselocationx, mouselocationy);
 					if (entitybuffer!=null) {
 						Line[] copyentitybufferlinelist = new Line[entitybuffer.linelist.length];
@@ -1139,8 +1161,10 @@ public class CADFXApp extends AppFXHandler {
 					renderview = drawrenderview;
 					mouseoverline = drawrenderview.mouseoverline;
 					mouseoververtex = drawrenderview.mouseoververtex;
-					mouseoverentity = null;
-					mouseovertriangle = null;
+					mouseoverentity = mouseoverview.mouseoverentity;
+					mouseovertriangle = mouseoverview.mouseovertriangle;
+					renderview.tbuffer = mouseoverview.tbuffer;
+					renderview.cbuffer = mouseoverview.cbuffer;
 				} else if (polygonfillmode==2) { 
 					RenderView drawrenderview = RenderLib.renderProjectedView(campos[0], entitylist, renderwidth, hfov, renderheight, vfov, cameramat, unlitrender, 1, bounces, null, null, null, mouselocationx, mouselocationy);
 					if (entitybuffer!=null) {

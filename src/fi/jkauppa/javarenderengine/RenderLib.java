@@ -96,32 +96,34 @@ public class RenderLib {
 		Position[] editposarray = MathLib.translate(camposarray, renderview.dirs[0], editplanedistance);
 		Plane[] editplanes = MathLib.planeFromNormalAtPoint(editposarray[0], renderview.dirs);
 		Plane[] editplane = {editplanes[0]};
-		for (int i=0;i<linelist.length;i++) {
-			Position[] linepoints = {linelist[i].pos1, linelist[i].pos2};
-			double[][] linepointdists = MathLib.planePointDistance(linepoints, editplane);
-			if ((linepointdists[0][0]>=0)||(linepointdists[1][0]>=0)) {
-				Coordinate coord1 = linelistcoords[i][0];
-				Coordinate coord2 = linelistcoords[i][1];
-				if ((coord1!=null)&&(coord2!=null)) {
-					g2.setColor(Color.BLACK);
-					if (Math.abs(linepointdists[0][0])<pointdist){g2.setStroke(new BasicStroke(vertexstroke+vertexfocus));}else{g2.setStroke(new BasicStroke(vertexstroke));}
-					g2.drawOval((int)Math.round(coord1.u)-vertexradius, (int)Math.round(coord1.v)-vertexradius, vertexradius*2, vertexradius*2);
-					if (Math.abs(linepointdists[1][0])<pointdist){g2.setStroke(new BasicStroke(vertexstroke+vertexfocus));}else{g2.setStroke(new BasicStroke(vertexstroke));}
-					g2.drawOval((int)Math.round(coord2.u)-vertexradius, (int)Math.round(coord2.v)-vertexradius, vertexradius*2, vertexradius*2);
-					g2.setStroke(new BasicStroke(sketchlinestroke));
-					g2.setColor(Color.BLUE);
-					g2.drawLine((int)Math.round(coord1.u), (int)Math.round(coord1.v), (int)Math.round(coord2.u), (int)Math.round(coord2.v));
-					boolean mouseoverhit1 = g2.hit(new Rectangle(mouselocationx-vertexradius,mouselocationy-vertexradius,3,3), new Rectangle((int)Math.round(coord1.u)-vertexradius,(int)Math.round(coord1.v)-vertexradius,3,3), false);
-					boolean mouseoverhit2 = g2.hit(new Rectangle(mouselocationx-vertexradius,mouselocationy-vertexradius,3,3), new Rectangle((int)Math.round(coord2.u)-vertexradius,(int)Math.round(coord2.v)-vertexradius,3,3), false);
-					boolean mouseoverhitL = g2.hit(new Rectangle(mouselocationx-vertexradius,mouselocationy-vertexradius,3,3), new Line2D.Double((int)Math.round(coord1.u),(int)Math.round(coord1.v),(int)Math.round(coord2.u),(int)Math.round(coord2.v)), false);
-					if (mouseoverhit1) {
-						mouseoverhitvertex.add(linelist[i].pos1);
-					}
-					if (mouseoverhit2) {
-						mouseoverhitvertex.add(linelist[i].pos2);
-					}
-					if (mouseoverhitL) {
-						mouseoverhitline.add(linelist[i]);
+		if (linelist!=null) {
+			for (int i=0;i<linelist.length;i++) {
+				Position[] linepoints = {linelist[i].pos1, linelist[i].pos2};
+				double[][] linepointdists = MathLib.planePointDistance(linepoints, editplane);
+				if ((linepointdists[0][0]>=0)||(linepointdists[1][0]>=0)) {
+					Coordinate coord1 = linelistcoords[i][0];
+					Coordinate coord2 = linelistcoords[i][1];
+					if ((coord1!=null)&&(coord2!=null)) {
+						g2.setColor(Color.BLACK);
+						if (Math.abs(linepointdists[0][0])<pointdist){g2.setStroke(new BasicStroke(vertexstroke+vertexfocus));}else{g2.setStroke(new BasicStroke(vertexstroke));}
+						g2.drawOval((int)Math.round(coord1.u)-vertexradius, (int)Math.round(coord1.v)-vertexradius, vertexradius*2, vertexradius*2);
+						if (Math.abs(linepointdists[1][0])<pointdist){g2.setStroke(new BasicStroke(vertexstroke+vertexfocus));}else{g2.setStroke(new BasicStroke(vertexstroke));}
+						g2.drawOval((int)Math.round(coord2.u)-vertexradius, (int)Math.round(coord2.v)-vertexradius, vertexradius*2, vertexradius*2);
+						g2.setStroke(new BasicStroke(sketchlinestroke));
+						g2.setColor(Color.BLUE);
+						g2.drawLine((int)Math.round(coord1.u), (int)Math.round(coord1.v), (int)Math.round(coord2.u), (int)Math.round(coord2.v));
+						boolean mouseoverhit1 = g2.hit(new Rectangle(mouselocationx-vertexradius,mouselocationy-vertexradius,3,3), new Rectangle((int)Math.round(coord1.u)-vertexradius,(int)Math.round(coord1.v)-vertexradius,3,3), false);
+						boolean mouseoverhit2 = g2.hit(new Rectangle(mouselocationx-vertexradius,mouselocationy-vertexradius,3,3), new Rectangle((int)Math.round(coord2.u)-vertexradius,(int)Math.round(coord2.v)-vertexradius,3,3), false);
+						boolean mouseoverhitL = g2.hit(new Rectangle(mouselocationx-vertexradius,mouselocationy-vertexradius,3,3), new Line2D.Double((int)Math.round(coord1.u),(int)Math.round(coord1.v),(int)Math.round(coord2.u),(int)Math.round(coord2.v)), false);
+						if (mouseoverhit1) {
+							mouseoverhitvertex.add(linelist[i].pos1);
+						}
+						if (mouseoverhit2) {
+							mouseoverhitvertex.add(linelist[i].pos2);
+						}
+						if (mouseoverhitL) {
+							mouseoverhitline.add(linelist[i]);
+						}
 					}
 				}
 			}

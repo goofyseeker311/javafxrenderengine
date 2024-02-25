@@ -1575,9 +1575,12 @@ public class ModelLib {
 		}
 		loadentity.childlist = newentitylist;
 		loadentity.linelist = MathLib.generateLineList(newentitylist[0].trianglelist);
-		newentitylist[0].vertexlist = MathLib.generateVertexList(loadentity.linelist);
-		newentitylist[0].aabbboundaryvolume = MathLib.axisAlignedBoundingBox(newentitylist[0].vertexlist);
-		newentitylist[0].sphereboundaryvolume = MathLib.pointCloudCircumSphere(newentitylist[0].vertexlist);
+		loadentity.vertexlist = MathLib.generateVertexList(loadentity.linelist);
+		loadentity.aabbboundaryvolume = MathLib.axisAlignedBoundingBox(loadentity.vertexlist);
+		loadentity.sphereboundaryvolume = MathLib.pointCloudCircumSphere(loadentity.vertexlist);
+		newentitylist[0].vertexlist = loadentity.vertexlist;
+		newentitylist[0].aabbboundaryvolume = loadentity.aabbboundaryvolume;
+		newentitylist[0].sphereboundaryvolume = loadentity.sphereboundaryvolume;
 		return loadentity;
 	}
 	public static Entity loadOBJFileEntity(String filename, boolean loadresourcefromjar) {
@@ -1700,6 +1703,9 @@ public class ModelLib {
 		Line[] linelist = linelisttree.toArray(new Line[linelisttree.size()]);
 		loadentity.childlist = entitylist;
 		loadentity.linelist = linelist;
+		loadentity.vertexlist = MathLib.generateVertexList(loadentity.linelist);
+		loadentity.aabbboundaryvolume = MathLib.axisAlignedBoundingBox(loadentity.vertexlist);
+		loadentity.sphereboundaryvolume = MathLib.pointCloudCircumSphere(loadentity.vertexlist);
 		return loadentity;
 	}
 
