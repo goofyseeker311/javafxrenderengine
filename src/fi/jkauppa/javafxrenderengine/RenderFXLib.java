@@ -8,10 +8,12 @@ import fi.jkauppa.javarenderengine.ModelLib.Coordinate;
 import fi.jkauppa.javarenderengine.ModelLib.Cubemap;
 import fi.jkauppa.javarenderengine.ModelLib.Direction;
 import fi.jkauppa.javarenderengine.ModelLib.Entity;
+import fi.jkauppa.javarenderengine.ModelLib.Material;
 import fi.jkauppa.javarenderengine.ModelLib.Matrix;
 import fi.jkauppa.javarenderengine.ModelLib.Plane;
 import fi.jkauppa.javarenderengine.ModelLib.Position;
 import fi.jkauppa.javarenderengine.ModelLib.RenderView;
+import fi.jkauppa.javarenderengine.ModelLib.Sphere;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
@@ -19,6 +21,7 @@ import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
@@ -102,6 +105,13 @@ public class RenderFXLib {
 	public static Affine matrixAffine(Matrix vmat) {
 		return Affine.affine(vmat.a11, vmat.a12, vmat.a13, 0, vmat.a21, vmat.a22, vmat.a23, 0, vmat.a31, vmat.a32, vmat.a33, 0);		
 	}
+	public static java.awt.Color awtColor(Color color) {
+		return new java.awt.Color((float)color.getRed(),(float)color.getGreen(),(float)color.getBlue(),(float)color.getOpacity());
+	}
+	public static Color fxColor(java.awt.Color color) {
+		float[] colorcomp = color.getRGBComponents(null);
+		return new Color(colorcomp[0],colorcomp[1],colorcomp[2],colorcomp[3]);
+	}
 	
 	public static RenderView renderProjectedView(Position campos, Group root, int renderwidth, double hfov, int renderheight, double vfov, Matrix viewrot, int bounces, Plane nclipplane, Triangle nodrawtriangle, Rectangle drawrange, int mouselocationx, int mouselocationy) {
 		RenderView renderview = new RenderView();
@@ -182,4 +192,101 @@ public class RenderFXLib {
 		return renderview;
 	}
 
+	public static void renderSurfaceFaceLightmapCubemapView(Entity[] entitylist, Group root, int rendersize, int bounces) {
+		float multiplier = 1000.0f;
+		Direction[][] cubemaprays = MathLib.projectedRays(rendersize, rendersize, 90.0f, 90.0f, MathLib.rotationMatrix(0.0f, 0.0f, 0.0f), false);
+		double[][] cubemapraylen = new double[rendersize][rendersize];
+		for (int i=0;i<cubemaprays.length;i++) {
+			cubemapraylen[i] = MathLib.vectorLength(cubemaprays[i]);
+		}
+		int lightbounces = (bounces>0)?bounces:1;
+		for (int l=0;l<lightbounces;l++) {
+			if (entitylist!=null) {
+				for (int j=0;j<entitylist.length;j++) {
+					if (entitylist[j]!=null) {
+						if (entitylist[j].trianglelist!=null) {
+							Sphere[] trianglespherelist = MathLib.triangleInSphere(entitylist[j].trianglelist);
+							for (int i=0;i<entitylist[j].trianglelist.length;i++) {
+								if (entitylist[j].trianglelist[i]!=null) {
+									Sphere[] trianglesphere = {trianglespherelist[i]};
+									Position[] trianglespherepoint = MathLib.sphereVertexList(trianglesphere);
+									RenderView p4pixelview = renderCubemapView(trianglespherepoint[0], root, rendersize*3, rendersize*2, rendersize, MathLib.rotationMatrix(0, 0, 0), bounces, null, entitylist[j].trianglelist[i], null, 0, 0);
+									RenderView[] cubemapviews = new RenderView[6];
+									cubemapviews[0] = p4pixelview.cubemap.backwardview;
+									cubemapviews[1] = p4pixelview.cubemap.bottomview;
+									cubemapviews[2] = p4pixelview.cubemap.forwardview;
+									cubemapviews[3] = p4pixelview.cubemap.leftview;
+									cubemapviews[4] = p4pixelview.cubemap.rightview;
+									cubemapviews[5] = p4pixelview.cubemap.topview;
+									float p4pixelr = 0.0f;
+									float p4pixelg = 0.0f;
+									float p4pixelb = 0.0f;
+									float pixelcount = 6*rendersize*rendersize;
+									if (entitylist[j].trianglelist[i].mat.emissivecolor!=null) {
+										float[] triangleemissivecolorcomp = entitylist[j].trianglelist[i].mat.emissivecolor.getRGBComponents(new float[4]);
+										p4pixelr = triangleemissivecolorcomp[0]*pixelcount;
+										p4pixelg = triangleemissivecolorcomp[1]*pixelcount;
+										p4pixelb = triangleemissivecolorcomp[2]*pixelcount;
+									}
+									for (int k=0;k<cubemapviews.length;k++) {
+										WritableImage renderimage = (WritableImage)cubemapviews[k].renderimageobject;
+										PixelReader pixelreader = renderimage.getPixelReader();
+										for (int ky=0;ky<renderimage.getHeight();ky++) {
+											for (int kx=0;kx<renderimage.getWidth();kx++) {
+												Color p4pixelcolor = pixelreader.getColor(kx, ky);
+												double[] p4pixelcolorcomp = {p4pixelcolor.getRed(), p4pixelcolor.getGreen(), p4pixelcolor.getBlue(), p4pixelcolor.getOpacity()};
+												p4pixelr += p4pixelcolorcomp[0]/cubemapraylen[ky][kx];
+												p4pixelg += p4pixelcolorcomp[1]/cubemapraylen[ky][kx];
+												p4pixelb += p4pixelcolorcomp[2]/cubemapraylen[ky][kx];
+											}
+										}
+									}
+									float p4pixelrt = multiplier*p4pixelr/(float)Math.pow(pixelcount,l+1);
+									float p4pixelgt = multiplier*p4pixelg/(float)Math.pow(pixelcount,l+1);
+									float p4pixelbt = multiplier*p4pixelb/(float)Math.pow(pixelcount,l+1);
+									if (p4pixelrt>1.0f) {p4pixelrt=1.0f;}
+									if (p4pixelgt>1.0f) {p4pixelgt=1.0f;}
+									if (p4pixelbt>1.0f) {p4pixelbt=1.0f;}
+									Color p4pixelcolor = new Color(p4pixelrt, p4pixelgt, p4pixelbt, 1.0f);
+									System.out.println("RenderLib: renderSurfaceFaceLightmapCubemapView: bounce["+(l+1)+"] entitylist["+(j+1)+"/"+entitylist.length+"]["+(i+1)+"/"+entitylist[j].trianglelist.length+"]="+trianglespherepoint[0].x+","+trianglespherepoint[0].y+","+trianglespherepoint[0].z);
+									if ((entitylist[j].trianglelist[i].lmatl==null)||(entitylist[j].trianglelist[i].lmatl.length!=lightbounces)) {
+										entitylist[j].trianglelist[i].lmatl = new Material[lightbounces];
+									}
+									entitylist[j].trianglelist[i].lmatl[l] = new Material(awtColor(p4pixelcolor), 1.0f, null);
+								}
+							}
+						}
+					}
+				}
+			}
+			if (entitylist!=null) {
+				for (int j=0;j<entitylist.length;j++) {
+					if (entitylist[j]!=null) {
+						if (entitylist[j].trianglelist!=null) {
+							for (int i=0;i<entitylist[j].trianglelist.length;i++) {
+								if (entitylist[j].trianglelist[i]!=null) {
+									if ((entitylist[j].trianglelist[i].mat!=null)&&(entitylist[j].trianglelist[i].lmatl!=null)) {
+										entitylist[j].trianglelist[i].mat = entitylist[j].trianglelist[i].mat.copy();
+										if (entitylist[j].trianglelist[i].mat.ambientcolor==null) {
+											entitylist[j].trianglelist[i].mat.ambientcolor = java.awt.Color.BLACK;
+										}
+										float[] ambcolorcomp = entitylist[j].trianglelist[i].mat.ambientcolor.getRGBComponents(new float[4]);
+										float[] lightcolorcomp = entitylist[j].trianglelist[i].lmatl[l].facecolor.getRGBComponents(new float[4]);
+										float newr = ambcolorcomp[0]+lightcolorcomp[0];
+										float newg = ambcolorcomp[1]+lightcolorcomp[1];
+										float newb = ambcolorcomp[2]+lightcolorcomp[2];
+										if (newr>1.0f) {newr=1.0f;}
+										if (newg>1.0f) {newg=1.0f;}
+										if (newb>1.0f) {newb=1.0f;}
+										entitylist[j].trianglelist[i].mat.ambientcolor = new java.awt.Color(newr,newg,newb,1.0f);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
 }

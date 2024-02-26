@@ -67,6 +67,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 public class CADFXApp extends AppFXHandler {
 	private Group root = null;
 	private Scene scene = null;
+	private Group entities = new Group();
 	private GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	private GraphicsDevice gd = ge.getDefaultScreenDevice();
 	private GraphicsConfiguration gc = gd.getDefaultConfiguration();
@@ -486,7 +487,9 @@ public class CADFXApp extends AppFXHandler {
 					this.unlitrender = !this.unlitrender;
 					System.out.println("CADApp: keyPressed: key SHIFT-ENTER: unlitrender="+this.unlitrender);
 				} else if (keyevent.isControlDown()) {
-			    	(new EntityLightMapUpdater()).start();
+					int bounces = 2;
+					RenderFXLib.constructFXScene(this.entities, this.entitylist, true);
+					RenderFXLib.renderSurfaceFaceLightmapCubemapView(entitylist, entities, 32, bounces);
 				} else {
 					this.polygonfillmode += 1;
 					if (this.polygonfillmode>3) {
@@ -1263,18 +1266,6 @@ public class CADFXApp extends AppFXHandler {
 					mouseovertriangle = drawrenderview.mouseovertriangle;
 				}
 				RenderViewUpdater.renderupdaterrunning = false;
-			}
-		}
-	}
-
-	private class EntityLightMapUpdater extends Thread {
-		private static boolean entitylightmapupdaterrunning = false;
-		public void run() {
-			if (!EntityLightMapUpdater.entitylightmapupdaterrunning) {
-				EntityLightMapUpdater.entitylightmapupdaterrunning = true;
-				int bounces = 2;
-				RenderLib.renderSurfaceFaceLightmapCubemapView(entitylist, 32, bounces, 3);
-				EntityLightMapUpdater.entitylightmapupdaterrunning = false;
 			}
 		}
 	}
