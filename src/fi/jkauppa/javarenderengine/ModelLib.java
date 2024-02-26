@@ -173,6 +173,7 @@ public class ModelLib {
 	
 	public static class RenderView {
 		public BufferedImage renderimage = null;
+		public Object renderimageobject = null;
 		public Cubemap cubemap = null;
 		public Spheremap spheremap = null;
 		public double[][] sbuffer = null;

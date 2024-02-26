@@ -13,7 +13,6 @@ import fi.jkauppa.javarenderengine.ModelLib.Matrix;
 import fi.jkauppa.javarenderengine.ModelLib.Position;
 import fi.jkauppa.javarenderengine.ModelLib.RenderView;
 import fi.jkauppa.javarenderengine.ModelLib.Rotation;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
@@ -41,7 +40,6 @@ public class ModelFXApp extends AppFXHandler {
 	private Matrix cameramat = MathLib.rotationMatrix(0.0f, 0.0f, 0.0f);
 	private Direction[] lookdirs = MathLib.projectedCameraDirections(cameramat);
 	private Direction[] camdirs = lookdirs;
-	private double hfov = 70.0f, vfov = 43.0f;
 	private int polygonfillmode = 1;
 	private boolean unlitrender = false;
 	private boolean leftkeydown = false;
@@ -74,8 +72,8 @@ public class ModelFXApp extends AppFXHandler {
 		} else {
 			this.entities = this.defaultsceneroot;
 		}
-		RenderView renderview = RenderFXLib.renderProjectedView(this.campos[0], this.entities, this.renderwidth, this.hfov, this.renderheight, this.vfov, this.cameramat, 0, null, null, null, this.mouselocationx, this.mouselocationy);
-		WritableImage renderimage = SwingFXUtils.toFXImage(renderview.renderimage, null);
+		RenderView renderview = RenderFXLib.renderCubemapView(this.campos[0], this.entities, this.renderwidth, this.renderheight, (int)(this.renderheight/2.0f), this.cameramat, 0, null, null, null, this.mouselocationx, this.mouselocationy);
+		WritableImage renderimage = (WritableImage)renderview.renderimageobject;
         ImageView renderimageview = new ImageView();
         renderimageview.setImage(renderimage);
         renderimageview.setFitWidth(this.renderwidth);
