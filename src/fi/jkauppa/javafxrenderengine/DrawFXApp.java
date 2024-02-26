@@ -41,8 +41,8 @@ import javafx.stage.FileChooser.ExtensionFilter;
 public class DrawFXApp extends AppFXHandler {
 	private Group root = null;
 	private Scene scene = null;
-	private Color drawcolor = Color.BLACK;
-	private float[] drawcolorhsb = {0.0f, 1.0f, 0.0f};
+	private double[] hsbdrawcolor = {0.0f,1.0f,0.0f,1.0f};
+	private Color drawcolor = Color.hsb(hsbdrawcolor[0],hsbdrawcolor[1],hsbdrawcolor[2],hsbdrawcolor[3]);
 	private Color erasecolor = new Color(1.0f,1.0f,1.0f,0.0f);
 	private int pencilsize = 1;
 	private int pencilshape = 1;
@@ -156,61 +156,73 @@ public class DrawFXApp extends AppFXHandler {
 					}
 				}
 			} else if (keyevent.getCode()==KeyCode.INSERT) {
-				this.drawcolorhsb[0] += 0.01f;
-				if (this.drawcolorhsb[0]>1.0f) {this.drawcolorhsb[0] = 0.0f;}
-				Color hsbcolor = Color.hsb(this.drawcolorhsb[0], this.drawcolorhsb[1], this.drawcolorhsb[2]);
-				float[] colorvalues = {(float)hsbcolor.getRed(), (float)hsbcolor.getGreen(), (float)hsbcolor.getBlue(), (float)hsbcolor.getOpacity()};
-				this.drawcolor = new Color(colorvalues[0],colorvalues[1],colorvalues[2],this.penciltransparency);
+		    	if (keyevent.isShiftDown()) {
+		    		this.hsbdrawcolor[0] = this.hsbdrawcolor[0] + 20.0f;
+		    	} else {
+		    		this.hsbdrawcolor[0] = this.hsbdrawcolor[0] + 1.0f;
+		    	}
+				if (this.hsbdrawcolor[0]>360.0f) {this.hsbdrawcolor[0] = 0.0f;}
+				this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
 		    	if (this.pencilbuffer!=null) {
 		    		this.pencilbuffer = null;
 		    		this.pencilsize = this.oldpencilsize;
 		    	}
 			} else if (keyevent.getCode()==KeyCode.DELETE) {
-				this.drawcolorhsb[0] -= 0.01f;
-				if (this.drawcolorhsb[0]<0.0f) {this.drawcolorhsb[0] = 1.0f;}
-				Color hsbcolor = Color.hsb(this.drawcolorhsb[0], this.drawcolorhsb[1], this.drawcolorhsb[2]);
-				float[] colorvalues = {(float)hsbcolor.getRed(), (float)hsbcolor.getGreen(), (float)hsbcolor.getBlue(), (float)hsbcolor.getOpacity()};
-				this.drawcolor = new Color(colorvalues[0],colorvalues[1],colorvalues[2],this.penciltransparency);
+		    	if (keyevent.isShiftDown()) {
+		    		this.hsbdrawcolor[0] = this.hsbdrawcolor[0] - 20.0f;
+		    	} else {
+		    		this.hsbdrawcolor[0] = this.hsbdrawcolor[0] - 1.0f;
+		    	}
+				if (this.hsbdrawcolor[0]<0.0f) {this.hsbdrawcolor[0] = 360.0f;}
+				this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
 		    	if (this.pencilbuffer!=null) {
 		    		this.pencilbuffer = null;
 		    		this.pencilsize = this.oldpencilsize;
 		    	}
 			} else if (keyevent.getCode()==KeyCode.HOME) {
-				this.drawcolorhsb[1] += 0.01f;
-				if (this.drawcolorhsb[1]>1.0f) {this.drawcolorhsb[1] = 1.0f;}
-				Color hsbcolor = Color.hsb(this.drawcolorhsb[0], this.drawcolorhsb[1], this.drawcolorhsb[2]);
-				float[] colorvalues = {(float)hsbcolor.getRed(), (float)hsbcolor.getGreen(), (float)hsbcolor.getBlue(), (float)hsbcolor.getOpacity()};
-				this.drawcolor = new Color(colorvalues[0],colorvalues[1],colorvalues[2],this.penciltransparency);
+		    	if (keyevent.isShiftDown()) {
+		    		this.hsbdrawcolor[1] = this.hsbdrawcolor[1] + 0.20f;
+		    	} else {
+					this.hsbdrawcolor[1] = this.hsbdrawcolor[1] + 0.01f;
+		    	}
+				if (this.hsbdrawcolor[1]>1.0f) {this.hsbdrawcolor[1] = 1.0f;}
+				this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
 		    	if (this.pencilbuffer!=null) {
 		    		this.pencilbuffer = null;
 		    		this.pencilsize = this.oldpencilsize;
 		    	}
 			} else if (keyevent.getCode()==KeyCode.END) {
-				this.drawcolorhsb[1] -= 0.01f;
-				if (this.drawcolorhsb[1]<0.0f) {this.drawcolorhsb[1] = 0.0f;}
-				Color hsbcolor = Color.hsb(this.drawcolorhsb[0], this.drawcolorhsb[1], this.drawcolorhsb[2]);
-				float[] colorvalues = {(float)hsbcolor.getRed(), (float)hsbcolor.getGreen(), (float)hsbcolor.getBlue(), (float)hsbcolor.getOpacity()};
-				this.drawcolor = new Color(colorvalues[0],colorvalues[1],colorvalues[2],this.penciltransparency);
+		    	if (keyevent.isShiftDown()) {
+		    		this.hsbdrawcolor[1] = this.hsbdrawcolor[1] - 0.20f;
+		    	} else {
+					this.hsbdrawcolor[1] = this.hsbdrawcolor[1] - 0.01f;
+		    	}
+				if (this.hsbdrawcolor[1]<0.0f) {this.hsbdrawcolor[1] = 0.0f;}
+				this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
 		    	if (this.pencilbuffer!=null) {
 		    		this.pencilbuffer = null;
 		    		this.pencilsize = this.oldpencilsize;
 		    	}
 			} else if (keyevent.getCode()==KeyCode.PAGE_UP) {
-				this.drawcolorhsb[2] += 0.01f;
-				if (this.drawcolorhsb[2]>1.0f) {this.drawcolorhsb[2] = 1.0f;}
-				Color hsbcolor = Color.hsb(this.drawcolorhsb[0], this.drawcolorhsb[1], this.drawcolorhsb[2]);
-				float[] colorvalues = {(float)hsbcolor.getRed(), (float)hsbcolor.getGreen(), (float)hsbcolor.getBlue(), (float)hsbcolor.getOpacity()};
-				this.drawcolor = new Color(colorvalues[0],colorvalues[1],colorvalues[2],this.penciltransparency);
+		    	if (keyevent.isShiftDown()) {
+		    		this.hsbdrawcolor[2] = this.hsbdrawcolor[2] + 0.20f;
+		    	} else {
+					this.hsbdrawcolor[2] = this.hsbdrawcolor[2] + 0.01f;
+		    	}
+				if (this.hsbdrawcolor[2]>1.0f) {this.hsbdrawcolor[2] = 1.0f;}
+				this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
 		    	if (this.pencilbuffer!=null) {
 		    		this.pencilbuffer = null;
 		    		this.pencilsize = this.oldpencilsize;
 		    	}
 			} else if (keyevent.getCode()==KeyCode.PAGE_DOWN) {
-				this.drawcolorhsb[2] -= 0.01f;
-				if (this.drawcolorhsb[2]<0.0f) {this.drawcolorhsb[2] = 0.0f;}
-				Color hsbcolor = Color.hsb(this.drawcolorhsb[0], this.drawcolorhsb[1], this.drawcolorhsb[2]);
-				float[] colorvalues = {(float)hsbcolor.getRed(), (float)hsbcolor.getGreen(), (float)hsbcolor.getBlue(), (float)hsbcolor.getOpacity()};
-				this.drawcolor = new Color(colorvalues[0],colorvalues[1],colorvalues[2],this.penciltransparency);
+		    	if (keyevent.isShiftDown()) {
+		    		this.hsbdrawcolor[2] = this.hsbdrawcolor[2] - 0.20f;
+		    	} else {
+					this.hsbdrawcolor[2] = this.hsbdrawcolor[2] - 0.01f;
+		    	}
+				if (this.hsbdrawcolor[2]<0.0f) {this.hsbdrawcolor[2] = 0.0f;}
+				this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
 		    	if (this.pencilbuffer!=null) {
 		    		this.pencilbuffer = null;
 		    		this.pencilsize = this.oldpencilsize;
@@ -237,19 +249,17 @@ public class DrawFXApp extends AppFXHandler {
 			} else if (keyevent.getCode()==KeyCode.NUMPAD9) {
 				this.penciltransparency += 0.01f;
 				if (this.penciltransparency>1.0f) {this.penciltransparency = 1.0f;}
-				float[] colorvalues = {(float)this.drawcolor.getRed(), (float)this.drawcolor.getGreen(), (float)this.drawcolor.getBlue(), (float)this.drawcolor.getOpacity()};
-				this.drawcolor = new Color(colorvalues[0],colorvalues[1],colorvalues[2],this.penciltransparency);
+				this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
 			} else if (keyevent.getCode()==KeyCode.NUMPAD8) {
 				this.penciltransparency -= 0.01f;
 				if (this.penciltransparency<0.0f) {this.penciltransparency = 0.0f;}
-				float[] colorvalues = {(float)this.drawcolor.getRed(), (float)this.drawcolor.getGreen(), (float)this.drawcolor.getBlue(), (float)this.drawcolor.getOpacity()};
-				this.drawcolor = new Color(colorvalues[0],colorvalues[1],colorvalues[2],this.penciltransparency);
+				this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
 			} else if (keyevent.getCode()==KeyCode.NUMPAD6) {
 				this.pencilangle += 0.01f;
-				if (this.pencilangle>(2.0f*Math.PI)) {this.pencilangle = 0.0f;}
+				if (this.pencilangle>360.0f) {this.pencilangle = 0.0f;}
 			} else if (keyevent.getCode()==KeyCode.NUMPAD5) {
 				this.pencilangle -= 0.01f;
-				if (this.pencilangle<0.0f) {this.pencilangle = 2.0f*Math.PI;}
+				if (this.pencilangle<0.0f) {this.pencilangle = 360.0f;}
 			} else if (keyevent.getCode()==KeyCode.F1) {
 				//TODO help pop-up window
 			} else if (keyevent.getCode()==KeyCode.F2) {
@@ -344,29 +354,27 @@ public class DrawFXApp extends AppFXHandler {
 	    	int mousedeltay = this.mouselocationy - this.mouselastlocationy;
 			if (this.renderbuffer!=null) {
 				GraphicsContext renderbuffergfx = this.renderbuffer.getGraphicsContext2D();
-			    boolean mouse1down = (mouseevent.getButton().equals(MouseButton.PRIMARY))&&((!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
-			    boolean mouse3down = (mouseevent.getButton().equals(MouseButton.SECONDARY))&&((!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
+			    boolean mouse1down = (mouseevent.getButton().equals(MouseButton.PRIMARY))&&((!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
+			    boolean mouse3down = (mouseevent.getButton().equals(MouseButton.SECONDARY))&&((!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
 			    if (mouse1down||mouse3down) {
 			    	this.drawPencil(renderbuffergfx, this.mouselocationx, this.mouselocationy, mouse3down, this.penciloverridemode);
-				}			
-			    boolean mouse1altdown = (mouseevent.getButton().equals(MouseButton.PRIMARY))&&((!mouseevent.isControlDown())&&(mouseevent.isAltDown())&&(!mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
-			    boolean mouse3altdown = (mouseevent.getButton().equals(MouseButton.SECONDARY))&&((!mouseevent.isControlDown())&&(mouseevent.isAltDown())&&(!mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
+				}
+			    boolean mouse1altdown = (mouseevent.getButton().equals(MouseButton.PRIMARY))&&((!mouseevent.isControlDown())&&(mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
+			    boolean mouse3altdown = (mouseevent.getButton().equals(MouseButton.SECONDARY))&&((!mouseevent.isControlDown())&&(mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
 			    if (mouse1altdown||mouse3altdown) {
 				    this.drawlinemode = true;
 			    }
-			    boolean mouse1shiftdown = (mouseevent.getButton().equals(MouseButton.PRIMARY))&&((!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
-			    if (mouse1shiftdown) {
-			    	Color pickeddrawcolor = this.renderbuffer.snapshot(null, null).getPixelReader().getColor(this.mouselocationx, this.mouselocationy);
-			    	float[] drawcolorhsbcomp = {(float)pickeddrawcolor.getHue(), (float)pickeddrawcolor.getSaturation(), (float)pickeddrawcolor.getBrightness()};
-					float[] colorvalues = {(float)pickeddrawcolor.getRed(), (float)pickeddrawcolor.getGreen(), (float)pickeddrawcolor.getBlue()};
-					this.drawcolorhsb = drawcolorhsbcomp;
-					this.drawcolor = new Color(colorvalues[0],colorvalues[1],colorvalues[2],this.penciltransparency);
+			    boolean mouse1ctrldown = (mouseevent.getButton().equals(MouseButton.PRIMARY))&&((mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
+			    if (mouse1ctrldown) {
+			    	this.drawcolor = this.renderbuffer.snapshot(null, null).getPixelReader().getColor(this.mouselocationx, this.mouselocationy);
+			    	double[] newhsbdrawcolor = {this.drawcolor.getHue(), this.drawcolor.getSaturation(), this.drawcolor.getBrightness(), this.penciltransparency};
+			    	this.hsbdrawcolor = newhsbdrawcolor;
 			    }
-			    boolean mouse1controldown = (mouseevent.getButton().equals(MouseButton.PRIMARY))&&((mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
+			    boolean mouse1controldown = (mouseevent.getButton().equals(MouseButton.PRIMARY))&&((mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
 			    if (mouse1controldown) {
 			    	//TODO select canvas region
 			    }
-			    boolean mouse2down = (mouseevent.getButton().equals(MouseButton.MIDDLE))&&((!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
+			    boolean mouse2down = (mouseevent.getButton().equals(MouseButton.MIDDLE))&&((!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
 			    if (mouse2down) {
 			    	GraphicsContext dragimagegfx = this.dragbuffer.getGraphicsContext2D();
 			    	dragimagegfx.clearRect(0, 0, this.renderbuffer.getWidth(), this.renderbuffer.getHeight());
@@ -374,57 +382,67 @@ public class DrawFXApp extends AppFXHandler {
 			    	renderbuffergfx.clearRect(0, 0, this.renderbuffer.getWidth(), this.renderbuffer.getHeight());
 			    	renderbuffergfx.drawImage(this.dragbuffer.snapshot(null, null), 0, 0);
 			    }
-			    boolean mouse2shiftdown = (mouseevent.getButton().equals(MouseButton.MIDDLE))&&((!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(mouseevent.isShiftDown())&&(!mouseevent.isMetaDown()));
-			    if (mouse2shiftdown) {
-			    	//TODO <tbd>
-			    }
 			}
 		} else if (event.getEventType().equals(ScrollEvent.SCROLL)) {
 			ScrollEvent scrollevent = (ScrollEvent)event;
 			double scrollticksX = -scrollevent.getDeltaX()/scrollevent.getMultiplierX();
 			double scrollticksY = -scrollevent.getDeltaY()/scrollevent.getMultiplierY();
-		    boolean mousewheeldown = ((!scrollevent.isControlDown())&&(!scrollevent.isAltDown())&&(!scrollevent.isShiftDown())&&(!scrollevent.isMetaDown()));
+		    boolean mousewheeldown = ((!scrollevent.isControlDown())&&(!scrollevent.isAltDown())&&(!scrollevent.isMetaDown()));
 		    if (mousewheeldown) {
-		    	this.pencilsize += scrollticksY*((this.pencilsize>16)?this.pencilsize/16:1);
+		    	if (scrollevent.isShiftDown()) {
+		    		this.pencilsize -= 20.0f*scrollticksX*((this.pencilsize>16)?this.pencilsize/16:1);
+		    	} else {
+		    		this.pencilsize -= 1.0f*scrollticksY*((this.pencilsize>16)?this.pencilsize/16:1);
+		    	}
 				if (this.pencilsize<1) {
 					this.pencilsize = 1;
 				}
 		    }
-		    boolean mousewheelctrldown = ((scrollevent.isControlDown())&&(!scrollevent.isAltDown())&&(!scrollevent.isShiftDown())&&(!scrollevent.isMetaDown()));
+		    boolean mousewheelctrldown = ((scrollevent.isControlDown())&&(!scrollevent.isAltDown())&&(!scrollevent.isMetaDown()));
 		    if (mousewheelctrldown) {
-		    	this.drawcolorhsb[0] += 0.01f*scrollticksY;
-		    	if (this.drawcolorhsb[0]>1.0f) {this.drawcolorhsb[0] = 0.0f;}
-		    	else if (this.drawcolorhsb[0]<0.0f) {this.drawcolorhsb[0] = 1.0f;}
-		    	Color hsbcolor = Color.hsb(this.drawcolorhsb[0], this.drawcolorhsb[1], this.drawcolorhsb[2]);
-		    	float[] colorvalues = {(float)hsbcolor.getRed(), (float)hsbcolor.getGreen(), (float)hsbcolor.getBlue()};
-		    	this.drawcolor = new Color(colorvalues[0],colorvalues[1],colorvalues[2],this.penciltransparency);
+		    	if (this.pencilbuffer!=null) {
+			    	if (scrollevent.isShiftDown()) {
+			    		this.pencilangle -= 20.0f*0.05f*scrollticksX;
+			    	} else {
+			    		this.pencilangle -= 1.0f*0.05f*scrollticksY;
+			    	}
+					if (this.pencilangle>360.0f) {
+						this.pencilangle = 0.0f;
+					} else if (this.pencilangle<0.0f) {
+						this.pencilangle = 360.0f;
+					}
+		    	} else {
+			    	if (scrollevent.isShiftDown()) {
+			    		this.hsbdrawcolor[0] = this.hsbdrawcolor[0] + 20.0f*scrollticksX;
+			    	} else {
+			    		this.hsbdrawcolor[0] = this.hsbdrawcolor[0] + 1.0f*scrollticksY;
+			    	}
+					if (this.hsbdrawcolor[0]>360.0f) {this.hsbdrawcolor[0] = 0.0f;}
+					if (this.hsbdrawcolor[0]<0.0f) {this.hsbdrawcolor[0] = 360.0f;}
+					this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
+		    	}
 		    }
-		    boolean mousewheelaltdown = ((!scrollevent.isControlDown())&&(scrollevent.isAltDown())&&(!scrollevent.isShiftDown())&&(!scrollevent.isMetaDown()));
+		    boolean mousewheelaltdown = ((!scrollevent.isControlDown())&&(scrollevent.isAltDown())&&(!scrollevent.isMetaDown()));
 		    if (mousewheelaltdown) {
-		    	this.drawcolorhsb[2] += 0.01f*scrollticksY;
-		    	if (this.drawcolorhsb[2]>1.0f) {this.drawcolorhsb[2] = 1.0f;}
-		    	else if (this.drawcolorhsb[2]<0.0f) {this.drawcolorhsb[2] = 0.0f;}
-		    	Color hsbcolor = Color.hsb(this.drawcolorhsb[0], this.drawcolorhsb[1], this.drawcolorhsb[2]);
-		    	float[] colorvalues = {(float)hsbcolor.getRed(), (float)hsbcolor.getGreen(), (float)hsbcolor.getBlue()};
-		    	this.drawcolor = new Color(colorvalues[0],colorvalues[1],colorvalues[2],this.penciltransparency);
+		    	if (scrollevent.isShiftDown()) {
+		    		this.hsbdrawcolor[1] = this.hsbdrawcolor[1] - 0.20f*scrollticksX;
+		    	} else {
+		    		this.hsbdrawcolor[1] = this.hsbdrawcolor[1] - 0.01f*scrollticksY;
+		    	}
+				if (this.hsbdrawcolor[1]>1.0f) {this.hsbdrawcolor[1] = 1.0f;}
+				if (this.hsbdrawcolor[1]<0.0f) {this.hsbdrawcolor[1] = 0.0f;}
+				this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
 		    }
-		    boolean mousewheelctrlaltdown = ((scrollevent.isControlDown())&&(scrollevent.isAltDown())&&(!scrollevent.isShiftDown())&&(!scrollevent.isMetaDown()));
+		    boolean mousewheelctrlaltdown = ((scrollevent.isControlDown())&&(scrollevent.isAltDown())&&(!scrollevent.isMetaDown()));
 		    if (mousewheelctrlaltdown) {
-		    	this.drawcolorhsb[1] += 0.01f*scrollticksY;
-		    	if (this.drawcolorhsb[1]>1.0f) {this.drawcolorhsb[1] = 1.0f;}
-		    	else if (this.drawcolorhsb[1]<0.0f) {this.drawcolorhsb[1] = 0.0f;}
-		    	Color hsbcolor = Color.hsb(this.drawcolorhsb[0], this.drawcolorhsb[1], this.drawcolorhsb[2]);
-		    	float[] colorvalues = {(float)hsbcolor.getRed(), (float)hsbcolor.getGreen(), (float)hsbcolor.getBlue()};
-		    	this.drawcolor = new Color(colorvalues[0],colorvalues[1],colorvalues[2],this.penciltransparency);
-		    }
-		    boolean mousewheelshiftdown = ((!scrollevent.isControlDown())&&(!scrollevent.isAltDown())&&(scrollevent.isShiftDown())&&(!scrollevent.isMetaDown()));
-		    if (mousewheelshiftdown) {
-				this.pencilangle += 0.05f*scrollticksX;
-				if (this.pencilangle>(2.0f*Math.PI)) {
-					this.pencilangle = 0.0f;
-				} else if (this.pencilangle<0.0f) {
-					this.pencilangle = 2.0f*Math.PI;
-				}
+		    	if (scrollevent.isShiftDown()) {
+		    		this.hsbdrawcolor[2] = this.hsbdrawcolor[2] - 0.20f*scrollticksX;
+		    	} else {
+		    		this.hsbdrawcolor[2] = this.hsbdrawcolor[2] - 0.01f*scrollticksY;
+		    	}
+				if (this.hsbdrawcolor[2]>1.0f) {this.hsbdrawcolor[2] = 1.0f;}
+				if (this.hsbdrawcolor[2]<0.0f) {this.hsbdrawcolor[2] = 0.0f;}
+				this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
 		    }
 		} else if (event.getEventType().equals(DragEvent.DRAG_OVER)) {
 			DragEvent dragevent = (DragEvent)event;

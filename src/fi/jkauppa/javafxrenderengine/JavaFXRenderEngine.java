@@ -51,12 +51,13 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 	private BufferedImage logoimage = UtilLib.loadImage("res/icons/logo.png", true);
 	private WritableImage logowimage = SwingFXUtils.toFXImage(logoimage, null);
 	private double timerfpstarget = 288.0f;
-	private int timerfpstargetdelay = (int)Math.floor(1000.0f/timerfpstarget);
-	private Timer timer = new Timer("JavaFXRenderEngine timer", true);
+	private long timerfpstargetdelay = (long)Math.floor(1000.0f/timerfpstarget);
+	private Timer timer = new Timer("JavaFXRenderEngine timer", false);
 	
     public static void main(String[] args) {
 		System.setProperty("sun.java2d.opengl", "true");
 		try {UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());} catch (Exception ex) {}
+    	Platform.setImplicitExit(true);
 		
 		Position[] vraappoints = {new Position(1.0f,0.0f,0.0f), new Position(1.0f,1.0f,-1.0f)};
 		Position[] vraaparound = { new Position(2.0f,0.0f,0.0f) };
@@ -76,11 +77,14 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     	launch(args);
     }
     @Override public void init() {}
-    @Override public void stop() throws Exception {}
+    
+    @Override public void stop() throws Exception {
+    	System.exit(0);
+    }
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.2.8");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.2.9");
     	this.primaryStage.getIcons().add(logowimage);
     	this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     	this.primaryStage.setFullScreenExitHint("");

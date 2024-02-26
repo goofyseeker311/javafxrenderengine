@@ -48,6 +48,9 @@ public class RenderFXLib {
 				if (tri[0].mat.fileimage!=null) {
 					diffusemap = new WritableImage(tri[0].mat.fileimage.getWidth(), tri[0].mat.fileimage.getHeight());
 				}
+				if ((diffusemap==null)&&(tri[0].mat.ambientfileimage!=null)) {
+					diffusemap = new WritableImage(tri[0].mat.ambientfileimage.getWidth(), tri[0].mat.ambientfileimage.getHeight());
+				}
 				if ((diffusemap==null)&&(tri[0].mat.emissivefileimage!=null)) {
 					diffusemap = new WritableImage(tri[0].mat.emissivefileimage.getWidth(), tri[0].mat.emissivefileimage.getHeight());
 				}

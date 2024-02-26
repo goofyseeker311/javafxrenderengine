@@ -145,7 +145,9 @@ public class ModelFXApp extends AppFXHandler {
 			KeyEvent keyevent = (KeyEvent)event;
 			if (keyevent.getCode()==KeyCode.BACK_SPACE) {
 				this.entitylist = null;
-				this.entities.getChildren().clear();
+				this.entities = new Group();
+				this.defaultsceneroot = new Group();
+				this.unlitsceneroot = new Group();
 				this.campos = this.defaultcampos;
 				this.camrot = this.defaultcamrot;
 			} else if (keyevent.getCode()==KeyCode.A) {
@@ -193,13 +195,15 @@ public class ModelFXApp extends AppFXHandler {
 		    		if (loadfileextension.equals(objextensionfilter)) {
 		    			Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new OBJFileFilter(), false);
 						this.entitylist = loadentity.childlist;
-						entities.getChildren().clear();
+						this.defaultsceneroot = new Group();
+						this.unlitsceneroot = new Group();
 						RenderFXLib.constructFXScene(this.defaultsceneroot, this.entitylist, false);
 						RenderFXLib.constructFXScene(this.unlitsceneroot, this.entitylist, true);
 		    		} else if (loadfileextension.equals(stlextensionfilter)) {
 		    			Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new STLFileFilter(), false);
 						this.entitylist = loadentity.childlist;
-						entities.getChildren().clear();
+						this.defaultsceneroot = new Group();
+						this.unlitsceneroot = new Group();
 						RenderFXLib.constructFXScene(this.defaultsceneroot, this.entitylist, false);
 						RenderFXLib.constructFXScene(this.unlitsceneroot, this.entitylist, true);
 		    		}
