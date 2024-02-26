@@ -92,8 +92,11 @@ public class CADFXApp extends AppFXHandler {
 	private Line[] mouseoverline = null;
 	private int mouselocationx = 0, mouselocationy = 0;
 	private int mouselastlocationx = -1, mouselastlocationy = -1; 
-	private final double defaultcamdist = 1371.023f;
-	private final Position[] defaultcampos = {new Position(0.0f,0.0f,defaultcamdist)};
+	private double hfov = 70.0f;
+	private double vfov = 43.0f;
+	private int gridstep = 20;
+	private double editplanedistance = (((double)this.renderwidth)/2.0f)/MathLib.tand(this.hfov/2.0f);
+	private final Position[] defaultcampos = {new Position(0.0f,0.0f,editplanedistance)};
 	private final Rotation defaultcamrot = new Rotation(0.0f, 0.0f, 0.0f);
 	private Position drawstartpos = new Position(0,0,0);
 	private Position editpos = new Position(0.0f,0.0f,0.0f);
@@ -103,9 +106,6 @@ public class CADFXApp extends AppFXHandler {
 	private Matrix cameramat = MathLib.rotationMatrix(0.0f, 0.0f, 0.0f);
 	private final Direction[] lookdirs = MathLib.projectedCameraDirections(cameramat);
 	private Direction[] camdirs = lookdirs;
-	private double hfov = 70.0f;
-	private double vfov = 43.0f;
-	private int gridstep = 20;
 	private Set<Line> linelisttree = new TreeSet<Line>();
 	private Line[] linelist = null;
 	private Entity[] entitylist = null;
@@ -131,6 +131,7 @@ public class CADFXApp extends AppFXHandler {
 	@Override public void update() {
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
+		this.editplanedistance = (((double)this.renderwidth)/2.0f)/MathLib.tand(this.hfov/2.0f);
 		this.root.getChildren().clear();
 		this.vfov = MathLib.calculateVfov(this.renderwidth, this.renderheight, this.hfov);
 		if ((this.renderview!=null)&&(this.renderview.renderimage!=null)) {
@@ -209,7 +210,7 @@ public class CADFXApp extends AppFXHandler {
 		}
 		Matrix camrotmat = MathLib.rotationMatrixLookHorizontalRoll(this.camrot);
 		Direction[] camlookdirs = MathLib.projectedCameraDirections(camrotmat);
-		Position[] editposa = MathLib.translate(this.campos, camlookdirs[0], this.defaultcamdist);
+		Position[] editposa = MathLib.translate(this.campos, camlookdirs[0], this.editplanedistance);
 		this.mousepos = MathLib.cameraPlanePosition(this.editpos, this.mouselocationx, this.mouselocationy, this.renderwidth, this.renderheight, this.snaplinemode, this.gridstep, this.cameramat);
 		this.editpos = editposa[0];
 		this.cameramat = camrotmat;
@@ -488,6 +489,7 @@ public class CADFXApp extends AppFXHandler {
 					System.out.println("CADApp: keyPressed: key SHIFT-ENTER: unlitrender="+this.unlitrender);
 				} else if (keyevent.isControlDown()) {
 					int bounces = 2;
+					this.entities.getChildren().clear();
 					RenderFXLib.constructFXScene(this.entities, this.entitylist, true);
 					RenderFXLib.renderSurfaceFaceLightmapCubemapView(entitylist, entities, 32, bounces);
 				} else {

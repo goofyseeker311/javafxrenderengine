@@ -15,6 +15,7 @@ import fi.jkauppa.javarenderengine.ModelLib.Position;
 import fi.jkauppa.javarenderengine.ModelLib.RenderView;
 import fi.jkauppa.javarenderengine.ModelLib.Sphere;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
+import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
@@ -32,6 +33,7 @@ import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.shape.VertexFormat;
 import javafx.scene.transform.Affine;
+import javafx.scene.transform.Rotate;
 
 public class RenderFXLib {
 	public static class RenderMeshView extends MeshView {
@@ -103,7 +105,9 @@ public class RenderFXLib {
 	}
 
 	public static Affine matrixAffine(Matrix vmat) {
-		return Affine.affine(vmat.a11, vmat.a12, vmat.a13, 0, vmat.a21, vmat.a22, vmat.a23, 0, vmat.a31, vmat.a32, vmat.a33, 0);		
+		Affine transform = Affine.affine(vmat.a11, vmat.a12, vmat.a13, 0, vmat.a21, vmat.a22, vmat.a23, 0, vmat.a31, vmat.a32, vmat.a33, 0);
+		transform.append(new Rotate(180.0f,new Point3D(1.0f,0.0f,0.0f)));
+		return transform;		
 	}
 	public static java.awt.Color awtColor(Color color) {
 		return new java.awt.Color((float)color.getRed(),(float)color.getGreen(),(float)color.getBlue(),(float)color.getOpacity());

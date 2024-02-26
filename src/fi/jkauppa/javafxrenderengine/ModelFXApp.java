@@ -39,6 +39,7 @@ public class ModelFXApp extends AppFXHandler {
 	private Rotation camrot = this.defaultcamrot;
 	private Matrix cameramat = MathLib.rotationMatrix(0.0f, 0.0f, 0.0f);
 	private Direction[] lookdirs = MathLib.projectedCameraDirections(cameramat);
+	private double hfov = 70.0f, vfov = 43.0f;
 	private Direction[] camdirs = lookdirs;
 	private int polygonfillmode = 1;
 	private boolean unlitrender = false;
@@ -72,7 +73,7 @@ public class ModelFXApp extends AppFXHandler {
 		} else {
 			this.entities = this.defaultsceneroot;
 		}
-		RenderView renderview = RenderFXLib.renderCubemapView(this.campos[0], this.entities, this.renderwidth, this.renderheight, (int)(this.renderheight/2.0f), this.cameramat, 0, null, null, null, this.mouselocationx, this.mouselocationy);
+		RenderView renderview = RenderFXLib.renderProjectedView(this.campos[0], this.entities, this.renderwidth, this.hfov, this.renderheight, this.vfov, this.cameramat, 0, null, null, null, this.mouselocationx, this.mouselocationy);
 		WritableImage renderimage = (WritableImage)renderview.renderimageobject;
         ImageView renderimageview = new ImageView();
         renderimageview.setImage(renderimage);
@@ -96,14 +97,14 @@ public class ModelFXApp extends AppFXHandler {
 			this.campos = MathLib.translate(campos, this.camdirs[1], movementstep);
 		}
 		if (this.forwardkeydown) {
-			this.campos = MathLib.translate(campos, this.camdirs[0], -movementstep);
-		} else if (this.backwardkeydown) {
 			this.campos = MathLib.translate(campos, this.camdirs[0], movementstep);
+		} else if (this.backwardkeydown) {
+			this.campos = MathLib.translate(campos, this.camdirs[0], -movementstep);
 		}
 		if (this.upwardkeydown) {
-			this.campos = MathLib.translate(campos, this.camdirs[2], movementstep);
-		} else if (this.downwardkeydown) {
 			this.campos = MathLib.translate(campos, this.camdirs[2], -movementstep);
+		} else if (this.downwardkeydown) {
+			this.campos = MathLib.translate(campos, this.camdirs[2], movementstep);
 		}
 		if (this.rollleftkeydown) {
 			this.camrot = this.camrot.copy();

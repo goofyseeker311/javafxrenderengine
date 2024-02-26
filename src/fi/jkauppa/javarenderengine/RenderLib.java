@@ -61,7 +61,7 @@ public class RenderLib {
 		renderview.renderimage = gc.createCompatibleImage(renderwidth, renderheight, Transparency.TRANSLUCENT);
 		renderview.zbuffer = new double[renderheight][renderwidth];
 		for (int i=0;i<renderview.zbuffer.length;i++) {Arrays.fill(renderview.zbuffer[i],Double.POSITIVE_INFINITY);}
-		double editplanedistance = 1371.022f;
+		double editplanedistance = (((double)renderwidth)/2.0f)/MathLib.tand(renderview.hfov/2.0f);
 		int origindeltax = (int)Math.floor(((double)(renderwidth-1))/2.0f);
 		int origindeltay = (int)Math.floor(((double)(renderheight-1))/2.0f);
 		Graphics2D g2 = renderview.renderimage.createGraphics();
