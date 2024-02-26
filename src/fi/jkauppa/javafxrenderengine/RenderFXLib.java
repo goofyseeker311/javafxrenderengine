@@ -16,6 +16,10 @@ import javafx.scene.shape.TriangleMesh;
 import javafx.scene.shape.VertexFormat;
 
 public class RenderFXLib {
+	public static class RenderMeshView extends MeshView {
+		public Triangle swent;
+	}
+	
 	public static void constructFXScene(Group root, Entity[] entitylist, boolean unlit) {
 		for (int k=0;k<entitylist.length;k++) {
 			constructFXTriangle(root, entitylist[k].trianglelist, unlit);
@@ -35,8 +39,9 @@ public class RenderFXLib {
 			trimesh.getTexCoords().addAll(tricoords);
 			trimesh.getNormals().addAll(trinorms);
 			trimesh.getFaces().addAll(trifacenorm);
-			MeshView trimeshview = new MeshView();
+			RenderMeshView trimeshview = new RenderMeshView();
 			tri[0].hwent = trimeshview;
+			trimeshview.swent = tri[0];
 			trimeshview.setMesh(trimesh);
 			trimeshview.setCullFace(CullFace.NONE);
 			PhongMaterial trimat = new PhongMaterial();
