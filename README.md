@@ -104,7 +104,7 @@ CTRL-F3               -- load insert model file dialog
 SHIFT-F3              -- load texture image file dialog
 F4                    -- render and save projected view 3840x2160 image with black opaque background
 CTRL-F4               -- render and save cube map view 6144x4096 image with transparent background
-SHIFT-F4              -- render and save sphere map 7680x2160 image with transparent background
+SHIFT-F4              -- render and save sphere map view 7680x2160 image with transparent background
 CTRL-SHIFT-F4         -- render and save projected view 4K image with transparent background
 
 Model App Keys:
