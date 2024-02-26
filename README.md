@@ -17,11 +17,12 @@ Draw App Keys:
 ENTER                 -- toggles between alpha/src composite pencil draw mode
 BACKSPACE             -- erases the whole window canvas to transparent
 DRAG-LMB              -- black/hsba-color drag paint
-SHIFT-LMB             -- rgba-color picker at cursor
+CTRL-LMB              -- rgba-color picker at cursor
 ALT-DRAG-LMB          -- black/hsba-color line drag paint
 DRAG-CMB              -- drag image contents on image canvas
+SHIFT                 -- speed up color change, zoom and rotation
 MWHEEL                -- pencil width change (minmax)
-SHIFT-MWHEEL          -- pencil brush image rotation angle change (looping)
+CTRL-MWHEEL           -- pencil brush image rotation angle change (looping)
 CTRL-MWHEEL           -- hue positive change (looping)
 CTRL-ALT-MWHEEL       -- saturation positive change (minmax)
 ALT-MWHEEL            -- brightness positive change (minmax)
