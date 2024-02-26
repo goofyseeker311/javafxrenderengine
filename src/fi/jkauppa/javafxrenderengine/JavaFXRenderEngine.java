@@ -3,6 +3,8 @@ package fi.jkauppa.javafxrenderengine;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.UIManager;
 
@@ -34,11 +36,11 @@ import javafx.scene.input.ScrollEvent;
 import javafx.stage.Stage;
 
 public class JavaFXRenderEngine extends Application implements Runnable,EventHandler<Event> {
-	private int defaultimagecanvaswidth = 1920;
-	private int defaultimagecanvasheight = 1080;
+	private static int defaultimagecanvaswidth = 1920;
+	private static int defaultimagecanvasheight = 1080;
 	private Stage primaryStage = null;
 	private Group root = new Group();
-	public Scene scene = new Scene(root, defaultimagecanvaswidth, defaultimagecanvasheight, true, SceneAntialiasing.BALANCED);
+	private Scene scene = new Scene(root, defaultimagecanvaswidth, defaultimagecanvasheight, true, SceneAntialiasing.BALANCED);
 	private FrameTick frametick = new FrameTick();
 	private DrawFXApp drawapp = new DrawFXApp(root);
 	private CADFXApp cadapp = new CADFXApp(root);
@@ -48,6 +50,9 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 	private AppFXHandler activeapp = null;
 	private BufferedImage logoimage = UtilLib.loadImage("res/icons/logo.png", true);
 	private WritableImage logowimage = SwingFXUtils.toFXImage(logoimage, null);
+	private double timerfpstarget = 288.0f;
+	private int timerfpstargetdelay = (int)Math.floor(1000.0f/timerfpstarget);
+	private Timer timer = new Timer("JavaFXRenderEngine timer", true);
 	
     public static void main(String[] args) {
 		System.setProperty("sun.java2d.opengl", "true");
@@ -89,28 +94,20 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
         this.primaryStage.show();
         frametick.start();
         this.primaryStage.requestFocus();
+        this.timer.scheduleAtFixedRate(new TimerTick(), 0, this.timerfpstargetdelay);
     }
 
     public static abstract class AppFXHandler implements EventHandler<Event> {
-    	public Group root = null;
-    	public Scene scene = null;
-    	public Group entities = new Group();
     	public String userdir = System.getProperty("user.dir");
-    	public int renderwidth = 0;
-    	public int renderheight = 0;
+    	public int renderwidth = defaultimagecanvaswidth;
+    	public int renderheight = defaultimagecanvasheight;
     	public long lastpulsetime = System.currentTimeMillis();
     	public long nowpulsetime = this.lastpulsetime;
 		public double diffpulsetime = (double)(this.nowpulsetime - this.lastpulsetime);
 		public double diffpulsetimesec = this.diffpulsetime/1000.0f;
     	public Clipboard cb = Clipboard.getSystemClipboard();
-    	public AppFXHandler() {}
-    	public void pulsetick() {
-			this.lastpulsetime = this.nowpulsetime;
-			this.nowpulsetime = System.currentTimeMillis();
-			this.diffpulsetime = (double)(this.nowpulsetime - this.lastpulsetime);
-			this.diffpulsetimesec = this.diffpulsetime/1000.0f;
-    	}
     	public abstract void update();
+    	public abstract void tick();
     	public abstract void pulse();
     }
 
@@ -165,9 +162,18 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 			activeapp.update();
 		}
 	}
+	
+	private class TimerTick extends TimerTask {
+		@Override public void run() {
+			activeapp.lastpulsetime = activeapp.nowpulsetime;
+			activeapp.nowpulsetime = System.currentTimeMillis();
+			activeapp.diffpulsetime = (double)(activeapp.nowpulsetime - activeapp.lastpulsetime);
+			activeapp.diffpulsetimesec = activeapp.diffpulsetime/1000.0f;
+			activeapp.tick();
+		}
+	}
 
 	@Override public void run() {
-		activeapp.pulsetick();
 		activeapp.pulse();
 		Platform.requestNextPulse();
 	}

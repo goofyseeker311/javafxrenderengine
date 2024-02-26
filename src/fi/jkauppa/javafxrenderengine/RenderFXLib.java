@@ -37,7 +37,7 @@ public class RenderFXLib {
 				trimesh.getNormals().addAll(trinorms);
 				trimesh.getFaces().addAll(trifacenorm);
 				RenderMeshView trimeshview = new RenderMeshView();
-				tri[0].hwent = trimeshview;
+				tri[0].hwent = null;
 				tri[0].hwtri = trimeshview;
 				trimeshview.swent = ent[0];
 				trimeshview.swtri = tri[0];

@@ -49,6 +49,7 @@ import javafx.event.Event;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.ParallelCamera;
+import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.DragEvent;
@@ -64,6 +65,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 public class CADFXApp extends AppFXHandler {
+	private Group root = null;
+	private Scene scene = null;
 	private GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	private GraphicsDevice gd = ge.getDefaultScreenDevice();
 	private GraphicsConfiguration gc = gd.getDefaultConfiguration();
@@ -145,9 +148,10 @@ public class CADFXApp extends AppFXHandler {
 		this.scene.setCamera(camera);
 	}
 	
-	@Override public void pulse() {
+	@Override public void tick() {
 		updateCamera();
 	}
+	@Override public void pulse() {}
 
 	private void updateCamera() {
 		double movementstep = 1000.0f*this.diffpulsetimesec;

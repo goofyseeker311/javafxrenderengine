@@ -17,6 +17,7 @@ import javafx.geometry.Point3D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
+import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -27,6 +28,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 public class ModelFXApp extends AppFXHandler {
+	private Group root = null;
+	private Scene scene = null;
+	private Group entities = new Group();
 	private Entity[] entitylist = null;
 	private Position[] defaultcampos = {new Position(0.0f,0.0f,0.0f)};
 	private Rotation defaultcamrot = new Rotation(0.0f, 0.0f, 0.0f);
@@ -82,9 +86,10 @@ public class ModelFXApp extends AppFXHandler {
 		this.root.getChildren().setAll(this.entities);
 	}
 
-	@Override public void pulse() {
+	@Override public void tick() {
 		updateCamera();
 	}
+	@Override public void pulse() {}
 	
 	private void updateCamera() {
 		double movementstep = 1000.0f*this.diffpulsetimesec;

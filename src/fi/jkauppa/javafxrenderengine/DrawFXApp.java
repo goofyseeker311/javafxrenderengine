@@ -17,6 +17,7 @@ import javafx.event.Event;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.ParallelCamera;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -38,6 +39,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 public class DrawFXApp extends AppFXHandler {
+	private Group root = null;
+	private Scene scene = null;
 	private Color drawcolor = Color.BLACK;
 	private float[] drawcolorhsb = {0.0f, 1.0f, 0.0f};
 	private Color erasecolor = new Color(1.0f,1.0f,1.0f,0.0f);
@@ -120,6 +123,7 @@ public class DrawFXApp extends AppFXHandler {
 		this.scene.setCamera(camera);
 	}
 	
+	@Override public void tick() {}
 	@Override public void pulse() {}
 	
 	@Override public void handle(Event event) {
