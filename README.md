@@ -23,7 +23,7 @@ DRAG-CMB              -- drag image contents on image canvas
 SHIFT                 -- speed up color change, zoom and rotation
 MWHEEL                -- pencil width change (minmax)
 CTRL-MWHEEL           -- pencil brush image rotation angle change (looping)
-CTRL-MWHEEL           -- hue positive change (looping)
+                         hue positive change (looping)
 CTRL-ALT-MWHEEL       -- saturation positive change (minmax)
 ALT-MWHEEL            -- brightness positive change (minmax)
 DRAG-RMB              -- transparent drag paint eraser
