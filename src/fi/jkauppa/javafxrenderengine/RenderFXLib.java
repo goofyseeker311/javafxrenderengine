@@ -1,19 +1,32 @@
 package fi.jkauppa.javafxrenderengine;
 
+import java.awt.Rectangle;
+
+import fi.jkauppa.javarenderengine.MathLib;
 import fi.jkauppa.javarenderengine.RenderLib;
 import fi.jkauppa.javarenderengine.ModelLib.Coordinate;
 import fi.jkauppa.javarenderengine.ModelLib.Direction;
 import fi.jkauppa.javarenderengine.ModelLib.Entity;
+import fi.jkauppa.javarenderengine.ModelLib.Matrix;
+import fi.jkauppa.javarenderengine.ModelLib.Plane;
+import fi.jkauppa.javarenderengine.ModelLib.Position;
+import fi.jkauppa.javarenderengine.ModelLib.RenderView;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
+import javafx.scene.PerspectiveCamera;
+import javafx.scene.Scene;
+import javafx.scene.SceneAntialiasing;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.CullFace;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.shape.VertexFormat;
+import javafx.scene.transform.Affine;
 
 public class RenderFXLib {
 	public static class RenderMeshView extends MeshView {
@@ -83,4 +96,39 @@ public class RenderFXLib {
 			}
 		}
 	}
+
+	public static Affine matrixAffine(Matrix vmat) {
+		return Affine.affine(vmat.a11, vmat.a12, vmat.a13, 0, vmat.a21, vmat.a22, vmat.a23, 0, vmat.a31, vmat.a32, vmat.a33, 0);		
+	}
+	
+	public static RenderView renderProjectedView(Position campos, Group root, int renderwidth, double hfov, int renderheight, double vfov, Matrix viewrot, int bounces, Plane nclipplane, Triangle nodrawtriangle, Rectangle drawrange, int mouselocationx, int mouselocationy) {
+		RenderView renderview = new RenderView();
+		renderview.pos = campos.copy();
+		renderview.rot = viewrot.copy();
+		renderview.renderwidth = renderwidth;
+		renderview.renderheight = renderheight;
+		renderview.hfov = hfov;
+		renderview.vfov = MathLib.calculateVfov(renderview.renderwidth, renderview.renderheight, renderview.hfov);
+		renderview.mouselocationx = mouselocationx;
+		renderview.mouselocationy = mouselocationy;
+		renderview.dirs = MathLib.projectedCameraDirections(renderview.rot);
+		Scene scene = new Scene(root, renderwidth, renderheight, true, SceneAntialiasing.BALANCED);
+		PerspectiveCamera camera = new PerspectiveCamera(true);
+		camera.setFarClip(1000000.0f);
+		camera.setVerticalFieldOfView(false);
+		camera.setFieldOfView(renderview.hfov);
+		camera.getTransforms().clear();
+		camera.setTranslateX(renderview.pos.x);
+		camera.setTranslateY(renderview.pos.y);
+		camera.setTranslateZ(renderview.pos.z);
+		Affine transform = RenderFXLib.matrixAffine(renderview.rot);
+		camera.getTransforms().add(transform);
+		scene.setFill(Paint.valueOf("BLACK"));
+		scene.setCamera(camera);
+		WritableImage renderimage = scene.snapshot(null);
+		renderview.renderimage = SwingFXUtils.fromFXImage(renderimage, null);
+		scene.setRoot(new Group());
+		return renderview;
+	}
+
 }

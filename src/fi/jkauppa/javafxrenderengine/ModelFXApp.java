@@ -11,19 +11,21 @@ import fi.jkauppa.javarenderengine.ModelLib.Direction;
 import fi.jkauppa.javarenderengine.ModelLib.Entity;
 import fi.jkauppa.javarenderengine.ModelLib.Matrix;
 import fi.jkauppa.javarenderengine.ModelLib.Position;
+import fi.jkauppa.javarenderengine.ModelLib.RenderView;
 import fi.jkauppa.javarenderengine.ModelLib.Rotation;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
-import javafx.geometry.Point3D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
-import javafx.scene.PerspectiveCamera;
+import javafx.scene.ParallelCamera;
 import javafx.scene.Scene;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.scene.robot.Robot;
-import javafx.scene.transform.Rotate;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
@@ -39,7 +41,7 @@ public class ModelFXApp extends AppFXHandler {
 	private Matrix cameramat = MathLib.rotationMatrix(0.0f, 0.0f, 0.0f);
 	private Direction[] lookdirs = MathLib.projectedCameraDirections(cameramat);
 	private Direction[] camdirs = lookdirs;
-	private double hfov = 70.0f;
+	private double hfov = 70.0f, vfov = 43.0f;
 	private int polygonfillmode = 1;
 	private boolean unlitrender = false;
 	private boolean leftkeydown = false;
@@ -63,27 +65,24 @@ public class ModelFXApp extends AppFXHandler {
 	@Override public void update() {
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
-		PerspectiveCamera camera = new PerspectiveCamera(true);
-		camera.setFarClip(1000000.0f);
-		camera.setVerticalFieldOfView(false);
-		camera.setFieldOfView(this.hfov);
-		camera.getTransforms().clear();
-		camera.setTranslateX(this.campos[0].x);
-		camera.setTranslateY(this.campos[0].y);
-		camera.setTranslateZ(this.campos[0].z);
-		camera.getTransforms().add(new Rotate(this.camrot.z, new Point3D(0,0,1)));
-		camera.getTransforms().add(new Rotate(this.camrot.y, new Point3D(0,1,0)));
-		camera.getTransforms().add(new Rotate(this.camrot.x, new Point3D(1,0,0)));
-		camera.getTransforms().add(new Rotate(180, new Point3D(1,0,0)));
-		this.scene.setCursor(Cursor.NONE);
-		this.scene.setFill(Paint.valueOf("BLACK"));
+		ParallelCamera camera = new ParallelCamera();
 		this.scene.setCamera(camera);
+		this.scene.setFill(Paint.valueOf("BLACK"));
+		this.scene.setCursor(Cursor.NONE);
 		if (this.unlitrender) {
 			this.entities = this.unlitsceneroot;
 		} else {
 			this.entities = this.defaultsceneroot;
 		}
-		this.root.getChildren().setAll(this.entities);
+		RenderView renderview = RenderFXLib.renderProjectedView(this.campos[0], this.entities, this.renderwidth, this.hfov, this.renderheight, this.vfov, this.cameramat, 0, null, null, null, this.mouselocationx, this.mouselocationy);
+		WritableImage renderimage = SwingFXUtils.toFXImage(renderview.renderimage, null);
+        ImageView renderimageview = new ImageView();
+        renderimageview.setImage(renderimage);
+        renderimageview.setFitWidth(this.renderwidth);
+        renderimageview.setPreserveRatio(true);
+        renderimageview.setSmooth(true);
+        renderimageview.setCache(true);
+		root.getChildren().setAll(renderimageview);
 	}
 
 	@Override public void tick() {
@@ -99,14 +98,14 @@ public class ModelFXApp extends AppFXHandler {
 			this.campos = MathLib.translate(campos, this.camdirs[1], movementstep);
 		}
 		if (this.forwardkeydown) {
-			this.campos = MathLib.translate(campos, this.camdirs[0], movementstep);
-		} else if (this.backwardkeydown) {
 			this.campos = MathLib.translate(campos, this.camdirs[0], -movementstep);
+		} else if (this.backwardkeydown) {
+			this.campos = MathLib.translate(campos, this.camdirs[0], movementstep);
 		}
 		if (this.upwardkeydown) {
-			this.campos = MathLib.translate(campos, this.camdirs[2], -movementstep);
-		} else if (this.downwardkeydown) {
 			this.campos = MathLib.translate(campos, this.camdirs[2], movementstep);
+		} else if (this.downwardkeydown) {
+			this.campos = MathLib.translate(campos, this.camdirs[2], -movementstep);
 		}
 		if (this.rollleftkeydown) {
 			this.camrot = this.camrot.copy();
