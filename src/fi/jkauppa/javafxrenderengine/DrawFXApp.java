@@ -20,7 +20,6 @@ import javafx.scene.ParallelCamera;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -58,6 +57,7 @@ public class DrawFXApp extends AppFXHandler {
 	private Canvas renderbuffer = null;
 	private Canvas outputbuffer = null;
 	private Canvas dragbuffer = null;
+	private WritableImage bgimage = null;
 	private ImagePattern bgpattern = null;
 	private WritableImage pencilbuffer = null;
 	
@@ -72,46 +72,36 @@ public class DrawFXApp extends AppFXHandler {
 		pgfx.setStroke(Color.BLACK);
 		pgfx.strokeLine(31, 0, 31, 63);
 		pgfx.strokeLine(0, 31, 63, 31);
-		WritableImage bgimage = bgpatternimage.snapshot(null, null);
-		this.bgpattern = new ImagePattern(bgimage);
+		this.bgimage = bgpatternimage.snapshot(null, null);
+		this.bgpattern = new ImagePattern(this.bgimage, 0.0f, 0.0f, bgpatternimage.getWidth(), bgpatternimage.getHeight(), false);
 	}
 	@Override public void update() {
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
+		this.scene.setCursor(Cursor.DEFAULT);
+		this.scene.setFill(Color.TRANSPARENT);
 		if ((renderbuffer==null)||(renderbuffer.getWidth()!=this.renderwidth)||(renderbuffer.getHeight()!=this.renderheight)) {
 			Canvas oldimage = this.renderbuffer;
 			this.outputbuffer = new Canvas(this.renderwidth,this.renderheight);
 			this.renderbuffer = new Canvas(this.renderwidth,this.renderheight);
 			this.dragbuffer = new Canvas(this.renderwidth,this.renderheight);
 			GraphicsContext gfx = this.renderbuffer.getGraphicsContext2D();
-			gfx.clearRect(0, 0, this.renderwidth, this.renderheight);
 			if (oldimage!=null) {
 				gfx.drawImage(oldimage.snapshot(null, null), 0, 0);
 			}
 		}
 		GraphicsContext g2 = this.outputbuffer.getGraphicsContext2D();
+		g2.setFill(Color.WHITE);
 		g2.clearRect(0, 0, this.renderwidth, this.renderheight);
 		g2.setFill(this.bgpattern);
 		g2.fillRect(0, 0, this.renderwidth, this.renderheight);
-		g2.setFill(null);
 		g2.drawImage(this.renderbuffer.snapshot(null, null), 0, 0);
-		if ((this.penciloverridemode)&&(this.pencilbuffer!=null)) {
-    		double pencilsizescalefactor = ((double)this.pencilsize)/((double)this.pencilbuffer.getWidth());
-			g2.setFill(this.bgpattern);
-			int drawlocationx = this.mouselocationx-(int)Math.round((double)this.pencilbuffer.getWidth()*pencilsizescalefactor/2.0f);
-			int drawlocationy = this.mouselocationy-(int)Math.round((double)this.pencilbuffer.getHeight()*pencilsizescalefactor/2.0f);
-			int drawwidth = (int)Math.round(this.pencilbuffer.getWidth()*pencilsizescalefactor);
-			int drawheight = (int)Math.round(this.pencilbuffer.getHeight()*pencilsizescalefactor);
-			g2.fillRect(drawlocationx, drawlocationy, drawwidth, drawheight);
-		}
 		if (this.drawlinemode) {
 			this.drawPencilLine(g2, this.mousestartlocationx, this.mousestartlocationy, this.mouselocationx, this.mouselocationy, false, false);
 		} else {
 			this.drawPencil(g2, this.mouselocationx, this.mouselocationy, false, false);
 		}
 		ParallelCamera camera = new ParallelCamera();
-		this.scene.setCursor(Cursor.DEFAULT);
-		this.scene.setFill(Color.WHITE);
 		if (this.outputbuffer!=null) {
 			WritableImage outputimage = this.outputbuffer.snapshot(null, null);
 	        ImageView renderimageview = new ImageView();
@@ -314,7 +304,7 @@ public class DrawFXApp extends AppFXHandler {
 					    	this.pencilbuffer = SwingFXUtils.toFXImage(loadimage, null);
 					    }else{
 					    	GraphicsContext dragimagegfx = this.renderbuffer.getGraphicsContext2D();
-					    	dragimagegfx.clearRect(0, 0, this.renderbuffer.getWidth(), this.renderbuffer.getHeight());
+					    	dragimagegfx.clearRect(0, 0, loadimage.getWidth(), loadimage.getHeight());
 					    	dragimagegfx.drawImage(SwingFXUtils.toFXImage(loadimage, null), 0, 0);
 					    }
 					}
@@ -472,9 +462,6 @@ public class DrawFXApp extends AppFXHandler {
 	}
 
 	private void drawPencil(GraphicsContext g, int mousex, int mousey, boolean erasemode, boolean overridemode) {
-		g.setGlobalBlendMode(BlendMode.SRC_OVER);
-		g.setFill(null);
-		g.setStroke(null);
 		int pencilwidth = (int)Math.ceil((double)(this.pencilsize-1)/2.0f);
     	if (this.pencilbuffer!=null) {
     		double pencilsizescalefactor = ((double)this.pencilsize)/((double)this.pencilbuffer.getWidth());
@@ -486,13 +473,14 @@ public class DrawFXApp extends AppFXHandler {
     		penciltransform.appendTranslation(drawlocationx, drawlocationy);
     		penciltransform.appendRotation(this.pencilangle,halfwidth,halfheight);
     		penciltransform.appendScale(pencilsizescalefactor, pencilsizescalefactor);
+    		g.save();
     		g.setTransform(penciltransform);
-    		if ((erasemode)||(overridemode)) {
-        		g.clearRect(drawlocationx, drawlocationy, this.pencilbuffer.getWidth(), this.pencilbuffer.getHeight());
+    		if (erasemode) {
+    			g.clearRect(drawlocationx, drawlocationy, this.pencilbuffer.getWidth(), this.pencilbuffer.getHeight());
+    		} else {
+    			g.drawImage(this.pencilbuffer, drawlocationx, drawlocationy);
     		}
-	    	if (!erasemode) {
-	        	g.drawImage(this.pencilbuffer, drawlocationx, drawlocationy);
-    		}
+	        g.restore();
     	} else {
     		if ((erasemode)||(overridemode)) {
 	    		g.setFill(this.erasecolor);
