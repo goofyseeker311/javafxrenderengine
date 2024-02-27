@@ -72,8 +72,8 @@ public class ModelFXApp extends AppFXHandler {
 		camera.setTranslateZ(this.campos[0].z);
 		Affine transform = RenderFXLib.matrixAffine(this.cameramat);
 		camera.getTransforms().add(transform);
-		scene.setFill(Paint.valueOf("BLACK"));
 		scene.setCamera(camera);
+		scene.setFill(Paint.valueOf("BLACK"));
 		this.scene.setCursor(Cursor.NONE);
 		if (this.unlitrender) {
 			this.entities = this.unlitsceneroot;

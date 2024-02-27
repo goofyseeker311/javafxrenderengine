@@ -18,6 +18,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.ParallelCamera;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -41,16 +42,16 @@ import javafx.stage.FileChooser.ExtensionFilter;
 public class DrawFXApp extends AppFXHandler {
 	private Group root = null;
 	private Scene scene = null;
+	private SnapshotParameters snap = new SnapshotParameters();
 	private double[] hsbdrawcolor = {0.0f,1.0f,0.0f,1.0f};
 	private Color drawcolor = Color.hsb(hsbdrawcolor[0],hsbdrawcolor[1],hsbdrawcolor[2],hsbdrawcolor[3]);
-	private Color erasecolor = new Color(1.0f,1.0f,1.0f,1.0f);
 	private int pencilsize = 1;
 	private int pencilshape = 1;
 	private double pencilangle = 0;
-	private boolean penciloverridemode = false;
 	private float penciltransparency = 1.0f;
 	private int oldpencilsize = 1;
 	private boolean drawlinemode = false;
+	private boolean rotatemode = false;
 	private int mousestartlocationx = -1, mousestartlocationy = -1;  
 	private int mouselastlocationx = -1, mouselastlocationy = -1;  
 	private int mouselocationx = -1, mouselocationy = -1;
@@ -64,6 +65,7 @@ public class DrawFXApp extends AppFXHandler {
 	public DrawFXApp(Group root) {
 		this.root = root;
 		this.scene = root.getScene();
+		this.snap.setFill(Color.TRANSPARENT);
 		Canvas bgpatternimage = new Canvas(64,64);
 		GraphicsContext pgfx = bgpatternimage.getGraphicsContext2D();
 		pgfx.setFill(Color.WHITE);
@@ -72,7 +74,7 @@ public class DrawFXApp extends AppFXHandler {
 		pgfx.setStroke(Color.BLACK);
 		pgfx.strokeLine(31, 0, 31, 63);
 		pgfx.strokeLine(0, 31, 63, 31);
-		this.bgimage = bgpatternimage.snapshot(null, null);
+		this.bgimage = bgpatternimage.snapshot(this.snap, null);
 		this.bgpattern = new ImagePattern(this.bgimage, 0.0f, 0.0f, bgpatternimage.getWidth(), bgpatternimage.getHeight(), false);
 	}
 	@Override public void update() {
@@ -86,24 +88,23 @@ public class DrawFXApp extends AppFXHandler {
 			this.renderbuffer = new Canvas(this.renderwidth,this.renderheight);
 			this.dragbuffer = new Canvas(this.renderwidth,this.renderheight);
 			GraphicsContext gfx = this.renderbuffer.getGraphicsContext2D();
+			gfx.clearRect(0, 0, this.renderwidth,this.renderheight);
 			if (oldimage!=null) {
-				gfx.drawImage(oldimage.snapshot(null, null), 0, 0);
+				gfx.drawImage(oldimage.snapshot(this.snap, null), 0, 0);
 			}
 		}
 		GraphicsContext g2 = this.outputbuffer.getGraphicsContext2D();
-		g2.setFill(Color.WHITE);
-		g2.clearRect(0, 0, this.renderwidth, this.renderheight);
 		g2.setFill(this.bgpattern);
 		g2.fillRect(0, 0, this.renderwidth, this.renderheight);
-		g2.drawImage(this.renderbuffer.snapshot(null, null), 0, 0);
+		g2.drawImage(this.renderbuffer.snapshot(this.snap, null), 0, 0);
 		if (this.drawlinemode) {
-			this.drawPencilLine(g2, this.mousestartlocationx, this.mousestartlocationy, this.mouselocationx, this.mouselocationy, false, false);
+			this.drawPencilLine(g2, this.mousestartlocationx, this.mousestartlocationy, this.mouselocationx, this.mouselocationy, false);
 		} else {
-			this.drawPencil(g2, this.mouselocationx, this.mouselocationy, false, false);
+			this.drawPencil(g2, this.mouselocationx, this.mouselocationy, false);
 		}
 		ParallelCamera camera = new ParallelCamera();
 		if (this.outputbuffer!=null) {
-			WritableImage outputimage = this.outputbuffer.snapshot(null, null);
+			WritableImage outputimage = this.outputbuffer.snapshot(this.snap, null);
 	        ImageView renderimageview = new ImageView();
 	        renderimageview.setImage(outputimage);
 	        renderimageview.setFitWidth(this.renderwidth);
@@ -119,14 +120,19 @@ public class DrawFXApp extends AppFXHandler {
 	@Override public void pulse() {}
 	
 	@Override public void handle(Event event) {
-		if (event.getEventType().equals(KeyEvent.KEY_PRESSED)) {
+		if (event.getEventType().equals(KeyEvent.KEY_RELEASED)) {
+			KeyEvent keyevent = (KeyEvent)event;
+			if (keyevent.getCode()==KeyCode.TAB) {
+				this.rotatemode = false;
+			}
+		} else if (event.getEventType().equals(KeyEvent.KEY_PRESSED)) {
 			KeyEvent keyevent = (KeyEvent)event;
 			if (keyevent.getCode()==KeyCode.ESCAPE) {
 				//TODO options menu
 			} else if (keyevent.getCode()==KeyCode.ENTER) {
-				if ((!keyevent.isControlDown())&&(!keyevent.isAltDown())&&(!keyevent.isShiftDown())&&(!keyevent.isMetaDown())) {
-			    	this.penciloverridemode = !this.penciloverridemode;
-			    }
+				//TODO <tbd>
+			} else if (keyevent.getCode()==KeyCode.TAB) {
+				this.rotatemode = true;
 			} else if (keyevent.getCode()==KeyCode.BACK_SPACE) {
 				if (this.renderbuffer!=null) {
 					GraphicsContext gfx = this.renderbuffer.getGraphicsContext2D();
@@ -135,7 +141,7 @@ public class DrawFXApp extends AppFXHandler {
 			} else if (keyevent.getCode()==KeyCode.C) {
 				if (keyevent.isControlDown()) {
 					ClipboardContent content = new ClipboardContent();
-					WritableImage contentimage = this.renderbuffer.snapshot(null, null);
+					WritableImage contentimage = this.renderbuffer.snapshot(this.snap, null);
 					content.putImage(contentimage);
 					this.cb.setContent(content);
 				}
@@ -143,8 +149,9 @@ public class DrawFXApp extends AppFXHandler {
 				if (keyevent.isControlDown()) {
 					if (this.cb.hasImage()) {
 			        	Image contentimage = this.cb.getImage();
-						GraphicsContext loadimagevolatilegfx = this.renderbuffer.getGraphicsContext2D();
-						loadimagevolatilegfx.drawImage(contentimage, 0, 0);
+						GraphicsContext gfx = this.renderbuffer.getGraphicsContext2D();
+						gfx.clearRect(0, 0, contentimage.getWidth(), contentimage.getHeight());
+						gfx.drawImage(contentimage, 0, 0);
 					}
 				}
 			} else if (keyevent.getCode()==KeyCode.INSERT) {
@@ -247,11 +254,23 @@ public class DrawFXApp extends AppFXHandler {
 				if (this.penciltransparency<0.0f) {this.penciltransparency = 0.0f;}
 				this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
 			} else if (keyevent.getCode()==KeyCode.NUMPAD6) {
-				this.pencilangle += 0.01f;
-				if (this.pencilangle>360.0f) {this.pencilangle = 0.0f;}
+		    	if (keyevent.isShiftDown()) {
+		    		this.pencilangle += 20.0f*0.05f;
+		    	} else {
+		    		this.pencilangle += 1.0f*0.05f;
+		    	}
+				if (this.pencilangle>360.0f) {
+					this.pencilangle = 0.0f;
+				}
 			} else if (keyevent.getCode()==KeyCode.NUMPAD5) {
-				this.pencilangle -= 0.01f;
-				if (this.pencilangle<0.0f) {this.pencilangle = 360.0f;}
+		    	if (keyevent.isShiftDown()) {
+		    		this.pencilangle -= 20.0f*0.05f;
+		    	} else {
+		    		this.pencilangle -= 1.0f*0.05f;
+		    	}
+				if (this.pencilangle<0.0f) {
+					this.pencilangle = 360.0f;
+				}
 			} else if (keyevent.getCode()==KeyCode.F1) {
 				//TODO help pop-up window
 			} else if (keyevent.getCode()==KeyCode.F2) {
@@ -273,16 +292,17 @@ public class DrawFXApp extends AppFXHandler {
 		    	if (savefile!=null) {
 					if (savefile.getParent()!=null) {this.userdir = savefile.getParent();}
 		    		ExtensionFilter savefileextension = filechooser.getSelectedExtensionFilter();
+		    		BufferedImage saveimage = SwingFXUtils.fromFXImage(this.renderbuffer.snapshot(this.snap, null), null);
 		    		if (savefileextension.equals(pngextensionfilter)) {
-						UtilLib.saveImageFormat(savefile.getPath(), SwingFXUtils.fromFXImage(this.renderbuffer.snapshot(null, null), null), new PNGFileFilter());
+						UtilLib.saveImageFormat(savefile.getPath(), saveimage, new PNGFileFilter());
 		    		} else if (savefileextension.equals(jpgextensionfilter)) {
-						UtilLib.saveImageFormat(savefile.getPath(), SwingFXUtils.fromFXImage(this.renderbuffer.snapshot(null, null), null), new JPGFileFilter());
+						UtilLib.saveImageFormat(savefile.getPath(), saveimage, new JPGFileFilter());
 		    		} else if (savefileextension.equals(gifextensionfilter)) {
-						UtilLib.saveImageFormat(savefile.getPath(), SwingFXUtils.fromFXImage(this.renderbuffer.snapshot(null, null), null), new GIFFileFilter());
+						UtilLib.saveImageFormat(savefile.getPath(), saveimage, new GIFFileFilter());
 		    		} else if (savefileextension.equals(bmpextensionfilter)) {
-						UtilLib.saveImageFormat(savefile.getPath(), SwingFXUtils.fromFXImage(this.renderbuffer.snapshot(null, null), null), new BMPFileFilter());
+						UtilLib.saveImageFormat(savefile.getPath(), saveimage, new BMPFileFilter());
 		    		} else if (savefileextension.equals(wbmpextensionfilter)) {
-						UtilLib.saveImageFormat(savefile.getPath(), SwingFXUtils.fromFXImage(this.renderbuffer.snapshot(null, null), null), new WBMPFileFilter());
+						UtilLib.saveImageFormat(savefile.getPath(), saveimage, new WBMPFileFilter());
 		    		}
 				}
 			} else if (keyevent.getCode()==KeyCode.F3) {
@@ -332,7 +352,7 @@ public class DrawFXApp extends AppFXHandler {
 				if (mouse1up||mouse3up) {
 					if (this.drawlinemode) {
 						this.drawlinemode=false;
-						drawPencilLine(renderbuffergfx, this.mousestartlocationx, this.mousestartlocationy, this.mouselocationx, this.mouselocationy, mouse3up, this.penciloverridemode);
+						drawPencilLine(renderbuffergfx, this.mousestartlocationx, this.mousestartlocationy, this.mouselocationx, this.mouselocationy, mouse3up);
 					}
 				}
 			}
@@ -349,7 +369,7 @@ public class DrawFXApp extends AppFXHandler {
 			    boolean mouse1down = (mouseevent.getButton().equals(MouseButton.PRIMARY))&&((!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
 			    boolean mouse3down = (mouseevent.getButton().equals(MouseButton.SECONDARY))&&((!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
 			    if (mouse1down||mouse3down) {
-			    	this.drawPencil(renderbuffergfx, this.mouselocationx, this.mouselocationy, mouse3down, this.penciloverridemode);
+			    	this.drawPencil(renderbuffergfx, this.mouselocationx, this.mouselocationy, mouse3down);
 				}
 			    boolean mouse1altdown = (mouseevent.getButton().equals(MouseButton.PRIMARY))&&((!mouseevent.isControlDown())&&(mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
 			    boolean mouse3altdown = (mouseevent.getButton().equals(MouseButton.SECONDARY))&&((!mouseevent.isControlDown())&&(mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
@@ -358,7 +378,7 @@ public class DrawFXApp extends AppFXHandler {
 			    }
 			    boolean mouse1ctrldown = (mouseevent.getButton().equals(MouseButton.PRIMARY))&&((mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
 			    if (mouse1ctrldown) {
-			    	this.drawcolor = this.renderbuffer.snapshot(null, null).getPixelReader().getColor(this.mouselocationx, this.mouselocationy);
+			    	this.drawcolor = this.renderbuffer.snapshot(this.snap, null).getPixelReader().getColor(this.mouselocationx, this.mouselocationy);
 			    	double[] newhsbdrawcolor = {this.drawcolor.getHue(), this.drawcolor.getSaturation(), this.drawcolor.getBrightness(), this.penciltransparency};
 			    	this.hsbdrawcolor = newhsbdrawcolor;
 			    }
@@ -370,9 +390,9 @@ public class DrawFXApp extends AppFXHandler {
 			    if (mouse2down) {
 			    	GraphicsContext dragimagegfx = this.dragbuffer.getGraphicsContext2D();
 			    	dragimagegfx.clearRect(0, 0, this.renderbuffer.getWidth(), this.renderbuffer.getHeight());
-			    	dragimagegfx.drawImage(this.renderbuffer.snapshot(null, null), mousedeltax, mousedeltay);
+			    	dragimagegfx.drawImage(this.renderbuffer.snapshot(this.snap, null), mousedeltax, mousedeltay);
 			    	renderbuffergfx.clearRect(0, 0, this.renderbuffer.getWidth(), this.renderbuffer.getHeight());
-			    	renderbuffergfx.drawImage(this.dragbuffer.snapshot(null, null), 0, 0);
+			    	renderbuffergfx.drawImage(this.dragbuffer.snapshot(this.snap, null), 0, 0);
 			    }
 			}
 		} else if (event.getEventType().equals(ScrollEvent.SCROLL)) {
@@ -381,18 +401,7 @@ public class DrawFXApp extends AppFXHandler {
 			double scrollticksY = -scrollevent.getDeltaY()/scrollevent.getMultiplierY();
 		    boolean mousewheeldown = ((!scrollevent.isControlDown())&&(!scrollevent.isAltDown())&&(!scrollevent.isMetaDown()));
 		    if (mousewheeldown) {
-		    	if (scrollevent.isShiftDown()) {
-		    		this.pencilsize -= 20.0f*scrollticksX*((this.pencilsize>16)?this.pencilsize/16:1);
-		    	} else {
-		    		this.pencilsize -= 1.0f*scrollticksY*((this.pencilsize>16)?this.pencilsize/16:1);
-		    	}
-				if (this.pencilsize<1) {
-					this.pencilsize = 1;
-				}
-		    }
-		    boolean mousewheelctrldown = ((scrollevent.isControlDown())&&(!scrollevent.isAltDown())&&(!scrollevent.isMetaDown()));
-		    if (mousewheelctrldown) {
-		    	if (this.pencilbuffer!=null) {
+		    	if (this.rotatemode) {
 			    	if (scrollevent.isShiftDown()) {
 			    		this.pencilangle -= 20.0f*0.05f*scrollticksX;
 			    	} else {
@@ -405,14 +414,25 @@ public class DrawFXApp extends AppFXHandler {
 					}
 		    	} else {
 			    	if (scrollevent.isShiftDown()) {
-			    		this.hsbdrawcolor[0] = this.hsbdrawcolor[0] + 20.0f*scrollticksX;
+			    		this.pencilsize -= 20.0f*scrollticksX*((this.pencilsize>16)?this.pencilsize/16:1);
 			    	} else {
-			    		this.hsbdrawcolor[0] = this.hsbdrawcolor[0] + 1.0f*scrollticksY;
+			    		this.pencilsize -= 1.0f*scrollticksY*((this.pencilsize>16)?this.pencilsize/16:1);
 			    	}
-					if (this.hsbdrawcolor[0]>360.0f) {this.hsbdrawcolor[0] = 0.0f;}
-					if (this.hsbdrawcolor[0]<0.0f) {this.hsbdrawcolor[0] = 360.0f;}
-					this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
+					if (this.pencilsize<1) {
+						this.pencilsize = 1;
+					}
 		    	}
+		    }
+		    boolean mousewheelctrldown = ((scrollevent.isControlDown())&&(!scrollevent.isAltDown())&&(!scrollevent.isMetaDown()));
+		    if (mousewheelctrldown) {
+		    	if (scrollevent.isShiftDown()) {
+		    		this.hsbdrawcolor[0] = this.hsbdrawcolor[0] + 20.0f*scrollticksX;
+		    	} else {
+		    		this.hsbdrawcolor[0] = this.hsbdrawcolor[0] + 1.0f*scrollticksY;
+		    	}
+				if (this.hsbdrawcolor[0]>360.0f) {this.hsbdrawcolor[0] = 0.0f;}
+				if (this.hsbdrawcolor[0]<0.0f) {this.hsbdrawcolor[0] = 360.0f;}
+				this.drawcolor = Color.hsb(this.hsbdrawcolor[0],this.hsbdrawcolor[1],this.hsbdrawcolor[2],this.penciltransparency);
 		    }
 		    boolean mousewheelaltdown = ((!scrollevent.isControlDown())&&(scrollevent.isAltDown())&&(!scrollevent.isMetaDown()));
 		    if (mousewheelaltdown) {
@@ -461,64 +481,58 @@ public class DrawFXApp extends AppFXHandler {
 		}
 	}
 
-	private void drawPencil(GraphicsContext g, int mousex, int mousey, boolean erasemode, boolean overridemode) {
-		int pencilwidth = (int)Math.ceil((double)(this.pencilsize-1)/2.0f);
+	private void drawPencil(GraphicsContext g, int mousex, int mousey, boolean erasemode) {
     	if (this.pencilbuffer!=null) {
     		double pencilsizescalefactor = ((double)this.pencilsize)/((double)this.pencilbuffer.getWidth());
-    		int halfwidth = (int)Math.floor(((double)this.pencilbuffer.getWidth())*pencilsizescalefactor/2.0f);
-    		int halfheight = (int)Math.floor(((double)this.pencilbuffer.getHeight())*pencilsizescalefactor/2.0f);
-    		int drawlocationx = mousex - halfwidth;
-    		int drawlocationy = mousey - halfheight;
+    		int scalewidth = (int)Math.floor(((double)this.pencilbuffer.getWidth())*pencilsizescalefactor);
+    		int scaleheight = (int)Math.floor(((double)this.pencilbuffer.getHeight())*pencilsizescalefactor);
+    		int halfscalewidth = (int)(scalewidth/2.0f);
+    		int halfscaleheight = (int)(scaleheight/2.0f);
+    		int drawlocationx = mousex - halfscalewidth;
+    		int drawlocationy = mousey - halfscaleheight;
     		Affine penciltransform = new Affine();
     		penciltransform.appendTranslation(drawlocationx, drawlocationy);
-    		penciltransform.appendRotation(this.pencilangle,halfwidth,halfheight);
-    		penciltransform.appendScale(pencilsizescalefactor, pencilsizescalefactor);
+    		penciltransform.appendRotation(this.pencilangle,halfscalewidth,halfscaleheight);
     		g.save();
-    		g.setTransform(penciltransform);
+    		g.transform(penciltransform);
     		if (erasemode) {
-    			g.clearRect(drawlocationx, drawlocationy, this.pencilbuffer.getWidth(), this.pencilbuffer.getHeight());
+    			g.clearRect(0, 0, scalewidth, scaleheight);
     		} else {
-    			g.drawImage(this.pencilbuffer, drawlocationx, drawlocationy);
+    			g.drawImage(this.pencilbuffer, 0, 0, scalewidth, scaleheight);
     		}
 	        g.restore();
     	} else {
-    		if ((erasemode)||(overridemode)) {
-	    		g.setFill(this.erasecolor);
-	    		g.setStroke(this.erasecolor);
-				if (this.pencilshape==2) {
-					g.fillRoundRect(mousex-pencilwidth, mousey-pencilwidth, this.pencilsize, this.pencilsize, 5, 5);
-				} else if (this.pencilshape==3) {
-					g.fillOval(mousex-pencilwidth, mousey-pencilwidth, this.pencilsize, this.pencilsize);
-				} else if (this.pencilshape==4) {
-					g.strokeRect(mousex-pencilwidth, mousey-pencilwidth, this.pencilsize, this.pencilsize);
-				} else if (this.pencilshape==5) {
-					g.strokeRoundRect(mousex-pencilwidth, mousey-pencilwidth, this.pencilsize, this.pencilsize, 5, 5);
-				} else if (this.pencilshape==6) {
-					g.strokeOval(mousex-pencilwidth, mousey-pencilwidth, this.pencilsize, this.pencilsize);
-				}else {
-					g.fillRect(mousex-pencilwidth, mousey-pencilwidth, this.pencilsize, this.pencilsize);
-				}
-    		}
-    		if (!erasemode) {
+    		int pencilwidth = (int)Math.ceil((double)(this.pencilsize-1)/2.0f);
+    		int drawlocationx = mousex - pencilwidth;
+    		int drawlocationy = mousey - pencilwidth;
+    		Affine penciltransform = new Affine();
+    		penciltransform.appendTranslation(drawlocationx, drawlocationy);
+    		penciltransform.appendRotation(this.pencilangle,pencilwidth,pencilwidth);
+    		g.save();
+    		g.transform(penciltransform);
+    		if (erasemode) {
+	    		g.clearRect(0, 0, this.pencilsize, this.pencilsize);
+    		} else {
     			g.setFill(this.drawcolor);
     			g.setStroke(this.drawcolor);
     			if (this.pencilshape==2) {
-    				g.fillRoundRect(mousex-pencilwidth, mousey-pencilwidth, this.pencilsize, this.pencilsize, 5, 5);
+    				g.fillRoundRect(0, 0, this.pencilsize, this.pencilsize, 5, 5);
     			} else if (this.pencilshape==3) {
-    				g.fillOval(mousex-pencilwidth, mousey-pencilwidth, this.pencilsize, this.pencilsize);
+    				g.fillOval(0, 0, this.pencilsize, this.pencilsize);
     			} else if (this.pencilshape==4) {
-    				g.strokeRect(mousex-pencilwidth, mousey-pencilwidth, this.pencilsize, this.pencilsize);
+    				g.strokeRect(0, 0, this.pencilsize, this.pencilsize);
     			} else if (this.pencilshape==5) {
-    				g.strokeRoundRect(mousex-pencilwidth, mousey-pencilwidth, this.pencilsize, this.pencilsize, 5, 5);
+    				g.strokeRoundRect(0, 0, this.pencilsize, this.pencilsize, 5, 5);
     			} else if (this.pencilshape==6) {
-    				g.strokeOval(mousex-pencilwidth, mousey-pencilwidth, this.pencilsize, this.pencilsize);
+    				g.strokeOval(0, 0, this.pencilsize, this.pencilsize);
     			}else {
-    				g.fillRect(mousex-pencilwidth, mousey-pencilwidth, this.pencilsize, this.pencilsize);
+    				g.fillRect(0, 0, this.pencilsize, this.pencilsize);
     			}
     		}
+    		g.restore();
     	}
 	}
-	private void drawPencilLine(GraphicsContext g, int mousestartx, int mousestarty, int mousex, int mousey, boolean erasemode, boolean overridemode) {
+	private void drawPencilLine(GraphicsContext g, int mousestartx, int mousestarty, int mousex, int mousey, boolean erasemode) {
 		double linedistx = mousex-mousestartx;
 		double linedisty = mousey-mousestarty;
 		int linestepnum = (int)Math.ceil(Math.sqrt(linedistx*linedistx+linedisty*linedisty))+1;
@@ -527,7 +541,7 @@ public class DrawFXApp extends AppFXHandler {
 		for (int i=0;i<linestepnum;i++) {
 			int drawposx = (int)Math.round(this.mousestartlocationx + i*linestepx);
 			int drawposy = (int)Math.round(this.mousestartlocationy + i*linestepy);
-	    	this.drawPencil(g, drawposx, drawposy, erasemode, overridemode);
+	    	this.drawPencil(g, drawposx, drawposy, erasemode);
 		}
 	}
 

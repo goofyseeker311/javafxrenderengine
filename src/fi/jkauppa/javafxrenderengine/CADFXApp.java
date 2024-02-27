@@ -662,6 +662,30 @@ public class CADFXApp extends AppFXHandler {
 			MouseEvent mouseevent = (MouseEvent)event;
 			this.mouselocationx=(int)mouseevent.getSceneX();
 			this.mouselocationy=(int)mouseevent.getSceneY();
+		    boolean mouse1down = ((mouseevent.getButton().equals(MouseButton.PRIMARY))&&(!mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
+			if (mouse1down) {
+    			if (this.entitybuffer!=null) {
+					Entity[] copyentitybuffer = new Entity[this.entitybuffer.childlist.length];
+					for (int i=0;i<this.entitybuffer.childlist.length;i++) {
+	        			copyentitybuffer[i] = this.entitybuffer.childlist[i].translate(this.mousepos);
+	        		}
+					Line[] copyentitybufferlinelist = new Line[this.entitybuffer.linelist.length];
+					for (int i=0;i<this.entitybuffer.linelist.length;i++) {
+						copyentitybufferlinelist[i] = this.entitybuffer.linelist[i].translate(this.mousepos);
+					}
+					if (this.entitylist!=null) {
+						Entity[] copyentitylist = Arrays.copyOf(this.entitylist, this.entitylist.length+copyentitybuffer.length);
+						for (int i=0;i<copyentitybuffer.length;i++) {
+							copyentitylist[this.entitylist.length+i] = copyentitybuffer[i];
+						}
+						this.entitylist = copyentitylist;
+					} else {
+						this.entitylist = copyentitybuffer;
+					}
+					this.linelisttree.addAll(Arrays.asList(copyentitybufferlinelist));
+					this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
+    			}
+			}
 		    boolean mouse1ctrldown = ((mouseevent.getButton().equals(MouseButton.PRIMARY))&&(mouseevent.isControlDown())&&(!mouseevent.isAltDown())&&(!mouseevent.isMetaDown()));
 	    	if (mouse1ctrldown) {
 				if ((this.mouseoververtex!=null)&&(this.mouseoververtex.length>0)) {
@@ -753,26 +777,6 @@ public class CADFXApp extends AppFXHandler {
 			    			this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
 						}
 		    		}
-	    		} else if (this.entitybuffer!=null) {
-					Entity[] copyentitybuffer = new Entity[this.entitybuffer.childlist.length];
-					for (int i=0;i<this.entitybuffer.childlist.length;i++) {
-	        			copyentitybuffer[i] = this.entitybuffer.childlist[i].translate(this.mousepos);
-	        		}
-					Line[] copyentitybufferlinelist = new Line[this.entitybuffer.linelist.length];
-					for (int i=0;i<this.entitybuffer.linelist.length;i++) {
-						copyentitybufferlinelist[i] = this.entitybuffer.linelist[i].translate(this.mousepos);
-					}
-					if (this.entitylist!=null) {
-						Entity[] copyentitylist = Arrays.copyOf(this.entitylist, this.entitylist.length+copyentitybuffer.length);
-						for (int i=0;i<copyentitybuffer.length;i++) {
-							copyentitylist[this.entitylist.length+i] = copyentitybuffer[i];
-						}
-						this.entitylist = copyentitylist;
-					} else {
-						this.entitylist = copyentitybuffer;
-					}
-					this.linelisttree.addAll(Arrays.asList(copyentitybufferlinelist));
-					this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
 	    		} else {
 			    	Triangle mousetriangle = null;
 		    		if ((this.renderview!=null)&&(this.renderview.tbuffer!=null)) {

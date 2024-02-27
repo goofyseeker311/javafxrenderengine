@@ -20,13 +20,13 @@ import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.CullFace;
 import javafx.scene.shape.MeshView;
@@ -139,7 +139,7 @@ public class RenderFXLib {
 		camera.setTranslateZ(renderview.pos.z);
 		Affine transform = RenderFXLib.matrixAffine(renderview.rot);
 		camera.getTransforms().add(transform);
-		scene.setFill(Paint.valueOf("BLACK"));
+		scene.setFill(Color.TRANSPARENT);
 		scene.setCamera(camera);
 		WritableImage renderimage = scene.snapshot(null);
 		renderview.renderimageobject = renderimage;
@@ -192,7 +192,9 @@ public class RenderFXLib {
 		rigfx.drawImage((WritableImage)renderview.cubemap.leftview.renderimageobject, renderposx1start, renderposy2start, rendersize, rendersize);
 		rigfx.drawImage((WritableImage)renderview.cubemap.bottomview.renderimageobject, renderposx2start, renderposy2start, rendersize, rendersize);
 		rigfx.drawImage((WritableImage)renderview.cubemap.rightview.renderimageobject, renderposx3start, renderposy2start, rendersize, rendersize);
-		renderview.renderimageobject = renderimage.snapshot(null, null);
+		SnapshotParameters snap = new SnapshotParameters();
+		snap.setFill(Color.TRANSPARENT);
+		renderview.renderimageobject = renderimage.snapshot(snap, null);
 		return renderview;
 	}
 
