@@ -227,8 +227,8 @@ public class ModelFXApp extends AppFXHandler {
 				MouseEvent mouseevent = (MouseEvent)event;
 				this.mouselocationx=(int)mouseevent.getSceneX();
 				this.mouselocationy=(int)mouseevent.getSceneY();
-				int scenescreenlocationx = (int)this.scene.getWindow().getX()+this.mouselocationx;
-				int scenescreenlocationy = (int)this.scene.getWindow().getY()+this.mouselocationy;
+				int scenescreenlocationx = (int)(this.scene.getWindow().getX()+this.scene.getX());
+				int scenescreenlocationy = (int)(this.scene.getWindow().getY()+this.scene.getY());
 				int origindeltax = (int)Math.floor(((double)(this.renderwidth-1))/2.0f);
 				int origindeltay = (int)Math.floor(((double)(this.renderheight-1))/2.0f);
 				int windowcenterx = scenescreenlocationx + origindeltax;
