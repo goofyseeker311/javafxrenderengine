@@ -194,15 +194,15 @@ public class ModelFXApp extends AppFXHandler {
 						this.entitylist = loadentity.childlist;
 						this.defaultsceneroot = new Group();
 						this.unlitsceneroot = new Group();
-						RenderFXLib.constructFXScene(this.defaultsceneroot, this.entitylist, false);
-						RenderFXLib.constructFXScene(this.unlitsceneroot, this.entitylist, true);
+						RenderFXLib.constructTriangleFXScene(this.defaultsceneroot, this.entitylist, false);
+						RenderFXLib.constructTriangleFXScene(this.unlitsceneroot, this.entitylist, true);
 		    		} else if (loadfileextension.equals(stlextensionfilter)) {
 		    			Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new STLFileFilter(), false);
 						this.entitylist = loadentity.childlist;
 						this.defaultsceneroot = new Group();
 						this.unlitsceneroot = new Group();
-						RenderFXLib.constructFXScene(this.defaultsceneroot, this.entitylist, false);
-						RenderFXLib.constructFXScene(this.unlitsceneroot, this.entitylist, true);
+						RenderFXLib.constructTriangleFXScene(this.defaultsceneroot, this.entitylist, false);
+						RenderFXLib.constructTriangleFXScene(this.unlitsceneroot, this.entitylist, true);
 		    		}
 		    	}
 			}

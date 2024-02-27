@@ -66,8 +66,9 @@ public class CADFXApp extends AppFXHandler {
 	private Group root = null;
 	private Scene scene = null;
 	private Group entities = new Group();
-	private Group defaultsceneroot = new Group();
-	private Group unlitsceneroot = new Group();
+	private Group defaultscenelineroot = new Group();
+	private Group defaultscenetriangleroot = new Group();
+	private Group unlitscenetriangleroot = new Group();
 	private GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	private GraphicsDevice gd = ge.getDefaultScreenDevice();
 	private GraphicsConfiguration gc = gd.getDefaultConfiguration();
@@ -143,18 +144,19 @@ public class CADFXApp extends AppFXHandler {
 		Affine transform = RenderFXLib.matrixAffine(this.cameramat);
 		camera.getTransforms().add(transform);
 		scene.setCamera(camera);
+		this.scene.setCursor(Cursor.CROSSHAIR);
 		if (this.polygonfillmode==1) {
-			
+			this.scene.setFill(Paint.valueOf("WHITE"));
+			this.entities = this.defaultscenelineroot;
 		} else if (this.polygonfillmode==2) {
-			scene.setFill(Paint.valueOf("BLACK"));
-			this.scene.setCursor(Cursor.CROSSHAIR);
+			this.scene.setFill(Paint.valueOf("BLACK"));
 			if (this.unlitrender) {
-				this.entities = this.unlitsceneroot;
+				this.entities = this.unlitscenetriangleroot;
 			} else {
-				this.entities = this.defaultsceneroot;
+				this.entities = this.defaultscenetriangleroot;
 			}
-			root.getChildren().setAll(this.entities);
 		}
+		root.getChildren().setAll(this.entities);
 	}
 	
 	@Override public void tick() {
@@ -285,8 +287,10 @@ public class CADFXApp extends AppFXHandler {
 						this.linelisttree.clear();
 						this.linelist = null;
 						this.entitylist = null;
-						this.defaultsceneroot = new Group();
-						this.unlitsceneroot = new Group();
+						this.entities = new Group();
+						this.defaultscenelineroot = new Group();
+						this.defaultscenetriangleroot = new Group();
+						this.unlitscenetriangleroot = new Group();
 					}
 					this.campos = this.defaultcampos;
 					this.camrot = this.defaultcamrot;
@@ -499,8 +503,7 @@ public class CADFXApp extends AppFXHandler {
 				} else if (keyevent.isControlDown()) {
 					int bounces = 2;
 					this.entities.getChildren().clear();
-					RenderFXLib.constructFXScene(this.entities, this.entitylist, true);
-					RenderFXLib.renderSurfaceFaceLightmapCubemapView(entitylist, entities, 32, bounces);
+					RenderFXLib.renderSurfaceFaceLightmapCubemapView(this.entitylist, this.entities, 32, bounces);
 				} else {
 					this.polygonfillmode += 1;
 					if (this.polygonfillmode>2) {
@@ -595,10 +598,14 @@ public class CADFXApp extends AppFXHandler {
 			    		ExtensionFilter loadfileextension = filechooser.getSelectedExtensionFilter();
 			    		if (loadfileextension.equals(objextensionfilter)) {
 			    			this.entitybuffer = UtilLib.loadModelFormat(loadfile.getPath(), new OBJFileFilter(), false);
-							RenderFXLib.constructFXScene(this.defaultsceneroot, this.entitybuffer.childlist, false);
+							RenderFXLib.constructLineFXScene(this.defaultscenelineroot, this.entitybuffer.childlist);
+							RenderFXLib.constructTriangleFXScene(this.defaultscenetriangleroot, this.entitybuffer.childlist, false);
+							RenderFXLib.constructTriangleFXScene(this.unlitscenetriangleroot, this.entitybuffer.childlist, true);
 			    		} else if (loadfileextension.equals(stlextensionfilter)) {
 			    			this.entitybuffer = UtilLib.loadModelFormat(loadfile.getPath(), new STLFileFilter(), false);
-							RenderFXLib.constructFXScene(this.defaultsceneroot, this.entitybuffer.childlist, false);
+							RenderFXLib.constructLineFXScene(this.defaultscenelineroot, this.entitybuffer.childlist);
+							RenderFXLib.constructTriangleFXScene(this.defaultscenetriangleroot, this.entitybuffer.childlist, false);
+							RenderFXLib.constructTriangleFXScene(this.unlitscenetriangleroot, this.entitybuffer.childlist, true);
 			    		}
 					}
 			    } else {
@@ -619,17 +626,17 @@ public class CADFXApp extends AppFXHandler {
 							this.entitylist = loadentity.childlist;
 							this.linelisttree.addAll(Arrays.asList(loadentity.linelist));
 							this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
-							Group newroot = new Group();
-							RenderFXLib.constructFXScene(newroot, entitylist, false);
-							this.defaultsceneroot = newroot;
+							this.defaultscenelineroot = RenderFXLib.constructLineFXScene(new Group(), this.entitylist);
+							this.defaultscenetriangleroot = RenderFXLib.constructTriangleFXScene(new Group(), this.entitylist, false);
+							this.unlitscenetriangleroot = RenderFXLib.constructTriangleFXScene(new Group(), this.entitylist, true);
 			    		} else if (loadfileextension.equals(stlextensionfilter)) {
 				    		Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new STLFileFilter(), false);
 							this.entitylist = loadentity.childlist;
 							this.linelisttree.addAll(Arrays.asList(loadentity.linelist));
 							this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
-							Group newroot = new Group();
-							RenderFXLib.constructFXScene(newroot, entitylist, false);
-							this.defaultsceneroot = newroot;
+							this.defaultscenelineroot = RenderFXLib.constructLineFXScene(new Group(), this.entitylist);
+							this.defaultscenetriangleroot = RenderFXLib.constructTriangleFXScene(new Group(), this.entitylist, false);
+							this.unlitscenetriangleroot = RenderFXLib.constructTriangleFXScene(new Group(), this.entitylist, true);
 			    		}
 					}
 			    }

@@ -13,6 +13,7 @@ import fi.jkauppa.javarenderengine.ModelLib.Axis;
 import fi.jkauppa.javarenderengine.ModelLib.AxisAlignedBoundingBox;
 import fi.jkauppa.javarenderengine.ModelLib.Coordinate;
 import fi.jkauppa.javarenderengine.ModelLib.Cuboid;
+import fi.jkauppa.javarenderengine.ModelLib.Cylinder;
 import fi.jkauppa.javarenderengine.ModelLib.Direction;
 import fi.jkauppa.javarenderengine.ModelLib.Entity;
 import fi.jkauppa.javarenderengine.ModelLib.Line;
@@ -2246,6 +2247,10 @@ public class MathLib {
 		return camrotmat;
 	}
 
+	public static Cylinder[] lineCylinderMatrix(Line[] vline) {
+		return null;
+	}
+	
 	public static Sphere[] entitySphereList(Entity[] entitylist) {
 		Sphere[] k = null;
 		if ((entitylist!=null)&&(entitylist.length>0)) {

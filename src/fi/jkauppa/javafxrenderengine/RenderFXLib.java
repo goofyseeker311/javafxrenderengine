@@ -40,13 +40,20 @@ public class RenderFXLib {
 		public Entity swent;
 		public Triangle swtri;
 	}
-	
-	public static void constructFXScene(Group root, Entity[] entitylist, boolean unlit) {
+
+	public static Group constructLineFXScene(Group root, Entity[] entitylist) {
 		for (int k=0;k<entitylist.length;k++) {
 			Entity[] ent = {entitylist[k]};
 			for (int j=0;j<ent[0].linelist.length;j++) {
 				//TODO lines from long thin 3d cylinder objects 
 			}
+		}
+		return root;
+	}
+	
+	public static Group constructTriangleFXScene(Group root, Entity[] entitylist, boolean unlit) {
+		for (int k=0;k<entitylist.length;k++) {
+			Entity[] ent = {entitylist[k]};
 			for (int j=0;j<ent[0].trianglelist.length;j++) {
 				Triangle[] tri = {ent[0].trianglelist[j]};
 				Direction[] trinorm = {tri[0].norm};
@@ -105,6 +112,7 @@ public class RenderFXLib {
 				root.getChildren().add(trimeshview);
 			}
 		}
+		return root;
 	}
 
 	public static Affine matrixAffine(Matrix vmat) {
