@@ -156,7 +156,7 @@ public class CADFXApp extends AppFXHandler {
 	@Override public void pulse() {}
 
 	private void updateCamera() {
-		double movementstep = 1000.0f*this.diffpulsetimesec;
+		double movementstep = 1000.0f*this.diffticktimesec;
 		if (this.snaplinemode) {
 			movementstep *= this.gridstep;
 		}

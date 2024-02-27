@@ -84,7 +84,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.3.3");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.3.4");
     	this.primaryStage.getIcons().add(logowimage);
     	this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     	this.primaryStage.setFullScreenExitHint("");
@@ -105,10 +105,10 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     	public String userdir = System.getProperty("user.dir");
     	public int renderwidth = defaultimagecanvaswidth;
     	public int renderheight = defaultimagecanvasheight;
-    	public long lastpulsetime = System.currentTimeMillis();
-    	public long nowpulsetime = this.lastpulsetime;
-		public double diffpulsetime = (double)(this.nowpulsetime - this.lastpulsetime);
-		public double diffpulsetimesec = this.diffpulsetime/1000.0f;
+    	public long lastticktime = System.currentTimeMillis();
+    	public long nowticktime = this.lastticktime;
+		public double diffticktime = (double)(this.nowticktime - this.lastticktime);
+		public double diffticktimesec = this.diffticktime/1000.0f;
     	public Clipboard cb = Clipboard.getSystemClipboard();
     	public abstract void update();
     	public abstract void tick();
@@ -169,10 +169,10 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 	
 	private class TimerTick extends TimerTask {
 		@Override public void run() {
-			activeapp.lastpulsetime = activeapp.nowpulsetime;
-			activeapp.nowpulsetime = System.currentTimeMillis();
-			activeapp.diffpulsetime = (double)(activeapp.nowpulsetime - activeapp.lastpulsetime);
-			activeapp.diffpulsetimesec = activeapp.diffpulsetime/1000.0f;
+			activeapp.lastticktime = activeapp.nowticktime;
+			activeapp.nowticktime = System.currentTimeMillis();
+			activeapp.diffticktime = (double)(activeapp.nowticktime - activeapp.lastticktime);
+			activeapp.diffticktimesec = activeapp.diffticktime/1000.0f;
 			activeapp.tick();
 		}
 	}

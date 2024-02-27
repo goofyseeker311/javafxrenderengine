@@ -11,20 +11,18 @@ import fi.jkauppa.javarenderengine.ModelLib.Direction;
 import fi.jkauppa.javarenderengine.ModelLib.Entity;
 import fi.jkauppa.javarenderengine.ModelLib.Matrix;
 import fi.jkauppa.javarenderengine.ModelLib.Position;
-import fi.jkauppa.javarenderengine.ModelLib.RenderView;
 import fi.jkauppa.javarenderengine.ModelLib.Rotation;
 import javafx.event.Event;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
-import javafx.scene.ParallelCamera;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.scene.robot.Robot;
+import javafx.scene.transform.Affine;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
@@ -39,7 +37,7 @@ public class ModelFXApp extends AppFXHandler {
 	private Rotation camrot = this.defaultcamrot;
 	private Matrix cameramat = MathLib.rotationMatrix(0.0f, 0.0f, 0.0f);
 	private Direction[] lookdirs = MathLib.projectedCameraDirections(cameramat);
-	private double hfov = 70.0f, vfov = 43.0f;
+	private double hfov = 70.0f;
 	private Direction[] camdirs = lookdirs;
 	private int polygonfillmode = 1;
 	private boolean unlitrender = false;
@@ -64,24 +62,25 @@ public class ModelFXApp extends AppFXHandler {
 	@Override public void update() {
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
-		ParallelCamera camera = new ParallelCamera();
-		this.scene.setCamera(camera);
-		this.scene.setFill(Paint.valueOf("BLACK"));
+		PerspectiveCamera camera = new PerspectiveCamera(true);
+		camera.setFarClip(1000000.0f);
+		camera.setVerticalFieldOfView(false);
+		camera.setFieldOfView(this.hfov);
+		camera.getTransforms().clear();
+		camera.setTranslateX(this.campos[0].x);
+		camera.setTranslateY(this.campos[0].y);
+		camera.setTranslateZ(this.campos[0].z);
+		Affine transform = RenderFXLib.matrixAffine(this.cameramat);
+		camera.getTransforms().add(transform);
+		scene.setFill(Paint.valueOf("BLACK"));
+		scene.setCamera(camera);
 		this.scene.setCursor(Cursor.NONE);
 		if (this.unlitrender) {
 			this.entities = this.unlitsceneroot;
 		} else {
 			this.entities = this.defaultsceneroot;
 		}
-		RenderView renderview = RenderFXLib.renderProjectedView(this.campos[0], this.entities, this.renderwidth, this.hfov, this.renderheight, this.vfov, this.cameramat, 0, null, null, null, this.mouselocationx, this.mouselocationy);
-		WritableImage renderimage = (WritableImage)renderview.renderimageobject;
-        ImageView renderimageview = new ImageView();
-        renderimageview.setImage(renderimage);
-        renderimageview.setFitWidth(this.renderwidth);
-        renderimageview.setPreserveRatio(true);
-        renderimageview.setSmooth(true);
-        renderimageview.setCache(true);
-		root.getChildren().setAll(renderimageview);
+		root.getChildren().setAll(this.entities);
 	}
 
 	@Override public void tick() {
@@ -90,7 +89,7 @@ public class ModelFXApp extends AppFXHandler {
 	@Override public void pulse() {}
 	
 	private void updateCamera() {
-		double movementstep = 1000.0f*this.diffpulsetimesec;
+		double movementstep = 1000.0f*this.diffticktimesec;
 		if (this.leftkeydown) {
 			this.campos = MathLib.translate(campos, this.camdirs[1], -movementstep);
 		} else if (this.rightkeydown) {
