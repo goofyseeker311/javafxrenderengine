@@ -20,10 +20,10 @@ DRAG-LMB              -- black/hsba-color drag paint
 CTRL-LMB              -- rgba-color picker at cursor
 ALT-DRAG-LMB          -- black/hsba-color line drag paint
 DRAG-CMB              -- drag image contents on image canvas
-SHIFT                 -- speed up color change, zoom and rotation
+SHIFT                 -- speed up color change, pencil width change and rotation
 MWHEEL                -- pencil width change (minmax)
-CTRL-MWHEEL           -- pencil brush image rotation angle change (looping)
-                         hue positive change (looping)
+TAB-MWHEEL            -- pencil rotation angle change (looping)
+CTRL-MWHEEL           -- hue positive change (looping)
 CTRL-ALT-MWHEEL       -- saturation positive change (minmax)
 ALT-MWHEEL            -- brightness positive change (minmax)
 DRAG-RMB              -- transparent drag paint eraser
@@ -40,8 +40,8 @@ NUMPAD*               -- pencil type change next (looping)
 NUMPAD/               -- pencil type change previous (looping)
 NUMPAD9               -- pencil transparency positive (minmax)
 NUMPAD8               -- pencil transparency negative (minmax)
-NUMPAD6               -- pencil brush image rotation angle change positive (looping)
-NUMPAD5               -- pencil brush image rotation angle change negative (looping)
+NUMPAD6               -- pencil rotation angle change positive (looping)
+NUMPAD5               -- pencil rotation angle change negative (looping)
 F2                    -- save image file dialog
 F3                    -- load image file dialog
 SHIFT-F3              -- load image file as pencil brush dialog
