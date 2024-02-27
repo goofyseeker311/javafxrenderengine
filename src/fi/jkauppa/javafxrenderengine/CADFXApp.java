@@ -611,11 +611,17 @@ public class CADFXApp extends AppFXHandler {
 							this.entitylist = loadentity.childlist;
 							this.linelisttree.addAll(Arrays.asList(loadentity.linelist));
 							this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
+							Group newroot = new Group();
+							RenderFXLib.constructFXScene(newroot, entitylist, false);
+							this.defaultsceneroot = newroot;
 			    		} else if (loadfileextension.equals(stlextensionfilter)) {
 				    		Entity loadentity = UtilLib.loadModelFormat(loadfile.getPath(), new STLFileFilter(), false);
 							this.entitylist = loadentity.childlist;
 							this.linelisttree.addAll(Arrays.asList(loadentity.linelist));
 							this.linelist = linelisttree.toArray(new Line[linelisttree.size()]);
+							Group newroot = new Group();
+							RenderFXLib.constructFXScene(newroot, entitylist, false);
+							this.defaultsceneroot = newroot;
 			    		}
 					}
 			    }
