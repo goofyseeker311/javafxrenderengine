@@ -281,6 +281,8 @@ public class CADFXApp extends AppFXHandler {
 						this.linelisttree.clear();
 						this.linelist = null;
 						this.entitylist = null;
+						this.defaultsceneroot = new Group();
+						this.unlitsceneroot = new Group();
 					}
 					this.campos = this.defaultcampos;
 					this.camrot = this.defaultcamrot;
@@ -589,8 +591,10 @@ public class CADFXApp extends AppFXHandler {
 			    		ExtensionFilter loadfileextension = filechooser.getSelectedExtensionFilter();
 			    		if (loadfileextension.equals(objextensionfilter)) {
 			    			this.entitybuffer = UtilLib.loadModelFormat(loadfile.getPath(), new OBJFileFilter(), false);
+							RenderFXLib.constructFXScene(this.defaultsceneroot, this.entitybuffer.childlist, false);
 			    		} else if (loadfileextension.equals(stlextensionfilter)) {
 			    			this.entitybuffer = UtilLib.loadModelFormat(loadfile.getPath(), new STLFileFilter(), false);
+							RenderFXLib.constructFXScene(this.defaultsceneroot, this.entitybuffer.childlist, false);
 			    		}
 					}
 			    } else {
