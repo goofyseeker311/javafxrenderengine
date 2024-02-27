@@ -143,14 +143,18 @@ public class CADFXApp extends AppFXHandler {
 		Affine transform = RenderFXLib.matrixAffine(this.cameramat);
 		camera.getTransforms().add(transform);
 		scene.setCamera(camera);
-		scene.setFill(Paint.valueOf("BLACK"));
-		this.scene.setCursor(Cursor.CROSSHAIR);
-		if (this.unlitrender) {
-			this.entities = this.unlitsceneroot;
-		} else {
-			this.entities = this.defaultsceneroot;
+		if (this.polygonfillmode==1) {
+			
+		} else if (this.polygonfillmode==2) {
+			scene.setFill(Paint.valueOf("BLACK"));
+			this.scene.setCursor(Cursor.CROSSHAIR);
+			if (this.unlitrender) {
+				this.entities = this.unlitsceneroot;
+			} else {
+				this.entities = this.defaultsceneroot;
+			}
+			root.getChildren().setAll(this.entities);
 		}
-		root.getChildren().setAll(this.entities);
 	}
 	
 	@Override public void tick() {
@@ -499,7 +503,7 @@ public class CADFXApp extends AppFXHandler {
 					RenderFXLib.renderSurfaceFaceLightmapCubemapView(entitylist, entities, 32, bounces);
 				} else {
 					this.polygonfillmode += 1;
-					if (this.polygonfillmode>3) {
+					if (this.polygonfillmode>2) {
 						this.polygonfillmode = 1;
 					}
 					System.out.println("CADApp: keyPressed: key ENTER: polygonfillmode="+this.polygonfillmode);

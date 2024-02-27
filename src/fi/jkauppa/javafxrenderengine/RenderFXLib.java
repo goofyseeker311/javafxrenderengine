@@ -44,6 +44,9 @@ public class RenderFXLib {
 	public static void constructFXScene(Group root, Entity[] entitylist, boolean unlit) {
 		for (int k=0;k<entitylist.length;k++) {
 			Entity[] ent = {entitylist[k]};
+			for (int j=0;j<ent[0].linelist.length;j++) {
+				//TODO lines from long thin 3d cylinder objects 
+			}
 			for (int j=0;j<ent[0].trianglelist.length;j++) {
 				Triangle[] tri = {ent[0].trianglelist[j]};
 				Direction[] trinorm = {tri[0].norm};
