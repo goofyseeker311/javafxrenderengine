@@ -82,7 +82,7 @@ public class DrawFXApp extends AppFXHandler {
 		this.renderheight = (int)this.scene.getHeight();
 		this.scene.setCursor(Cursor.DEFAULT);
 		this.scene.setFill(Color.TRANSPARENT);
-		if ((renderbuffer==null)||(renderbuffer.getWidth()!=this.renderwidth)||(renderbuffer.getHeight()!=this.renderheight)) {
+		if ((this.renderbuffer==null)||(this.renderbuffer.getWidth()!=this.renderwidth)||(this.renderbuffer.getHeight()!=this.renderheight)) {
 			Canvas oldimage = this.renderbuffer;
 			this.outputbuffer = new Canvas(this.renderwidth,this.renderheight);
 			this.renderbuffer = new Canvas(this.renderwidth,this.renderheight);

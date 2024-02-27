@@ -15,7 +15,6 @@ public class GameFXApp extends AppFXHandler {
 		this.scene = root.getScene();
 	}
 	@Override public void update() {
-		this.scene = root.getScene();
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
 		this.scene.setCursor(Cursor.DEFAULT);

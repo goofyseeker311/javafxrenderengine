@@ -30,6 +30,8 @@ public class ModelFXApp extends AppFXHandler {
 	private Group root = null;
 	private Scene scene = null;
 	private Group entities = new Group();
+	private Group defaultsceneroot = new Group();
+	private Group unlitsceneroot = new Group();
 	private Entity[] entitylist = null;
 	private Position[] defaultcampos = {new Position(0.0f,0.0f,0.0f)};
 	private Rotation defaultcamrot = new Rotation(0.0f, 0.0f, 0.0f);
@@ -51,8 +53,6 @@ public class ModelFXApp extends AppFXHandler {
 	private boolean rollleftkeydown = false;
 	private int mouselastlocationx = 0, mouselastlocationy = 0; 
 	private int mouselocationx = 0, mouselocationy = 0;
-	private Group defaultsceneroot = new Group();
-	private Group unlitsceneroot = new Group();
 	
 	public ModelFXApp(Group root) {
 		this.root = root;
@@ -224,8 +224,11 @@ public class ModelFXApp extends AppFXHandler {
 			}
 		} else if (event.getEventType().equals(MouseEvent.MOUSE_EXITED)) {
 			if (this.scene.getWindow().isFocused()) {
-				int scenescreenlocationx = (int)this.scene.getWindow().getX()+(int)this.scene.getX();
-				int scenescreenlocationy = (int)this.scene.getWindow().getY()+(int)this.scene.getY();
+				MouseEvent mouseevent = (MouseEvent)event;
+				this.mouselocationx=(int)mouseevent.getSceneX();
+				this.mouselocationy=(int)mouseevent.getSceneY();
+				int scenescreenlocationx = (int)this.scene.getWindow().getX()+this.mouselocationx;
+				int scenescreenlocationy = (int)this.scene.getWindow().getY()+this.mouselocationy;
 				int origindeltax = (int)Math.floor(((double)(this.renderwidth-1))/2.0f);
 				int origindeltay = (int)Math.floor(((double)(this.renderheight-1))/2.0f);
 				int windowcenterx = scenescreenlocationx + origindeltax;

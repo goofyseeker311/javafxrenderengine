@@ -44,14 +44,11 @@ import fi.jkauppa.javarenderengine.UtilLib.ImageFileFilters.PNGFileFilter;
 import fi.jkauppa.javarenderengine.UtilLib.ImageFileFilters.WBMPFileFilter;
 import fi.jkauppa.javarenderengine.UtilLib.ModelFileFilters.OBJFileFilter;
 import fi.jkauppa.javarenderengine.UtilLib.ModelFileFilters.STLFileFilter;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
-import javafx.scene.ParallelCamera;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
@@ -61,6 +58,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Paint;
+import javafx.scene.transform.Affine;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
@@ -68,6 +66,8 @@ public class CADFXApp extends AppFXHandler {
 	private Group root = null;
 	private Scene scene = null;
 	private Group entities = new Group();
+	private Group defaultsceneroot = new Group();
+	private Group unlitsceneroot = new Group();
 	private GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	private GraphicsDevice gd = ge.getDefaultScreenDevice();
 	private GraphicsConfiguration gc = gd.getDefaultConfiguration();
@@ -132,22 +132,25 @@ public class CADFXApp extends AppFXHandler {
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
 		this.editplanedistance = (((double)this.renderwidth)/2.0f)/MathLib.tand(this.hfov/2.0f);
-		this.root.getChildren().clear();
-		this.vfov = MathLib.calculateVfov(this.renderwidth, this.renderheight, this.hfov);
-		if ((this.renderview!=null)&&(this.renderview.renderimage!=null)) {
-			WritableImage renderimage = SwingFXUtils.toFXImage(this.renderview.renderimage, null);
-	        ImageView renderimageview = new ImageView();
-	        renderimageview.setImage(renderimage);
-	        renderimageview.setFitWidth(this.renderwidth);
-	        renderimageview.setPreserveRatio(true);
-	        renderimageview.setSmooth(true);
-	        renderimageview.setCache(true);
-			root.getChildren().add(renderimageview);
-		}
-		ParallelCamera camera = new ParallelCamera();
+		PerspectiveCamera camera = new PerspectiveCamera(true);
+		camera.setFarClip(1000000.0f);
+		camera.setVerticalFieldOfView(false);
+		camera.setFieldOfView(this.hfov);
+		camera.getTransforms().clear();
+		camera.setTranslateX(this.campos[0].x);
+		camera.setTranslateY(this.campos[0].y);
+		camera.setTranslateZ(this.campos[0].z);
+		Affine transform = RenderFXLib.matrixAffine(this.cameramat);
+		camera.getTransforms().add(transform);
+		scene.setCamera(camera);
+		scene.setFill(Paint.valueOf("BLACK"));
 		this.scene.setCursor(Cursor.CROSSHAIR);
-		this.scene.setFill(Paint.valueOf("BLACK"));
-		this.scene.setCamera(camera);
+		if (this.unlitrender) {
+			this.entities = this.unlitsceneroot;
+		} else {
+			this.entities = this.defaultsceneroot;
+		}
+		root.getChildren().setAll(this.entities);
 	}
 	
 	@Override public void tick() {

@@ -34,34 +34,44 @@ public class UtilLib {
 	
 	public static class ImageFileFilters  {
 		public static class PNGFileFilter extends FileFilter {
-			@Override public boolean accept(File f) {return (f.isDirectory())||(f.getName().toLowerCase().endsWith(".png"));}
+			@Override public boolean accept(File f) {String fend=f.getName().toLowerCase(); return (f.isDirectory())||(fend.endsWith(".png"));}
 			@Override public String getDescription() {return "PNG Image file";}
 		}
 		public static class JPGFileFilter extends FileFilter {
-			@Override public boolean accept(File f) {return (f.isDirectory())||(f.getName().toLowerCase().endsWith(".jpg"))||(f.getName().toLowerCase().endsWith(".jpeg"));}
+			@Override public boolean accept(File f) {String fend=f.getName().toLowerCase(); return (f.isDirectory())||fend.endsWith(".jpg")||(fend.endsWith(".jpeg"));}
 			@Override public String getDescription() {return "JPG Image file";}
 		}
 		public static class GIFFileFilter extends FileFilter {
-			@Override public boolean accept(File f) {return (f.isDirectory())||(f.getName().toLowerCase().endsWith(".gif"));}
+			@Override public boolean accept(File f) {String fend=f.getName().toLowerCase(); return (f.isDirectory())||(fend.endsWith(".gif"));}
 			@Override public String getDescription() {return "GIF Image file";}
 		}
 		public static class BMPFileFilter extends FileFilter {
-			@Override public boolean accept(File f) {return (f.isDirectory())||(f.getName().toLowerCase().endsWith(".bmp"));}
+			@Override public boolean accept(File f) {String fend=f.getName().toLowerCase(); return (f.isDirectory())||(fend.endsWith(".bmp"));}
 			@Override public String getDescription() {return "BMP Image file";}
 		}
 		public static class WBMPFileFilter extends FileFilter {
-			@Override public boolean accept(File f) {return (f.isDirectory())||(f.getName().toLowerCase().endsWith(".wbmp"));}
+			@Override public boolean accept(File f) {String fend=f.getName().toLowerCase(); return (f.isDirectory())||(fend.endsWith(".wbmp"));}
 			@Override public String getDescription() {return "WBMP Image file";}
+		}
+		public static class AllImageFileFilter extends FileFilter {
+			@Override public boolean accept(File f) {String fend=f.getName().toLowerCase();
+				return (f.isDirectory())||(fend.endsWith(".png"))||fend.endsWith(".jpg")||(fend.endsWith(".jpeg"))||(fend.endsWith(".gif"))||(fend.endsWith(".bmp"))||(fend.endsWith(".wbmp"));}
+			@Override public String getDescription() {return "Image files";}
 		}
 	}
 	public static class ModelFileFilters  {
 		public static class OBJFileFilter extends FileFilter {
-			@Override public boolean accept(File f) {return (f.isDirectory())||(f.getName().toLowerCase().endsWith(".obj"));}
+			@Override public boolean accept(File f) {String fend=f.getName().toLowerCase(); return (f.isDirectory())||(fend.endsWith(".obj"));}
 			@Override public String getDescription() {return "OBJ Model file";}
 		}
 		public static class STLFileFilter extends FileFilter {
-			@Override public boolean accept(File f) {return (f.isDirectory())||(f.getName().toLowerCase().endsWith(".stl"));}
+			@Override public boolean accept(File f) {String fend=f.getName().toLowerCase(); return (f.isDirectory())||(fend.endsWith(".stl"));}
 			@Override public String getDescription() {return "STL Model file";}
+		}
+		public static class AllModelFileFilter extends FileFilter {
+			@Override public boolean accept(File f) {String fend=f.getName().toLowerCase();
+				return (f.isDirectory())||(fend.endsWith(".obj"))||fend.endsWith(".stl");}
+			@Override public String getDescription() {return "Model files";}
 		}
 	}
 	
@@ -100,6 +110,14 @@ public class UtilLib {
 		filechooser.addChoosableFileFilter(objfilefilter);
 		filechooser.addChoosableFileFilter(new ModelFileFilters.STLFileFilter());
 		filechooser.setFileFilter(objfilefilter);
+		filechooser.setAcceptAllFileFilterUsed(false);
+		return filechooser;
+    }
+    public static JFileChooser createAllModelFileChooser() {
+    	JFileChooser filechooser = new JFileChooser();
+    	ModelFileFilters.AllModelFileFilter allmodelfilefilter = new ModelFileFilters.AllModelFileFilter();
+		filechooser.addChoosableFileFilter(allmodelfilefilter);
+		filechooser.setFileFilter(allmodelfilefilter);
 		filechooser.setAcceptAllFileFilterUsed(false);
 		return filechooser;
     }
@@ -142,6 +160,14 @@ public class UtilLib {
 		imagechooser.addChoosableFileFilter(new ImageFileFilters.BMPFileFilter());
 		imagechooser.addChoosableFileFilter(new ImageFileFilters.WBMPFileFilter());
 		imagechooser.setFileFilter(pngfilefilter);
+		imagechooser.setAcceptAllFileFilterUsed(false);
+		return imagechooser;
+    }
+    public static JFileChooser createAllImageFileChooser() {
+    	JFileChooser imagechooser = new JFileChooser();
+    	ImageFileFilters.AllImageFileFilter allimagefilefilter = new ImageFileFilters.AllImageFileFilter();
+		imagechooser.addChoosableFileFilter(allimagefilefilter);
+		imagechooser.setFileFilter(allimagefilefilter);
 		imagechooser.setAcceptAllFileFilterUsed(false);
 		return imagechooser;
     }
@@ -290,5 +316,17 @@ public class UtilLib {
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {if (isDataFlavorSupported(flavor)) {return image;}else{throw new UnsupportedFlavorException(flavor);}}
         public boolean isDataFlavorSupported (DataFlavor flavor) {return flavor==DataFlavor.imageFlavor;}
         public DataFlavor[] getTransferDataFlavors () {return new DataFlavor[] {DataFlavor.imageFlavor};}
-    }	
+    }
+	
+	public static Color getHSBTransparencyColor(float hue, float saturation, float brightness, float transparency) {
+		Color newdrawcolor = Color.getHSBColor(hue, saturation, brightness);
+		float[] newdrawcolorcomp = newdrawcolor.getRGBColorComponents(new float[3]);
+		return new Color(newdrawcolorcomp[0], newdrawcolorcomp[1], newdrawcolorcomp[2], transparency);
+	}
+	public static float[] getHSBTransparencyColorComponents(Color color, float transparency) {
+    	float[] newhsbdrawcolorcomp = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), new float[3]);
+    	float[] newhsbdrawcolor = {newhsbdrawcolorcomp[0], newhsbdrawcolorcomp[1], newhsbdrawcolorcomp[2], transparency};
+    	return newhsbdrawcolor;
+	}
+
 }
