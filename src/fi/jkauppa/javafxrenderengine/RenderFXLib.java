@@ -5,7 +5,6 @@ import java.awt.Rectangle;
 import fi.jkauppa.javarenderengine.MathLib;
 import fi.jkauppa.javarenderengine.RenderLib;
 import fi.jkauppa.javarenderengine.ModelLib.Axis;
-import fi.jkauppa.javarenderengine.ModelLib.Barrel;
 import fi.jkauppa.javarenderengine.ModelLib.Coordinate;
 import fi.jkauppa.javarenderengine.ModelLib.Cubemap;
 import fi.jkauppa.javarenderengine.ModelLib.Direction;
@@ -16,7 +15,6 @@ import fi.jkauppa.javarenderengine.ModelLib.Matrix;
 import fi.jkauppa.javarenderengine.ModelLib.Plane;
 import fi.jkauppa.javarenderengine.ModelLib.Position;
 import fi.jkauppa.javarenderengine.ModelLib.RenderView;
-import fi.jkauppa.javarenderengine.ModelLib.Rotation;
 import fi.jkauppa.javarenderengine.ModelLib.Sphere;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
 import javafx.geometry.Point3D;
@@ -54,31 +52,50 @@ public class RenderFXLib {
 	}
 
 	public static Group constructLineFXScene(Group root, Line[] linelist) {
-		Barrel[] linecylinderlist = MathLib.lineBarrel(linelist, 0.5f);
+		Direction[] linedirlist = MathLib.vectorFromPoints(linelist);
+		Position[] lineposlist  = MathLib.linePosition(linelist);
+		Plane[] lineplanelist = MathLib.planeFromNormalAtPoint(lineposlist, linedirlist);
+		Axis[] linevecs = MathLib.planeVectors(lineplanelist);
 		for (int j=0;j<linelist.length;j++) {
 			Line[] vline = {linelist[j]};
-			Barrel vlinecyl = linecylinderlist[j];
-			Position[] vlinecylpos = {vlinecyl.dim.pos};
-			Direction[] vlinecylfwd = {vlinecyl.dim.fwd};
-			Direction[] vlinecylrgt = {vlinecyl.dim.rgt};
-			double[] vlinecylfwdlen = MathLib.vectorLength(vlinecylfwd);
-			double[] vlinecylrgtlen = MathLib.vectorLength(vlinecylrgt);
-			Direction[] cylinderaxisdirs = {new Direction(0.0f,0.0f,1.0f), new Direction(1.0f,0.0f,0.0f), new Direction(0.0f,1.0f,0.0f)};
-			Axis cylinderaxis = new Axis(vlinecylpos[0],cylinderaxisdirs[0],cylinderaxisdirs[1],cylinderaxisdirs[2]);
-			Rotation[] cylinderaxisrot = MathLib.axisPointRotation(vlinecylfwd, cylinderaxis);
-			RenderCylinder linecylinder = new RenderCylinder(vlinecylrgtlen[0], vlinecylfwdlen[0], 3);
-			linecylinder.setTranslateX(vlinecylpos[0].x);
-			linecylinder.setTranslateY(vlinecylpos[0].y);
-			linecylinder.setTranslateZ(vlinecylpos[0].z);
-			linecylinder.getTransforms().add(new Rotate(cylinderaxisrot[0].x,new Point3D(0,1,0)));
-			linecylinder.getTransforms().add(new Rotate(-cylinderaxisrot[0].z,new Point3D(0,0,1)));
-			linecylinder.getTransforms().add(new Rotate(180.0f,new Point3D(1.0f,0.0f,0.0f)));
-			linecylinder.swent = null;
-			linecylinder.swline = vline[0];
-			PhongMaterial linecylindermat = new PhongMaterial();
-			linecylindermat.setDiffuseColor(Color.BLUE);
-			linecylinder.setMaterial(linecylindermat);
-			root.getChildren().add(linecylinder);
+			Axis[] vlineaxis = {linevecs[j]};
+			Position[] tripos = {vline[0].pos1, vline[0].pos2};
+			Position[] tripos1 = MathLib.translate(tripos, vlineaxis[0].rgt, 1.0f);
+			Position[] tripos2 = MathLib.translate(tripos, vlineaxis[0].rgt, -1.0f);
+			Position[] tripos3 = MathLib.translate(tripos, vlineaxis[0].up, 1.0f);
+			Position[] tripos4 = MathLib.translate(tripos, vlineaxis[0].up, -1.0f);
+			Triangle[] tri = {new Triangle(tripos1[0],tripos2[0],tripos1[1]), new Triangle(tripos2[1],tripos2[0],tripos1[1]), new Triangle(tripos3[0],tripos4[0],tripos3[1]), new Triangle(tripos4[1],tripos4[0],tripos3[1])};
+			Direction[] trinorm = {new Direction(0.0f,0.0f,1.0f)};
+			float[] tripoints = {
+					(float)tri[0].pos1.x, (float)tri[0].pos1.y, (float)tri[0].pos1.z, (float)tri[0].pos2.x, (float)tri[0].pos2.y, (float)tri[0].pos2.z, (float)tri[0].pos3.x, (float)tri[0].pos3.y, (float)tri[0].pos3.z,
+					(float)tri[1].pos1.x, (float)tri[1].pos1.y, (float)tri[1].pos1.z, (float)tri[1].pos2.x, (float)tri[1].pos2.y, (float)tri[1].pos2.z, (float)tri[1].pos3.x, (float)tri[1].pos3.y, (float)tri[1].pos3.z,
+					(float)tri[2].pos1.x, (float)tri[2].pos1.y, (float)tri[2].pos1.z, (float)tri[2].pos2.x, (float)tri[2].pos2.y, (float)tri[2].pos2.z, (float)tri[2].pos3.x, (float)tri[2].pos3.y, (float)tri[2].pos3.z,
+					(float)tri[3].pos1.x, (float)tri[3].pos1.y, (float)tri[3].pos1.z, (float)tri[3].pos2.x, (float)tri[3].pos2.y, (float)tri[3].pos2.z, (float)tri[3].pos3.x, (float)tri[3].pos3.y, (float)tri[3].pos3.z,
+					};
+			float[] tricoords = {(float)tri[0].pos1.tex.u,1.0f-(float)tri[0].pos1.tex.v,(float)tri[0].pos2.tex.u,1.0f-(float)tri[0].pos2.tex.v,(float)tri[0].pos3.tex.u,1.0f-(float)tri[0].pos3.tex.v};
+			float[] trinorms = {(float)trinorm[0].dx, (float)trinorm[0].dy, (float)trinorm[0].dz};
+			int[] trifacenorm = {
+					0, 0, 0, 1, 0, 1, 2, 0, 2,
+					3, 0, 0, 4, 0, 1, 5, 0, 2,
+					6, 0, 0, 7, 0, 1, 8, 0, 2,
+					9, 0, 0, 10, 0, 1, 11, 0, 2,
+					};
+			TriangleMesh trimesh = new TriangleMesh(VertexFormat.POINT_NORMAL_TEXCOORD);
+			trimesh.getPoints().addAll(tripoints);
+			trimesh.getTexCoords().addAll(tricoords);
+			trimesh.getNormals().addAll(trinorms);
+			trimesh.getFaces().addAll(trifacenorm);
+			RenderMeshView trimeshview = new RenderMeshView();
+			tri[0].hwent = null;
+			tri[0].hwtri = trimeshview;
+			trimeshview.swent = null;
+			trimeshview.swtri = tri[0];
+			trimeshview.setMesh(trimesh);
+			trimeshview.setCullFace(CullFace.NONE);
+			PhongMaterial trimat = new PhongMaterial();
+			trimat.setDiffuseColor(Color.BLUE);
+			trimeshview.setMaterial(trimat);
+			root.getChildren().add(trimeshview);
 		}
 		return root;
 	}

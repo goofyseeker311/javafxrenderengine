@@ -13,7 +13,7 @@ import fi.jkauppa.javarenderengine.ModelLib.Axis;
 import fi.jkauppa.javarenderengine.ModelLib.AxisAlignedBoundingBox;
 import fi.jkauppa.javarenderengine.ModelLib.Coordinate;
 import fi.jkauppa.javarenderengine.ModelLib.Cuboid;
-import fi.jkauppa.javarenderengine.ModelLib.Barrel;
+import fi.jkauppa.javarenderengine.ModelLib.Cylinder;
 import fi.jkauppa.javarenderengine.ModelLib.Direction;
 import fi.jkauppa.javarenderengine.ModelLib.Entity;
 import fi.jkauppa.javarenderengine.ModelLib.Line;
@@ -3466,10 +3466,10 @@ public class MathLib {
 		return k;
 	}
 
-	public static Barrel[] lineBarrel(Line[] vline, double radius) {
-		Barrel[] k = null;
+	public static Cylinder[] lineBarrel(Line[] vline, double radius) {
+		Cylinder[] k = null;
 		if (vline!=null) {
-			k = new Barrel[vline.length];
+			k = new Cylinder[vline.length];
 			Direction[] zerodir = {new Direction(0.0f,0.0f,0.0f)};
 			Position[] vlinepos = linePosition(vline);
 			Direction[] vlinenorm = vectorFromPoints(vline);
@@ -3487,7 +3487,7 @@ public class MathLib {
 				vcylinderdiraxis[0].fwd = scaledfwd[0];
 				vcylinderdiraxis[0].rgt = scaledrgt[0];
 				vcylinderdiraxis[0].up = scaledup[0];
-				k[i] = new Barrel(vcylinderdiraxis[0]);
+				k[i] = new Cylinder(vcylinderdiraxis[0]);
 			}
 		}
 		return k;

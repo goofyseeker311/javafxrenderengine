@@ -453,7 +453,7 @@ public class ModelLib {
 	public static class Ellipse {public double x=0,y=0,z=0,rx=0,ry=0,rz=0; public Ellipse(double xi, double yi, double zi, double rxi, double ryi, double rzi){this.x=xi;this.y=yi;this.z=zi;this.rx=rxi;this.ry=ryi;this.rz=rzi;}}
 	public static class Arc {public double x=0,y=0,z=0,r=0,ang1=0,ang2=0; public Arc(double xi, double yi, double zi, double ri, double ang1i, double ang2i){this.x=xi;this.y=yi;this.z=zi;this.r=ri;this.ang1=ang1i;this.ang2=ang2i;}}
 	public static class Circle {public Position origin=new Position(0.0f,0.0f,0.0f); public double r=0; public Circle(Position origini, double ri){this.origin=origini;this.r=ri;}}
-	public static class Barrel {public Axis dim=new Axis(new Position(0.0f,0.0f,0.0f),new Direction(1.0f,0.0f,0.0f),new Direction(1.0f,0.0f,0.0f),new Direction(1.0f,0.0f,0.0f)); public Barrel(Axis dimi){this.dim=dimi;}}
+	public static class Cylinder {public Axis dim=new Axis(new Position(0.0f,0.0f,0.0f),new Direction(1.0f,0.0f,0.0f),new Direction(1.0f,0.0f,0.0f),new Direction(1.0f,0.0f,0.0f)); public Cylinder(Axis dimi){this.dim=dimi;}}
 	public static class Ray {public Position pos=new Position(0.0f,0.0f,0.0f); public Direction dir=new Direction(0.0f,0.0f,0.0f); public Ray(Position posi, Direction diri){this.pos=posi;this.dir=diri;}
 		public Ray copy(){Ray k = new Ray(this.pos.copy(),this.dir.copy()); return k;}
 		public Ray invert(){return new Ray(this.pos, this.dir.invert());}
