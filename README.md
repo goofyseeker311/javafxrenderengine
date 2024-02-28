@@ -118,8 +118,8 @@ C-SPACE               -- camera height change down/up (minmax)
 QE                    -- camera tilt change left/right (looping)
 F3                    -- load model file dialog
 ENTER                 -- changes between polygon-projection/polygon-cubemap/
-                          plane-projection/plane-spheremap/plane-cubemap/
-                          ray-projection/ray-spheremap/ray-cubemap renderers (looping)
+                         plane-projection/plane-spheremap/plane-cubemap/
+                         ray-projection/ray-spheremap/ray-cubemap renderers (looping)
 SHIFT-ENTER           -- changes between unlit and lit render modes (looping)
 
 Editor App Keys:
