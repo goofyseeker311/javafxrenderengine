@@ -67,7 +67,7 @@ PERIOD-DRAG-RMB       -- remove entity
 DRAG-RMB              -- move/ground entity (minmax)
 CTRL-DRAG-RMB         -- rotate entity (looping)
 ALT-DRAG-RMB          -- scale entity (minmax)
-SHIFT                 -- toggle snap to grid/vertex, drag multiple vertex, toggle speed movement
+SHIFT                 -- toggle snap to grid/vertex, drag multiple vertex, speed movement
 DRAG-CMB              -- camera location view position sideways pan (minmax)
 CTRL-DRAG-CMB         -- change forward looking movement direction (looping)
 MWHEEL                -- draw forward position change (minmax)
