@@ -109,6 +109,7 @@ CTRL-SHIFT-F4         -- render and save projected view 4K image with transparen
 DRAG-AND-DROP         -- load image file as texture material, load model file as insert model object
 
 Model App Keys:
+ENTER                 -- changes between direct/image/cubemap draw modes (looping)
 BACKSPACE             -- remove loaded model and reset camera location
 MOUSE-MOVE            -- change forward looking movement direction
 WASD                  -- camera location change forward/left/backward/right (minmax)
