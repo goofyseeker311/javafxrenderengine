@@ -8,8 +8,10 @@ import java.util.TimerTask;
 
 import javax.swing.UIManager;
 
+import fi.jkauppa.javarenderengine.ModelLib.Axis;
 import fi.jkauppa.javarenderengine.ModelLib.Direction;
 import fi.jkauppa.javarenderengine.ModelLib.Matrix;
+import fi.jkauppa.javarenderengine.ModelLib.Plane;
 import fi.jkauppa.javarenderengine.ModelLib.Position;
 import fi.jkauppa.javarenderengine.ModelLib.Sphere;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
@@ -73,6 +75,11 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 		Rectangle[] ssi = MathLib.spheremapSphereIntersection(smtipos[0], smtitrisph, 64, 64, smtimat, null);
 		for (int i=0;i<smti.length;i++) {System.out.println("JavaFXRenderEngine: smti="+smti[i].x+" "+smti[i].y+" "+(smti[i].x+smti[i].width-1)+" "+(smti[i].y+smti[i].height-1));}
 		for (int i=0;i<ssi.length;i++) {System.out.println("JavaFXRenderEngine: ssi="+ssi[i].x+" "+ssi[i].y+" "+(ssi[i].x+ssi[i].width-1)+" "+(ssi[i].y+ssi[i].height-1));}
+		Position[] pvpos = {new Position(0.0f,0.0f,0.0f)};
+		Direction[] pvdir = {new Direction(1.0f,0.0f,0.0f), new Direction(1.0f,1.0f,1.0f)};
+		Plane[] pvplanes = MathLib.planeFromNormalAtPoint(pvpos[0], pvdir);
+		Axis[] pvaxis = MathLib.planeVectors(pvplanes);
+		for (int i=0;i<pvaxis.length;i++) {System.out.println("JavaFXRenderEngine: pvaxis: pos="+pvaxis[i].pos.x+" "+pvaxis[i].pos.y+" "+pvaxis[i].pos.z+" fwd="+pvaxis[i].fwd.dx+" "+pvaxis[i].fwd.dy+" "+pvaxis[i].fwd.dz+" rgt="+pvaxis[i].rgt.dx+" "+pvaxis[i].rgt.dy+" "+pvaxis[i].rgt.dz+" up="+pvaxis[i].up.dx+" "+pvaxis[i].up.dy+" "+pvaxis[i].up.dz);}
 		
     	launch(args);
     }

@@ -1565,7 +1565,7 @@ public class MathLib {
 	}
 	public static Plane[] translate(Plane[] vplane, Direction vdir, double mult) {
 		Direction[] planenormals = planeNormal(vplane);
-		Position[] planepoints = pointOnPlane(vplane);
+		Position[] planepoints = planePosition(vplane);
 		Position[] translatedplanepoints = translate(planepoints, vdir, mult);
 		return planeFromNormalAtPoint(translatedplanepoints, planenormals);
 	}
@@ -1841,7 +1841,7 @@ public class MathLib {
 			if (axis==null) {axisa = zerodira;}
 			Matrix rotmat = rotationMatrixAroundAxis(axisa[0], axisr);
 			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
-			Position[] vplanespos = pointOnPlane(vplane);
+			Position[] vplanespos = planePosition(vplane);
 			Direction[] vplanesnorm = planeNormal(vplane);
 			Direction[] vplanesnormrot = matrixMultiply(vplanesnorm, rotmat);
 			Position[] vplaneposrot = translate(vplanespos, posdir[0], -1.0f);
@@ -2091,7 +2091,7 @@ public class MathLib {
 			Matrix scalemat = scalingMatrix(scale.x, scale.y, scale.z);
 			Direction[] posdir = vectorFromPoints(zeroposa[0], posa);
 			Direction[] vplanenorm = planeNormal(vplane);
-			Position[] vplanepos = pointOnPlane(vplane);
+			Position[] vplanepos = planePosition(vplane);
 			Position[] vplaneposscale = translate(vplanepos, posdir[0], -1.0f);
 			vplaneposscale = matrixMultiply(vplaneposscale, scalemat);
 			vplaneposscale = translate(vplaneposscale, posdir[0], 1.0f);
@@ -3393,15 +3393,34 @@ public class MathLib {
 		}
 		return k;
 	}
-	public static Position[] pointOnPlane(Plane[] vplane) {
-		Position[] k = new Position[vplane.length];
-		for (int i=0;i<vplane.length;i++) {
-			if (vplane[i].a!=0) {
-				k[i] = new Position(-vplane[i].d/vplane[i].a,0.0f,0.0f);
-			} else if (vplane[i].b!=0) {
-				k[i] = new Position(0.0f,-vplane[i].d/vplane[i].b,0.0f);
-			} else if (vplane[i].c!=0) {
-				k[i] = new Position(0.0f,0.0f,-vplane[i].d/vplane[i].c);
+	public static Position[] planePosition(Plane[] vplane) {
+		Position[] k = null;
+		if (vplane!=null) {
+			k = new Position[vplane.length];
+			for (int i=0;i<vplane.length;i++) {
+				if (vplane[i].a!=0) {
+					k[i] = new Position(-vplane[i].d/vplane[i].a,0.0f,0.0f);
+				} else if (vplane[i].b!=0) {
+					k[i] = new Position(0.0f,-vplane[i].d/vplane[i].b,0.0f);
+				} else if (vplane[i].c!=0) {
+					k[i] = new Position(0.0f,0.0f,-vplane[i].d/vplane[i].c);
+				}
+			}
+		}
+		return k;
+	}
+	public static Axis[] planeVectors(Plane[] vplane) {
+		Axis[] k = null;
+		if (vplane!=null) {
+			k = new Axis[vplane.length];
+			Position[] vplanepos = planePosition(vplane);
+			Direction[] vplanenorm = planeNormal(vplane);
+			for (int i=0;i<vplane.length;i++) {
+				Direction[] planevector = {new Direction(-vplanenorm[i].dy, vplanenorm[i].dz, vplanenorm[i].dx)};
+				Direction[] planevectorn = normalizeVector(planevector);
+				Direction[] planecrossvector = vectorCross(vplanenorm[i], planevectorn);
+				Direction[] planecrossvectorn = normalizeVector(planecrossvector);
+				k[i] = new Axis(vplanepos[i],vplanenorm[i],planevectorn[0],planecrossvectorn[0]);
 			}
 		}
 		return k;
