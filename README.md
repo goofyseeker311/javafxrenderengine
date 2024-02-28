@@ -67,7 +67,7 @@ PERIOD-DRAG-RMB       -- remove entity
 DRAG-RMB              -- move/ground entity (minmax)
 CTRL-DRAG-RMB         -- rotate entity (looping)
 ALT-DRAG-RMB          -- scale entity (minmax)
-SHIFT                 -- toggle snap to grid/vertex, drag multiple vertex, and speed movement
+SHIFT                 -- toggle snap to grid/vertex, drag multiple vertex, toggle speed movement
 DRAG-CMB              -- camera location view position sideways pan (minmax)
 CTRL-DRAG-CMB         -- change forward looking movement direction (looping)
 MWHEEL                -- draw forward position change (minmax)
@@ -106,7 +106,7 @@ F4                    -- render and save projected view 3840x2160 image with bla
 CTRL-F4               -- render and save cube map view 6144x4096 image with transparent background
 SHIFT-F4              -- render and save sphere map view 7680x2160 image with transparent background
 CTRL-SHIFT-F4         -- render and save projected view 4K image with transparent background
-DRAG-AND-DROP         -- load image file as texture material or load model file as insert model object
+DRAG-AND-DROP         -- load image file as texture material, load model file as insert model object
 
 Model App Keys:
 BACKSPACE             -- remove loaded model and reset camera location
