@@ -46,7 +46,7 @@ F3                    -- load image file dialog
 SHIFT-F3              -- load image file as pencil brush dialog
 CTRL-C                -- copy image to clipboard
 CTRL-V                -- paste image from clipboard
-DRAG-AND-DROP         -- load image file as pencil brush image
+DRAG-AND-DROP         -- load image file as pencil brush
 
 CAD App Keys:
 ENTER                 -- changes between line/textured draw modes (looping)
