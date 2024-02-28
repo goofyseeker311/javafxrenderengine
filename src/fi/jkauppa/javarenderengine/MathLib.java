@@ -13,7 +13,7 @@ import fi.jkauppa.javarenderengine.ModelLib.Axis;
 import fi.jkauppa.javarenderengine.ModelLib.AxisAlignedBoundingBox;
 import fi.jkauppa.javarenderengine.ModelLib.Coordinate;
 import fi.jkauppa.javarenderengine.ModelLib.Cuboid;
-import fi.jkauppa.javarenderengine.ModelLib.Cylinder;
+import fi.jkauppa.javarenderengine.ModelLib.Barrel;
 import fi.jkauppa.javarenderengine.ModelLib.Direction;
 import fi.jkauppa.javarenderengine.ModelLib.Entity;
 import fi.jkauppa.javarenderengine.ModelLib.Line;
@@ -408,6 +408,31 @@ public class MathLib {
 		}
 		return k;
 	}
+	public static Position[] vectorPosition(Direction[] vdir) {
+		Position[] k = null;
+		if (vdir!=null) {
+			k = new Position[vdir.length];
+			for (int n=0;n<vdir.length;n++) {
+				if (vdir[n]!=null) {
+					k[n] = new Position(vdir[n].dx,vdir[n].dy,vdir[n].dz);
+				}
+			}
+		}
+		return k;
+	}
+	public static Position[] linePosition(Line[] vline) {
+		Position[] k = null;
+		if (vline!=null) {
+			k = new Position[vline.length];
+			for (int n=0;n<vline.length;n++) {
+				if (vline[n]!=null) {
+					k[n] = vline[n].pos1;
+				}
+			}
+		}
+		return k;
+	}
+	
 	public static double[][] planePointDistance(Position[] vpoint, Plane[] vplane) {
 		double[][] k = null;
 		if ((vpoint!=null)&&(vplane!=null)) {
@@ -2246,10 +2271,6 @@ public class MathLib {
 		camrotmat = matrixMultiply(camrotmat, camrotmatx);
 		return camrotmat;
 	}
-
-	public static Cylinder[] lineCylinderMatrix(Line[] vline) {
-		return null;
-	}
 	
 	public static Sphere[] entitySphereList(Entity[] entitylist) {
 		Sphere[] k = null;
@@ -3084,6 +3105,37 @@ public class MathLib {
 		return k;
 	}
 
+	public static Rotation[] axisPointRotation(Position[] vpoint, Axis axis) {
+		Rotation[] k = new Rotation[vpoint.length];
+		Direction[] axisfwd = {axis.fwd};
+		Direction[] axisrgt = {axis.rgt};
+		Direction[] axisup = {axis.up};
+		Plane[] axisfwdplane = MathLib.planeFromNormalAtPoint(axis.pos, axisfwd);
+		Plane[] axisrgtplane = MathLib.planeFromNormalAtPoint(axis.pos, axisrgt);
+		Plane[] axisupplane = MathLib.planeFromNormalAtPoint(axis.pos, axisup);
+		double[][] axisfwdpointsdist = planePointDistance(vpoint, axisfwdplane);
+		double[][] axisrightpointsdist = planePointDistance(vpoint, axisrgtplane);
+		double[][] axisuppointsdist = planePointDistance(vpoint, axisupplane);
+		for (int i=0;i<vpoint.length;i++) {
+			Direction[] axisfwddir = {new Direction(1.0f,0.0f,0.0f)};
+			Direction[] vpointhdir = {new Direction(axisfwdpointsdist[i][0],axisrightpointsdist[i][0],0.0f)};
+			Direction[] vpointvdir = {new Direction(axisfwdpointsdist[i][0],axisrightpointsdist[i][0],axisuppointsdist[i][0])};
+			double[] hanglea = vectorAngle(axisfwddir,vpointhdir);
+			double[] vanglea = vectorAngle(vpointhdir, vpointvdir);
+			if (!Double.isFinite(hanglea[0])) {hanglea[0]=0.0f;};
+			if (!Double.isFinite(vanglea[0])) {vanglea[0]=90.0f;};
+			double hangle = ((axisrightpointsdist[i][0]>=0.0)?1.0f:-1.0f)*hanglea[0];
+			double vangle = ((axisuppointsdist[i][0]>=0.0)?1.0f:-1.0f)*vanglea[0];
+			k[i] = new Rotation(vangle,0.0f,hangle);
+		}
+		return k;
+	}
+
+	public static Rotation[] axisPointRotation(Direction[] vdir, Axis axis) {
+		Position[] vdirpos = vectorPosition(vdir);
+		return axisPointRotation(vdirpos, axis);
+	}
+	
 	public static Coordinate[] spheremapPoint(Position vpos, Position[] vpoint, int hres, int vres, Matrix vmat, Plane nclipplane) {
 		Coordinate[] k = null;
 		if ((vpos!=null)&&(vpoint!=null)&&(vmat!=null)) {
@@ -3095,25 +3147,11 @@ public class MathLib {
 			double origindeltax = ((double)(hres-1))/2.0f;
 			double origindeltay = ((double)(vres-1))/2.0f;
 			Direction[] camdirs = projectedCameraDirections(vmat);
-			Plane[] camdirrightupplanes = planeFromNormalAtPoint(vpos, camdirs);
-			Plane[] camfwdplane = {camdirrightupplanes[0]};
-			Plane[] camrightplane = {camdirrightupplanes[1]};
-			Plane[] camupplane = {camdirrightupplanes[2]};
-			double[][] fwdpointsdist = planePointDistance(vpoint, camfwdplane);
-			double[][] rightpointsdist = planePointDistance(vpoint, camrightplane);
-			double[][] uppointsdist = planePointDistance(vpoint, camupplane);
+			Axis camaxis = new Axis(vpos, camdirs[0], camdirs[1], camdirs[2]);
+			Rotation[] camrots = axisPointRotation(vpoint, camaxis);
 			for (int i=0;i<vpoint.length;i++) {
-				Direction[] camfwddir = {new Direction(1.0f,0.0f,0.0f)};
-				Direction[] vpointhdir = {new Direction(fwdpointsdist[i][0],rightpointsdist[i][0],0.0f)};
-				Direction[] vpointvdir = {new Direction(fwdpointsdist[i][0],rightpointsdist[i][0],uppointsdist[i][0])};
-				double[] hanglea = vectorAngle(vpointhdir, camfwddir);
-				double[] vanglea = vectorAngle(vpointhdir, vpointvdir);
-				if (!Double.isFinite(hanglea[0])) {hanglea[0]=0.0f;};
-				if (!Double.isFinite(vanglea[0])) {vanglea[0]=halfvfov;};
-				double hangle = ((rightpointsdist[i][0]>=0.0)?1.0f:-1.0f)*hanglea[0];
-				double vangle = ((uppointsdist[i][0]>=0.0)?1.0f:-1.0f)*vanglea[0];
-				double hind = halfhreshfovmult*hangle+origindeltax;
-				double vind = halfvresvfovmult*vangle+origindeltay;
+				double hind = halfhreshfovmult*camrots[i].z+origindeltax;
+				double vind = halfvresvfovmult*camrots[i].x+origindeltay;
 				k[i] = new Coordinate(hind,vind);
 			}
 		}
@@ -3428,6 +3466,33 @@ public class MathLib {
 		return k;
 	}
 
+	public static Barrel[] lineBarrel(Line[] vline, double radius) {
+		Barrel[] k = null;
+		if (vline!=null) {
+			k = new Barrel[vline.length];
+			Direction[] zerodir = {new Direction(0.0f,0.0f,0.0f)};
+			Position[] vlinepos = linePosition(vline);
+			Direction[] vlinenorm = vectorFromPoints(vline);
+			double[] vlinelen = vectorLength(vlinenorm);
+			Plane[] vlineplane = planeFromNormalAtPoint(vlinepos, vlinenorm);
+			Axis[] vlinediraxis = planeVectors(vlineplane);
+			for (int i=0;i<vline.length;i++) {
+				Axis[] vcylinderdiraxis = {vlinediraxis[i].copy()};
+				Direction[] scaledfwd = MathLib.translate(zerodir, vcylinderdiraxis[0].fwd, vlinelen[i]/2.0f);
+				Direction[] scaledrgt = MathLib.translate(zerodir, vcylinderdiraxis[0].rgt, radius);
+				Direction[] scaledup = MathLib.translate(zerodir, vcylinderdiraxis[0].up, radius);
+				Position[] vlinecenterpos = {vlinepos[i]};
+				Position[] scaledpos = translate(vlinecenterpos,scaledfwd[0],1.0f);
+				vcylinderdiraxis[0].pos = scaledpos[0];
+				vcylinderdiraxis[0].fwd = scaledfwd[0];
+				vcylinderdiraxis[0].rgt = scaledrgt[0];
+				vcylinderdiraxis[0].up = scaledup[0];
+				k[i] = new Barrel(vcylinderdiraxis[0]);
+			}
+		}
+		return k;
+	}
+	
 	public static Position cameraPlanePosition(Position drawpos, int coordx, int coordy, int renderwidth, int renderheight, boolean snaplinemode, int gridstep, Matrix vmat) {
 		Direction[] camdirs = projectedCameraDirections(vmat);
 		int origindeltax = (int)Math.floor(((double)(renderwidth-1))/2.0f);

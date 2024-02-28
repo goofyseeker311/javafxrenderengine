@@ -13,6 +13,7 @@ import fi.jkauppa.javarenderengine.ModelLib.Direction;
 import fi.jkauppa.javarenderengine.ModelLib.Matrix;
 import fi.jkauppa.javarenderengine.ModelLib.Plane;
 import fi.jkauppa.javarenderengine.ModelLib.Position;
+import fi.jkauppa.javarenderengine.ModelLib.Rotation;
 import fi.jkauppa.javarenderengine.ModelLib.Sphere;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
 import fi.jkauppa.javarenderengine.MathLib;
@@ -80,6 +81,11 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 		Plane[] pvplanes = MathLib.planeFromNormalAtPoint(pvpos[0], pvdir);
 		Axis[] pvaxis = MathLib.planeVectors(pvplanes);
 		for (int i=0;i<pvaxis.length;i++) {System.out.println("JavaFXRenderEngine: pvaxis: pos="+pvaxis[i].pos.x+" "+pvaxis[i].pos.y+" "+pvaxis[i].pos.z+" fwd="+pvaxis[i].fwd.dx+" "+pvaxis[i].fwd.dy+" "+pvaxis[i].fwd.dz+" rgt="+pvaxis[i].rgt.dx+" "+pvaxis[i].rgt.dy+" "+pvaxis[i].rgt.dz+" up="+pvaxis[i].up.dx+" "+pvaxis[i].up.dy+" "+pvaxis[i].up.dz);}
+		Position[] aprpos = {new Position(0.0f,0.0f,0.0f), new Position(0.0f,-1.0f,0.0f), new Position(0.0f,0.0f,1.0f), new Position(0.0f,0.0f,-1.0f), new Position(0.0f,-1.0f,1.0f), new Position(0.0f,-1.0f,-1.0f), new Position(0.0f,1.0f,0.0f), new Position(0.0f,1.0f,1.0f), new Position(0.0f,1.0f,-1.0f), new Position(-1.0f,0.0f,0.0f), new Position(-1.0f,0.0f,1.0f), new Position(-1.0f,0.0f,-1.0f), new Position(1.0f,0.0f,0.0f), new Position(1.0f,0.0f,1.0f), new Position(1.0f,0.0f,-1.0f)};
+		Direction[] aprdir = {new Direction(0.0f,-1.0f,0.0f), new Direction(1.0f,0.0f,0.0f), new Direction(0.0f,0.0f,1.0f)};
+		Axis aprxis = new Axis(aprpos[0],aprdir[0],aprdir[1],aprdir[2]);
+		Rotation[] aprrot = MathLib.axisPointRotation(aprpos, aprxis);
+		for (int i=0;i<aprrot.length;i++) {System.out.println("JavaFXRenderEngine: aprrot="+aprrot[i].x+" "+aprrot[i].y+" "+aprrot[i].z);}
 		
     	launch(args);
     }

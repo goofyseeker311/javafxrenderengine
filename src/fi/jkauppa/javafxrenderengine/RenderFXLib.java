@@ -4,15 +4,19 @@ import java.awt.Rectangle;
 
 import fi.jkauppa.javarenderengine.MathLib;
 import fi.jkauppa.javarenderengine.RenderLib;
+import fi.jkauppa.javarenderengine.ModelLib.Axis;
+import fi.jkauppa.javarenderengine.ModelLib.Barrel;
 import fi.jkauppa.javarenderengine.ModelLib.Coordinate;
 import fi.jkauppa.javarenderengine.ModelLib.Cubemap;
 import fi.jkauppa.javarenderengine.ModelLib.Direction;
 import fi.jkauppa.javarenderengine.ModelLib.Entity;
+import fi.jkauppa.javarenderengine.ModelLib.Line;
 import fi.jkauppa.javarenderengine.ModelLib.Material;
 import fi.jkauppa.javarenderengine.ModelLib.Matrix;
 import fi.jkauppa.javarenderengine.ModelLib.Plane;
 import fi.jkauppa.javarenderengine.ModelLib.Position;
 import fi.jkauppa.javarenderengine.ModelLib.RenderView;
+import fi.jkauppa.javarenderengine.ModelLib.Rotation;
 import fi.jkauppa.javarenderengine.ModelLib.Sphere;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
 import javafx.geometry.Point3D;
@@ -29,6 +33,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.CullFace;
+import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.shape.VertexFormat;
@@ -40,13 +45,40 @@ public class RenderFXLib {
 		public Entity swent;
 		public Triangle swtri;
 	}
+	public static class RenderCylinder extends Cylinder {
+		public RenderCylinder(double radius, double height, int divisions) {
+			super(radius, height, divisions);
+		}
+		public Entity swent;
+		public Line swline;
+	}
 
-	public static Group constructLineFXScene(Group root, Entity[] entitylist) {
-		for (int k=0;k<entitylist.length;k++) {
-			Entity[] ent = {entitylist[k]};
-			for (int j=0;j<ent[0].linelist.length;j++) {
-				//TODO lines from long thin 3d cylinder objects 
-			}
+	public static Group constructLineFXScene(Group root, Line[] linelist) {
+		Barrel[] linecylinderlist = MathLib.lineBarrel(linelist, 0.5f);
+		for (int j=0;j<linelist.length;j++) {
+			Line[] vline = {linelist[j]};
+			Barrel vlinecyl = linecylinderlist[j];
+			Position[] vlinecylpos = {vlinecyl.dim.pos};
+			Direction[] vlinecylfwd = {vlinecyl.dim.fwd};
+			Direction[] vlinecylrgt = {vlinecyl.dim.rgt};
+			double[] vlinecylfwdlen = MathLib.vectorLength(vlinecylfwd);
+			double[] vlinecylrgtlen = MathLib.vectorLength(vlinecylrgt);
+			Direction[] cylinderaxisdirs = {new Direction(0.0f,0.0f,1.0f), new Direction(1.0f,0.0f,0.0f), new Direction(0.0f,1.0f,0.0f)};
+			Axis cylinderaxis = new Axis(vlinecylpos[0],cylinderaxisdirs[0],cylinderaxisdirs[1],cylinderaxisdirs[2]);
+			Rotation[] cylinderaxisrot = MathLib.axisPointRotation(vlinecylfwd, cylinderaxis);
+			RenderCylinder linecylinder = new RenderCylinder(vlinecylrgtlen[0], vlinecylfwdlen[0], 3);
+			linecylinder.setTranslateX(vlinecylpos[0].x);
+			linecylinder.setTranslateY(vlinecylpos[0].y);
+			linecylinder.setTranslateZ(vlinecylpos[0].z);
+			linecylinder.getTransforms().add(new Rotate(cylinderaxisrot[0].x,new Point3D(0,1,0)));
+			linecylinder.getTransforms().add(new Rotate(-cylinderaxisrot[0].z,new Point3D(0,0,1)));
+			linecylinder.getTransforms().add(new Rotate(180.0f,new Point3D(1.0f,0.0f,0.0f)));
+			linecylinder.swent = null;
+			linecylinder.swline = vline[0];
+			PhongMaterial linecylindermat = new PhongMaterial();
+			linecylindermat.setDiffuseColor(Color.BLUE);
+			linecylinder.setMaterial(linecylindermat);
+			root.getChildren().add(linecylinder);
 		}
 		return root;
 	}
