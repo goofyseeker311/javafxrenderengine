@@ -14,7 +14,6 @@ F9                    -- Game App
 F12                   -- save a screenshot image file
 
 Draw App Keys:
-ENTER                 -- toggles between alpha/src composite pencil draw mode
 BACKSPACE             -- erases the whole window canvas to transparent
 DRAG-LMB              -- black/hsba-color drag paint
 CTRL-LMB              -- rgba-color picker at cursor
@@ -117,9 +116,6 @@ WASD                  -- camera location change forward/left/backward/right (min
 C-SPACE               -- camera height change down/up (minmax)
 QE                    -- camera tilt change left/right (looping)
 F3                    -- load model file dialog
-ENTER                 -- changes between polygon-projection/polygon-cubemap/
-                         plane-projection/plane-spheremap/plane-cubemap/
-                         ray-projection/ray-spheremap/ray-cubemap renderers (looping)
 SHIFT-ENTER           -- changes between unlit and lit render modes (looping)
 
 Editor App Keys:
