@@ -3420,7 +3420,9 @@ public class MathLib {
 				Direction[] planevectorn = normalizeVector(planevector);
 				Direction[] planecrossvector = vectorCross(vplanenorm[i], planevectorn);
 				Direction[] planecrossvectorn = normalizeVector(planecrossvector);
-				k[i] = new Axis(vplanepos[i],vplanenorm[i],planevectorn[0],planecrossvectorn[0]);
+				Direction[] planeupvector = vectorCross(vplanenorm[i], planecrossvectorn);
+				Direction[] planeupvectorn = normalizeVector(planeupvector);
+				k[i] = new Axis(vplanepos[i],vplanenorm[i],planeupvectorn[0],planecrossvectorn[0]);
 			}
 		}
 		return k;
