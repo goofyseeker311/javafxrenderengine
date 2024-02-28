@@ -11,12 +11,16 @@ import fi.jkauppa.javarenderengine.ModelLib.Direction;
 import fi.jkauppa.javarenderengine.ModelLib.Entity;
 import fi.jkauppa.javarenderengine.ModelLib.Matrix;
 import fi.jkauppa.javarenderengine.ModelLib.Position;
+import fi.jkauppa.javarenderengine.ModelLib.RenderView;
 import fi.jkauppa.javarenderengine.ModelLib.Rotation;
 import javafx.event.Event;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
+import javafx.scene.ParallelCamera;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -62,25 +66,58 @@ public class ModelFXApp extends AppFXHandler {
 	@Override public void update() {
 		this.renderwidth = (int)this.scene.getWidth();
 		this.renderheight = (int)this.scene.getHeight();
-		PerspectiveCamera camera = new PerspectiveCamera(true);
-		camera.setFarClip(1000000.0f);
-		camera.setVerticalFieldOfView(false);
-		camera.setFieldOfView(this.hfov);
-		camera.getTransforms().clear();
-		camera.setTranslateX(this.campos[0].x);
-		camera.setTranslateY(this.campos[0].y);
-		camera.setTranslateZ(this.campos[0].z);
-		Affine transform = RenderFXLib.matrixAffine(this.cameramat);
-		camera.getTransforms().add(transform);
-		scene.setCamera(camera);
-		scene.setFill(Paint.valueOf("BLACK"));
+		this.scene.setFill(Paint.valueOf("BLACK"));
 		this.scene.setCursor(Cursor.NONE);
+		root.getChildren().clear();
 		if (this.unlitrender) {
 			this.entities = this.unlitsceneroot;
 		} else {
 			this.entities = this.defaultsceneroot;
 		}
-		root.getChildren().setAll(this.entities);
+		if (this.polygonfillmode==1) {
+			PerspectiveCamera camera = new PerspectiveCamera(true);
+			camera.setFarClip(1000000.0f);
+			camera.setVerticalFieldOfView(false);
+			camera.setFieldOfView(this.hfov);
+			camera.getTransforms().clear();
+			camera.setTranslateX(this.campos[0].x);
+			camera.setTranslateY(this.campos[0].y);
+			camera.setTranslateZ(this.campos[0].z);
+			Affine transform = RenderFXLib.matrixAffine(this.cameramat);
+			camera.getTransforms().add(transform);
+			this.scene.setCamera(camera);
+			root.getChildren().setAll(this.entities);
+		} else if (this.polygonfillmode==2) {
+			ParallelCamera camera = new ParallelCamera();
+			this.scene.setCamera(camera);
+			int bounces = 2;
+			RenderView renderview = RenderFXLib.renderProjectedView(this.campos[0], this.entitylist, this.entities, this.renderwidth, this.hfov, this.renderheight, 0, this.cameramat, bounces, 0, null, null, this.mouselocationx, this.mouselocationy);
+			if (renderview.renderimageobject!=null) {
+				WritableImage outputimage = (WritableImage)renderview.renderimageobject;
+		        ImageView renderimageview = new ImageView();
+		        renderimageview.setImage(outputimage);
+		        renderimageview.setFitWidth(this.renderwidth);
+		        renderimageview.setPreserveRatio(true);
+		        renderimageview.setSmooth(true);
+		        renderimageview.setCache(true);
+				root.getChildren().setAll(renderimageview);
+			}
+		} else if (this.polygonfillmode==3) {
+			ParallelCamera camera = new ParallelCamera();
+			this.scene.setCamera(camera);
+			int bounces = 2;
+			RenderView renderview = RenderFXLib.renderCubemapView(this.campos[0], this.entitylist, this.entities, this.renderwidth, this.renderheight, (int)(this.renderheight/2.0f), this.cameramat, bounces, 0, null, null, this.mouselocationx, this.mouselocationy);
+			if (renderview.renderimageobject!=null) {
+				WritableImage outputimage = (WritableImage)renderview.renderimageobject;
+		        ImageView renderimageview = new ImageView();
+		        renderimageview.setImage(outputimage);
+		        renderimageview.setFitWidth(this.renderwidth);
+		        renderimageview.setPreserveRatio(true);
+		        renderimageview.setSmooth(true);
+		        renderimageview.setCache(true);
+				root.getChildren().setAll(renderimageview);
+			}
+		}
 	}
 
 	@Override public void tick() {
@@ -170,7 +207,7 @@ public class ModelFXApp extends AppFXHandler {
 						System.out.println("ModelApp: keyPressed: key SHIFT-ENTER: unlitrender="+this.unlitrender);
 					} else {
 						this.polygonfillmode += 1;
-						if (this.polygonfillmode>8) {
+						if (this.polygonfillmode>3) {
 							this.polygonfillmode = 1;
 						}
 						System.out.println("ModelApp: keyPressed: key ENTER: polygonfillmode="+this.polygonfillmode);
