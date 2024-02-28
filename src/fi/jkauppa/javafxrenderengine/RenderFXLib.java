@@ -60,25 +60,45 @@ public class RenderFXLib {
 			Line[] vline = {linelist[j]};
 			Axis[] vlineaxis = {linevecs[j]};
 			Position[] tripos = {vline[0].pos1, vline[0].pos2};
-			Position[] tripos1 = MathLib.translate(tripos, vlineaxis[0].rgt, 1.0f);
-			Position[] tripos2 = MathLib.translate(tripos, vlineaxis[0].rgt, -1.0f);
-			Position[] tripos3 = MathLib.translate(tripos, vlineaxis[0].up, 1.0f);
-			Position[] tripos4 = MathLib.translate(tripos, vlineaxis[0].up, -1.0f);
-			Triangle[] tri = {new Triangle(tripos1[0],tripos2[0],tripos1[1]), new Triangle(tripos2[1],tripos2[0],tripos1[1]), new Triangle(tripos3[0],tripos4[0],tripos3[1]), new Triangle(tripos4[1],tripos4[0],tripos3[1])};
-			Direction[] trinorm = {new Direction(0.0f,0.0f,1.0f)};
+			double linewidth = 0.5f;
+			double halfwidth = linewidth/2.0f;
+			Position[] tripos1 = MathLib.translate(MathLib.translate(tripos, vlineaxis[0].rgt, -halfwidth), vlineaxis[0].up, halfwidth);
+			Position[] tripos2 = MathLib.translate(MathLib.translate(tripos, vlineaxis[0].rgt, halfwidth), vlineaxis[0].up, halfwidth);
+			Position[] tripos3 = MathLib.translate(MathLib.translate(tripos, vlineaxis[0].rgt, halfwidth), vlineaxis[0].up, -halfwidth);
+			Position[] tripos4 = MathLib.translate(MathLib.translate(tripos, vlineaxis[0].rgt, -halfwidth), vlineaxis[0].up, -halfwidth);
+			Triangle[] tri = {
+					new Triangle(tripos1[0],tripos2[0],tripos1[1]), new Triangle(tripos2[1],tripos2[0],tripos1[1]),
+					new Triangle(tripos2[0],tripos3[0],tripos2[1]), new Triangle(tripos3[1],tripos3[0],tripos2[1]),
+					new Triangle(tripos3[0],tripos4[0],tripos3[1]), new Triangle(tripos4[1],tripos4[0],tripos3[1]),
+					new Triangle(tripos4[0],tripos1[0],tripos4[1]), new Triangle(tripos1[1],tripos1[0],tripos4[1]),
+					};
+			Direction[] trinorm = {vlineaxis[0].up, vlineaxis[0].rgt, vlineaxis[0].up.invert(), vlineaxis[0].rgt.invert()};
 			float[] tripoints = {
 					(float)tri[0].pos1.x, (float)tri[0].pos1.y, (float)tri[0].pos1.z, (float)tri[0].pos2.x, (float)tri[0].pos2.y, (float)tri[0].pos2.z, (float)tri[0].pos3.x, (float)tri[0].pos3.y, (float)tri[0].pos3.z,
 					(float)tri[1].pos1.x, (float)tri[1].pos1.y, (float)tri[1].pos1.z, (float)tri[1].pos2.x, (float)tri[1].pos2.y, (float)tri[1].pos2.z, (float)tri[1].pos3.x, (float)tri[1].pos3.y, (float)tri[1].pos3.z,
 					(float)tri[2].pos1.x, (float)tri[2].pos1.y, (float)tri[2].pos1.z, (float)tri[2].pos2.x, (float)tri[2].pos2.y, (float)tri[2].pos2.z, (float)tri[2].pos3.x, (float)tri[2].pos3.y, (float)tri[2].pos3.z,
 					(float)tri[3].pos1.x, (float)tri[3].pos1.y, (float)tri[3].pos1.z, (float)tri[3].pos2.x, (float)tri[3].pos2.y, (float)tri[3].pos2.z, (float)tri[3].pos3.x, (float)tri[3].pos3.y, (float)tri[3].pos3.z,
+					(float)tri[4].pos1.x, (float)tri[4].pos1.y, (float)tri[4].pos1.z, (float)tri[4].pos2.x, (float)tri[4].pos2.y, (float)tri[4].pos2.z, (float)tri[4].pos3.x, (float)tri[4].pos3.y, (float)tri[4].pos3.z,
+					(float)tri[5].pos1.x, (float)tri[5].pos1.y, (float)tri[5].pos1.z, (float)tri[5].pos2.x, (float)tri[5].pos2.y, (float)tri[5].pos2.z, (float)tri[5].pos3.x, (float)tri[5].pos3.y, (float)tri[5].pos3.z,
+					(float)tri[6].pos1.x, (float)tri[6].pos1.y, (float)tri[6].pos1.z, (float)tri[6].pos2.x, (float)tri[6].pos2.y, (float)tri[6].pos2.z, (float)tri[6].pos3.x, (float)tri[6].pos3.y, (float)tri[6].pos3.z,
+					(float)tri[7].pos1.x, (float)tri[7].pos1.y, (float)tri[7].pos1.z, (float)tri[7].pos2.x, (float)tri[7].pos2.y, (float)tri[7].pos2.z, (float)tri[7].pos3.x, (float)tri[7].pos3.y, (float)tri[7].pos3.z,
 					};
 			float[] tricoords = {(float)tri[0].pos1.tex.u,1.0f-(float)tri[0].pos1.tex.v,(float)tri[0].pos2.tex.u,1.0f-(float)tri[0].pos2.tex.v,(float)tri[0].pos3.tex.u,1.0f-(float)tri[0].pos3.tex.v};
-			float[] trinorms = {(float)trinorm[0].dx, (float)trinorm[0].dy, (float)trinorm[0].dz};
+			float[] trinorms = {
+					(float)trinorm[0].dx, (float)trinorm[0].dy, (float)trinorm[0].dz,
+					(float)trinorm[1].dx, (float)trinorm[1].dy, (float)trinorm[1].dz,
+					(float)trinorm[2].dx, (float)trinorm[2].dy, (float)trinorm[2].dz,
+					(float)trinorm[3].dx, (float)trinorm[3].dy, (float)trinorm[3].dz,
+					};
 			int[] trifacenorm = {
 					0, 0, 0, 1, 0, 1, 2, 0, 2,
 					3, 0, 0, 4, 0, 1, 5, 0, 2,
-					6, 0, 0, 7, 0, 1, 8, 0, 2,
-					9, 0, 0, 10, 0, 1, 11, 0, 2,
+					6, 1, 0, 7, 1, 1, 8, 1, 2,
+					9, 1, 0, 10, 1, 1, 11, 1, 2,
+					12, 2, 0, 13, 2, 1, 14, 2, 2,
+					15, 2, 0, 16, 2, 1, 17, 2, 2,
+					18, 3, 0, 19, 3, 1, 20, 3, 2,
+					21, 3, 0, 22, 3, 1, 23, 3, 2,
 					};
 			TriangleMesh trimesh = new TriangleMesh(VertexFormat.POINT_NORMAL_TEXCOORD);
 			trimesh.getPoints().addAll(tripoints);
