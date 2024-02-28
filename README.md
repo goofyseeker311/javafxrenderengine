@@ -49,7 +49,7 @@ CTRL-V                -- paste image from clipboard
 DRAG-AND-DROP         -- load image file as pencil brush image
 
 CAD App Keys:
-ENTER                 -- changes between polygon flat/textured/none fill modes (looping)
+ENTER                 -- changes between line/textured draw modes (looping)
 SHIFT-ENTER           -- changes between unlit and lit render modes (looping)
 CTRL-ENTER            -- re-calculates all entity triangle surface light maps
 WASD                  -- camera location change up/left/down/right (minmax)
@@ -106,8 +106,7 @@ F4                    -- render and save projected view 3840x2160 image with bla
 CTRL-F4               -- render and save cube map view 6144x4096 image with transparent background
 SHIFT-F4              -- render and save sphere map view 7680x2160 image with transparent background
 CTRL-SHIFT-F4         -- render and save projected view 4K image with transparent background
-DRAG-AND-DROP         -- load image file as texture material
-                      -- load model file as insert model object
+DRAG-AND-DROP         -- load image file as texture material or load model file as insert model object
 
 Model App Keys:
 BACKSPACE             -- remove loaded model and reset camera location
