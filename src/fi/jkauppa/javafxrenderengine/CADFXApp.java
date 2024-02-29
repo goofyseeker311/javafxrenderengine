@@ -21,6 +21,8 @@ import java.util.TreeSet;
 import javax.swing.filechooser.FileFilter;
 
 import fi.jkauppa.javafxrenderengine.JavaFXRenderEngine.AppFXHandler;
+import fi.jkauppa.javafxrenderengine.RenderFXLib.RenderMeshView;
+import fi.jkauppa.javafxrenderengine.RenderFXLib.RenderSphere;
 import fi.jkauppa.javarenderengine.MathLib;
 import fi.jkauppa.javarenderengine.RenderLib;
 import fi.jkauppa.javarenderengine.UtilLib;
@@ -47,6 +49,7 @@ import fi.jkauppa.javarenderengine.UtilLib.ModelFileFilters.STLFileFilter;
 import javafx.event.Event;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
@@ -59,6 +62,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.PickResult;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.paint.ImagePattern;
@@ -243,7 +247,6 @@ public class CADFXApp extends AppFXHandler {
 		this.editpos = editposa[0];
 		this.cameramat = camrotmat;
 		this.camdirs = camlookdirs;
-		(new RenderViewUpdater()).start();
 	}
 	
 	@Override public void handle(Event event) {
@@ -701,6 +704,34 @@ public class CADFXApp extends AppFXHandler {
 			MouseEvent mouseevent = (MouseEvent)event;
 			this.mouselocationx=(int)mouseevent.getSceneX();
 			this.mouselocationy=(int)mouseevent.getSceneY();
+			this.mouseoverentity = null;
+			this.mouseovertriangle = null;
+			this.mouseoverline = null;
+			this.mouseoververtex = null;
+			PickResult pickresult = mouseevent.getPickResult();
+			Node picknode = pickresult.getIntersectedNode();
+			if (picknode!=null) {
+				if (picknode.getClass().equals(RenderMeshView.class)) {
+					RenderMeshView pickmesh = (RenderMeshView)picknode;
+					if (pickmesh.swline!=null) {
+						Line[] pickline = {pickmesh.swline};
+						this.mouseoverline = pickline;
+					} else if (pickmesh.swtri!=null) {
+						Triangle[] picktri = {pickmesh.swtri};
+						this.mouseovertriangle = picktri;
+					}
+				} else if (picknode.getClass().equals(RenderSphere.class)) {
+					RenderSphere picksphere = (RenderSphere)picknode;
+					if (picksphere.swline!=null) {
+						Line[] pickline = {picksphere.swline};
+						this.mouseoverline = pickline;
+					}
+					if (picksphere.swpos!=null) {
+						Position[] pickpos = {picksphere.swpos};
+						this.mouseoververtex = pickpos;
+					}
+				}
+			}
 		} else if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED)) {
 			MouseEvent mouseevent = (MouseEvent)event;
 			this.mouselocationx=(int)mouseevent.getSceneX();
@@ -754,12 +785,14 @@ public class CADFXApp extends AppFXHandler {
 				if (this.drawstartpos==null) {
 					this.drawstartpos = drawposarray[0].copy();
 				}
-				Line addline = new Line(this.drawstartpos, drawposarray[0]);
-				this.linelisttree.add(addline);
+				Line[] addline = {new Line(this.drawstartpos, drawposarray[0])};
+				this.linelisttree.add(addline[0]);
+				RenderFXLib.constructLineFXScene(this.defaultscenelineroot, addline);
+				drawposarray[0].hwpos = this.defaultscenelineroot.getChildren().getLast();
 				this.draglinemode = true;
 				this.selecteddragvertex = drawposarray;
 				(new EntityListUpdater()).start();
-				System.out.println("CADApp: mousePressed: key ALT-LMB: adding line="+addline.pos1.x+","+addline.pos1.y+","+addline.pos1.z+" "+addline.pos2.x+","+addline.pos2.y+","+addline.pos2.z);
+				System.out.println("CADApp: mousePressed: key ALT-LMB: adding line="+addline[0].pos1.x+","+addline[0].pos1.y+","+addline[0].pos1.z+" "+addline[0].pos2.x+","+addline[0].pos2.y+","+addline[0].pos2.z);
 	    	}
 		    boolean mouse3down = mouseevent.getButton().equals(MouseButton.SECONDARY);
 	    	if (mouse3down) {
@@ -780,6 +813,7 @@ public class CADFXApp extends AppFXHandler {
 				this.draglinemode = false;
 			}
 			if (mouse3up) {
+				this.selecteddragvertex = null;
 				this.selecteddragentity = null;
 			}
 		} else if (event.getEventType().equals(MouseEvent.MOUSE_DRAGGED)) {
@@ -870,6 +904,18 @@ public class CADFXApp extends AppFXHandler {
 						this.selecteddragvertex[i].x = drawlocation.x;
 						this.selecteddragvertex[i].y = drawlocation.y;
 						this.selecteddragvertex[i].z = drawlocation.z;
+						RenderSphere hwsphere = (RenderSphere)this.selecteddragvertex[i].hwpos;
+						Line[] swline = {hwsphere.swline};
+						RenderMeshView hwline = (RenderMeshView)swline[0].hwline;
+						RenderSphere hwpos1 = (RenderSphere)swline[0].pos1.hwpos;
+						RenderSphere hwpos2 = (RenderSphere)swline[0].pos2.hwpos;
+						this.defaultscenelineroot.getChildren().remove(hwline);
+						this.defaultscenelineroot.getChildren().remove(hwpos1);
+						this.defaultscenelineroot.getChildren().remove(hwpos2);
+						RenderFXLib.constructLineFXScene(this.defaultscenelineroot, swline);
+						swline[0].hwline = this.defaultscenelineroot.getChildren().get(this.defaultscenelineroot.getChildren().size()-3);
+						swline[0].pos1.hwpos = this.defaultscenelineroot.getChildren().get(this.defaultscenelineroot.getChildren().size()-2);
+						swline[0].pos2.hwpos = this.defaultscenelineroot.getChildren().get(this.defaultscenelineroot.getChildren().size()-1);
 					}
 					(new EntityListUpdater()).start();
 					System.out.println("CADApp: mouseDragged: key CTRL/ALT-DRAG-LMB: drag vertex position="+drawlocation.x+","+drawlocation.y+","+drawlocation.z);
@@ -1246,75 +1292,6 @@ public class CADFXApp extends AppFXHandler {
 				entitylist = newentitylist;
     			linelist = linelisttree.toArray(new Line[linelisttree.size()]);
 				EntityListUpdater.entitylistupdaterrunning = false;
-			}
-		}
-	}
-
-	private class RenderViewUpdater extends Thread {
-		private static boolean renderupdaterrunning = false;
-		public void run() {
-			if (!RenderViewUpdater.renderupdaterrunning) {
-				RenderViewUpdater.renderupdaterrunning = true;
-				int bounces = 0;
-				if (polygonfillmode==1) {
-					RenderView mouseoverview = RenderLib.renderProjectedView(campos[0], entitylist, renderwidth, hfov, renderheight, vfov, cameramat, unlitrender, 1, bounces, null, null, null, mouselocationx, mouselocationy);
-					RenderView drawrenderview = RenderLib.renderProjectedLineViewHardware(campos[0], linelist, renderwidth, hfov, renderheight, vfov, true, cameramat, mouselocationx, mouselocationy);
-					if (entitybuffer!=null) {
-						Line[] copyentitybufferlinelist = new Line[entitybuffer.linelist.length];
-						for (int i=0;i<entitybuffer.linelist.length;i++) {
-							copyentitybufferlinelist[i] = entitybuffer.linelist[i].translate(mousepos);
-						}
-						RenderView entitybufferview = RenderLib.renderProjectedLineViewHardware(campos[0], copyentitybufferlinelist, renderwidth, hfov, renderheight, vfov, false, cameramat, mouselocationx, mouselocationy);
-						Graphics2D viewgfx = drawrenderview.renderimage.createGraphics();
-						viewgfx.setComposite(AlphaComposite.SrcOver);
-						viewgfx.drawImage(entitybufferview.renderimage, 0, 0, null);
-						viewgfx.dispose();
-					}
-					renderview = drawrenderview;
-					mouseoverline = drawrenderview.mouseoverline;
-					mouseoververtex = drawrenderview.mouseoververtex;
-					mouseoverentity = mouseoverview.mouseoverentity;
-					mouseovertriangle = mouseoverview.mouseovertriangle;
-					renderview.tbuffer = mouseoverview.tbuffer;
-					renderview.cbuffer = mouseoverview.cbuffer;
-				} else if (polygonfillmode==2) { 
-					RenderView drawrenderview = RenderLib.renderProjectedView(campos[0], entitylist, renderwidth, hfov, renderheight, vfov, cameramat, unlitrender, 1, bounces, null, null, null, mouselocationx, mouselocationy);
-					if (entitybuffer!=null) {
-						Entity[] copyentitybuffer = new Entity[entitybuffer.childlist.length];
-						for (int i=0;i<entitybuffer.childlist.length;i++) {
-		        			copyentitybuffer[i] = entitybuffer.childlist[i].translate(mousepos);
-		        		}
-						RenderView entitybufferview = RenderLib.renderProjectedView(campos[0], copyentitybuffer, renderwidth, hfov, renderheight, vfov, cameramat, unlitrender, 1, bounces, null, null, null, mouselocationx, mouselocationy);
-						Graphics2D viewgfx = drawrenderview.renderimage.createGraphics();
-						viewgfx.setComposite(AlphaComposite.SrcOver);
-						viewgfx.drawImage(entitybufferview.renderimage, 0, 0, null);
-						viewgfx.dispose();
-					}
-					renderview = drawrenderview;
-					mouseoverline = null;
-					mouseoververtex = null;
-					mouseoverentity = drawrenderview.mouseoverentity;
-					mouseovertriangle = drawrenderview.mouseovertriangle;
-				} else if (polygonfillmode==3) {
-					RenderView drawrenderview = RenderLib.renderProjectedView(campos[0], entitylist, renderwidth, hfov, renderheight, vfov, cameramat, unlitrender, 2, bounces, null, null, null, mouselocationx, mouselocationy);
-					if (entitybuffer!=null) {
-						Entity[] copyentitybuffer = new Entity[entitybuffer.childlist.length];
-						for (int i=0;i<entitybuffer.childlist.length;i++) {
-		        			copyentitybuffer[i] = entitybuffer.childlist[i].translate(mousepos);
-		        		}
-						RenderView entitybufferview = RenderLib.renderProjectedView(campos[0], copyentitybuffer, renderwidth, hfov, renderheight, vfov, cameramat, unlitrender, 2, bounces, null, null, null, mouselocationx, mouselocationy);
-						Graphics2D viewgfx = drawrenderview.renderimage.createGraphics();
-						viewgfx.setComposite(AlphaComposite.SrcOver);
-						viewgfx.drawImage(entitybufferview.renderimage, 0, 0, null);
-						viewgfx.dispose();
-					}
-					renderview = drawrenderview;
-					mouseoverline = null;
-					mouseoververtex = null;
-					mouseoverentity = drawrenderview.mouseoverentity;
-					mouseovertriangle = drawrenderview.mouseovertriangle;
-				}
-				RenderViewUpdater.renderupdaterrunning = false;
 			}
 		}
 	}

@@ -31,7 +31,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.CullFace;
-import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.shape.VertexFormat;
@@ -42,13 +41,13 @@ public class RenderFXLib {
 	public static class RenderMeshView extends MeshView {
 		public Entity swent;
 		public Triangle swtri;
+		public Line swline;
 	}
-	public static class RenderCylinder extends Cylinder {
-		public RenderCylinder(double radius, double height, int divisions) {
-			super(radius, height, divisions);
-		}
+	public static class RenderSphere extends javafx.scene.shape.Sphere {
+		public RenderSphere(double radius, int divisions) {super(radius, divisions);}
 		public Entity swent;
 		public Line swline;
+		public Position swpos;
 	}
 
 	public static Group constructLineFXScene(Group root, Line[] linelist) {
@@ -106,16 +105,40 @@ public class RenderFXLib {
 			trimesh.getNormals().addAll(trinorms);
 			trimesh.getFaces().addAll(trifacenorm);
 			RenderMeshView trimeshview = new RenderMeshView();
-			tri[0].hwent = null;
-			tri[0].hwtri = trimeshview;
 			trimeshview.swent = null;
-			trimeshview.swtri = tri[0];
+			trimeshview.swline = vline[0];
 			trimeshview.setMesh(trimesh);
 			trimeshview.setCullFace(CullFace.NONE);
 			PhongMaterial trimat = new PhongMaterial();
 			trimat.setDiffuseColor(Color.BLUE);
 			trimeshview.setMaterial(trimat);
 			root.getChildren().add(trimeshview);
+			RenderSphere spherepos1 = new RenderSphere(5.0f*linewidth, 1);
+			RenderSphere spherepos2 = new RenderSphere(5.0f*linewidth, 1);
+			vline[0].hwent = null;
+			vline[0].hwline = trimeshview;
+			vline[0].pos1.hwent = null;
+			vline[0].pos1.hwpos = spherepos1;
+			vline[0].pos2.hwent = null;
+			vline[0].pos2.hwpos = spherepos2;
+			spherepos1.swent = null;
+			spherepos1.swline = vline[0];
+			spherepos1.swpos = tripos[0];
+			spherepos2.swent = null;
+			spherepos2.swline = vline[0];
+			spherepos2.swpos = tripos[1];
+			spherepos1.setTranslateX(tripos[0].x);
+			spherepos1.setTranslateY(tripos[0].y);
+			spherepos1.setTranslateZ(tripos[0].z);
+			spherepos2.setTranslateX(tripos[1].x);
+			spherepos2.setTranslateY(tripos[1].y);
+			spherepos2.setTranslateZ(tripos[1].z);
+			PhongMaterial spheremat = new PhongMaterial();
+			spheremat.setDiffuseColor(Color.BLACK);
+			spherepos1.setMaterial(spheremat);
+			spherepos2.setMaterial(spheremat);
+			root.getChildren().add(spherepos1);
+			root.getChildren().add(spherepos2);
 		}
 		return root;
 	}
@@ -139,6 +162,7 @@ public class RenderFXLib {
 				tri[0].hwent = null;
 				tri[0].hwtri = trimeshview;
 				trimeshview.swent = ent[0];
+				trimeshview.swline = null;
 				trimeshview.swtri = tri[0];
 				trimeshview.setMesh(trimesh);
 				trimeshview.setCullFace(CullFace.NONE);

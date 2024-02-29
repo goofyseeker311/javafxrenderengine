@@ -210,7 +210,7 @@ public class ModelLib {
 		public RenderView sphereview=null;
 	}
 	
-	public static class Position implements Comparable<Position> {public double x=0,y=0,z=0; public Coordinate tex=new Coordinate(0.0f,0.0f); public Material mat=new Material(); public Position(double xi,double yi,double zi){this.x=xi;this.y=yi;this.z=zi;}
+	public static class Position implements Comparable<Position> {public double x=0,y=0,z=0; public Coordinate tex=new Coordinate(0.0f,0.0f); public Material mat=new Material(); public Object hwent=null, hwpos=null; public Position(double xi,double yi,double zi){this.x=xi;this.y=yi;this.z=zi;}
 		@Override public int compareTo(Position o){
 			int k = -1;
 			if (this.z>o.z) {
@@ -493,7 +493,7 @@ public class ModelLib {
 		public void scaleSelfAroundPos(Position pos, Scaling scale) {setValue(scaleAroundPos(pos,scale));}
 		public Plane scaleAroundPos(Position pos, Scaling scale) {Plane[]k={this};k=MathLib.scaleAroundPos(k,pos,scale);return k[0];}
 	}
-	public static class Line implements Comparable<Line> {public Position pos1=new Position(0.0f,0.0f,0.0f),pos2=new Position(0.0f,0.0f,0.0f); public Material mat=new Material(); public Line(Position pos1i,Position pos2i){this.pos1=pos1i;this.pos2=pos2i;}
+	public static class Line implements Comparable<Line> {public Position pos1=new Position(0.0f,0.0f,0.0f),pos2=new Position(0.0f,0.0f,0.0f); public Material mat=new Material(); public Object hwent=null, hwline=null; public Line(Position pos1i,Position pos2i){this.pos1=pos1i;this.pos2=pos2i;}
 		@Override public int compareTo(Line o){
 			int k=-1;
 			Line ts=this.sort();
@@ -621,7 +621,7 @@ public class ModelLib {
 		public void scaleSelfAroundPos(Position pos, Scaling scale) {setValue(scaleAroundPos(pos,scale));}
 		public Tetrahedron scaleAroundPos(Position pos, Scaling scale) {Tetrahedron[]k={this};k=MathLib.scaleAroundPos(k,pos,scale);return k[0];}
 	}
-	public static class Triangle implements Comparable<Triangle> {public Position pos1=new Position(0.0f,0.0f,0.0f),pos2=new Position(0.0f,0.0f,0.0f),pos3=new Position(0.0f,0.0f,0.0f); public Direction norm=new Direction(0.0f,0.0f,0.0f); public Material mat=new Material(); public Material[] lmatl=null; public Object hwent=null; public Object hwtri=null;
+	public static class Triangle implements Comparable<Triangle> {public Position pos1=new Position(0.0f,0.0f,0.0f),pos2=new Position(0.0f,0.0f,0.0f),pos3=new Position(0.0f,0.0f,0.0f); public Direction norm=new Direction(0.0f,0.0f,0.0f); public Material mat=new Material(); public Material[] lmatl=null; public Object hwent=null, hwtri=null;
 		public Triangle(Position pos1i,Position pos2i,Position pos3i) {this.pos1=pos1i;this.pos2=pos2i;this.pos3=pos3i;}
 		@Override public int compareTo(Triangle o) {
 			int k = -1;

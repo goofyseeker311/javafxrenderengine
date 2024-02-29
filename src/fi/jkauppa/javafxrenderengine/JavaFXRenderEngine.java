@@ -97,7 +97,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.3.8");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.3.9");
     	this.primaryStage.getIcons().add(logowimage);
     	this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     	this.primaryStage.setFullScreenExitHint("");
@@ -137,6 +137,8 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 			KeyEvent keyevent = (KeyEvent)event;
 			if ((keyevent.getCode().equals(KeyCode.ENTER))&&(keyevent.isAltDown())&&(!keyevent.isControlDown())&&(!keyevent.isShiftDown())&&(!keyevent.isMetaDown())) {
 				this.primaryStage.setFullScreen(!this.primaryStage.isFullScreen());
+				keyevent.consume();
+			} else if (keyevent.getCode().equals(KeyCode.ALT)) {
 				keyevent.consume();
 			} else if (keyevent.getCode().equals(KeyCode.F4)) {
 				if (keyevent.isAltDown()) {
