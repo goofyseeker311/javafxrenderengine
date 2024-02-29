@@ -238,7 +238,7 @@ public class ModelLib {
 			}
 			return k;
 		}
-		public Position copy(){Position k=new Position(this.x,this.y,this.z); k.tex=this.tex.copy();k.mat=this.mat.copy(); return k;}
+		public Position copy(){Position k=new Position(this.x,this.y,this.z); k.tex=this.tex.copy();k.mat=this.mat.copy();k.hwent=this.hwent;k.hwpos=this.hwpos; return k;}
 		public Position invert(){Position k=this.copy(); k.x=-k.x;k.y=-k.y;k.z=-k.z; return k;}
 		public boolean isZero(){return (this.x==0.0f)&&(this.y==0.0f)&&(this.z==0.0f);}
 		public boolean isFinite(){return (Double.isFinite(this.x))&&(Double.isFinite(this.y))&&(Double.isFinite(this.z));}
@@ -531,7 +531,7 @@ public class ModelLib {
 			}
 			return k;
 		}
-		public Line copy(){Line k = new Line(this.pos1.copy(),this.pos2.copy()); return k;}
+		public Line copy(){Line k = new Line(this.pos1.copy(),this.pos2.copy()); k.mat=this.mat.copy();k.hwent=this.hwent;k.hwline=this.hwline; return k;}
 		public Line swap(){return new Line(this.pos2,this.pos1);}
 		public Line sort(){Line k=this;if (this.pos1.compareTo(this.pos2)==1) {k=this.swap();}return k;}
 		public boolean isFinite(){return (this.pos1!=null)&&(this.pos2!=null)&&(this.pos1.isFinite())&&(this.pos2.isFinite());}
@@ -674,7 +674,7 @@ public class ModelLib {
 			}
 			return k;
 		}
-		public Triangle copy(){Triangle k=new Triangle(this.pos1.copy(),this.pos2.copy(),this.pos3.copy());k.norm=this.norm.copy();k.mat=this.mat.copy();k.lmatl=this.lmatl;return k;}
+		public Triangle copy(){Triangle k=new Triangle(this.pos1.copy(),this.pos2.copy(),this.pos3.copy());k.norm=this.norm.copy();k.mat=this.mat.copy();k.lmatl=this.lmatl;k.hwent=this.hwent;k.hwtri=this.hwtri;return k;}
 		public void setValue(Triangle value) {this.pos1=value.pos1;this.pos2=value.pos2;this.pos3=value.pos3;this.norm=value.norm;this.mat=value.mat;this.lmatl=value.lmatl;}
 		public void translateSelf(Position pos) {setValue(translate(pos));}
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
