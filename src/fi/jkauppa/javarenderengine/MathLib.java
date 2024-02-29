@@ -12,6 +12,7 @@ import java.util.TreeSet;
 import fi.jkauppa.javarenderengine.ModelLib.Axis;
 import fi.jkauppa.javarenderengine.ModelLib.AxisAlignedBoundingBox;
 import fi.jkauppa.javarenderengine.ModelLib.Coordinate;
+import fi.jkauppa.javarenderengine.ModelLib.Cube;
 import fi.jkauppa.javarenderengine.ModelLib.Cuboid;
 import fi.jkauppa.javarenderengine.ModelLib.Cylinder;
 import fi.jkauppa.javarenderengine.ModelLib.Direction;
@@ -3466,7 +3467,19 @@ public class MathLib {
 		return k;
 	}
 
-	public static Cylinder[] lineBarrel(Line[] vline, double radius) {
+	public static Cube[] lineCube(Line[] vline, double radiusrgt, double radiusup) {
+		Cube[] k = null;
+		if (vline!=null) {
+			k = new Cube[vline.length];
+			Cylinder[] cylinder = lineCylinder(vline, radiusrgt, radiusup);
+			for (int i=0;i<vline.length;i++) {
+				k[i] = new Cube(cylinder[i].dim);
+			}
+		}
+		return k;
+	}
+
+	public static Cylinder[] lineCylinder(Line[] vline, double radiusrgt, double radiusup) {
 		Cylinder[] k = null;
 		if (vline!=null) {
 			k = new Cylinder[vline.length];
@@ -3479,8 +3492,8 @@ public class MathLib {
 			for (int i=0;i<vline.length;i++) {
 				Axis[] vcylinderdiraxis = {vlinediraxis[i].copy()};
 				Direction[] scaledfwd = MathLib.translate(zerodir, vcylinderdiraxis[0].fwd, vlinelen[i]/2.0f);
-				Direction[] scaledrgt = MathLib.translate(zerodir, vcylinderdiraxis[0].rgt, radius);
-				Direction[] scaledup = MathLib.translate(zerodir, vcylinderdiraxis[0].up, radius);
+				Direction[] scaledrgt = MathLib.translate(zerodir, vcylinderdiraxis[0].rgt, radiusrgt);
+				Direction[] scaledup = MathLib.translate(zerodir, vcylinderdiraxis[0].up, radiusup);
 				Position[] vlinecenterpos = {vlinepos[i]};
 				Position[] scaledpos = translate(vlinecenterpos,scaledfwd[0],1.0f);
 				vcylinderdiraxis[0].pos = scaledpos[0];
@@ -3489,6 +3502,53 @@ public class MathLib {
 				vcylinderdiraxis[0].up = scaledup[0];
 				k[i] = new Cylinder(vcylinderdiraxis[0]);
 			}
+		}
+		return k;
+	}
+	
+	public static Triangle[] cubeTriangles(Cube vcube) {
+		Triangle[] k = null;
+		if (vcube!=null) {
+			Axis[] cubeaxis = {vcube.dim};
+			Direction[] cubefwd = {cubeaxis[0].fwd};
+			Direction[] cubergt = {cubeaxis[0].rgt};
+			Direction[] cubeup = {cubeaxis[0].up};
+			Direction[] cubefwdn = normalizeVector(cubefwd);
+			Direction[] cubergtn = normalizeVector(cubergt);
+			Direction[] cubeupn = normalizeVector(cubeup);
+			double[] cubefwdlen = vectorLength(cubefwd);
+			double[] cubergtlen = vectorLength(cubergt);
+			double[] cubeuplen = vectorLength(cubeup);
+			Position[] cubepos = {vcube.dim.pos};
+			Position[] cubepos1 = MathLib.translate(cubepos, cubefwdn[0], cubefwdlen[0]);
+			Position[] cubepos2 = MathLib.translate(cubepos, cubefwdn[0], -cubefwdlen[0]);
+			Position[] tripos = {cubepos1[0], cubepos2[0]};
+			Position[] tripos1 = MathLib.translate(MathLib.translate(tripos, cubergtn[0], -cubergtlen[0]), cubeupn[0], cubeuplen[0]);
+			Position[] tripos2 = MathLib.translate(MathLib.translate(tripos, cubergtn[0], cubergtlen[0]), cubeupn[0], cubeuplen[0]);
+			Position[] tripos3 = MathLib.translate(MathLib.translate(tripos, cubergtn[0], cubergtlen[0]), cubeupn[0], -cubeuplen[0]);
+			Position[] tripos4 = MathLib.translate(MathLib.translate(tripos, cubergtn[0], -cubergtlen[0]), cubeupn[0], -cubeuplen[0]);
+			Triangle[] tri = {
+					new Triangle(tripos1[0],tripos2[0],tripos3[0]), new Triangle(tripos1[0],tripos3[0],tripos4[0]),
+					new Triangle(tripos1[1],tripos2[1],tripos3[1]), new Triangle(tripos1[1],tripos3[1],tripos4[1]),
+					new Triangle(tripos1[0],tripos2[0],tripos1[1]), new Triangle(tripos2[1],tripos2[0],tripos1[1]),
+					new Triangle(tripos2[0],tripos3[0],tripos2[1]), new Triangle(tripos3[1],tripos3[0],tripos2[1]),
+					new Triangle(tripos3[0],tripos4[0],tripos3[1]), new Triangle(tripos4[1],tripos4[0],tripos3[1]),
+					new Triangle(tripos4[0],tripos1[0],tripos4[1]), new Triangle(tripos1[1],tripos1[0],tripos4[1]),
+					};
+			Direction[] trinorm = {cubefwdn[0], cubefwdn[0].invert(), cubeupn[0], cubergtn[0], cubeupn[0].invert(), cubergtn[0].invert()};
+			tri[0].norm = trinorm[0];
+			tri[1].norm = trinorm[0];
+			tri[2].norm = trinorm[1];
+			tri[3].norm = trinorm[1];
+			tri[4].norm = trinorm[2];
+			tri[5].norm = trinorm[2];
+			tri[6].norm = trinorm[3];
+			tri[7].norm = trinorm[3];
+			tri[8].norm = trinorm[4];
+			tri[9].norm = trinorm[4];
+			tri[10].norm = trinorm[5];
+			tri[11].norm = trinorm[5];
+			k = tri;
 		}
 		return k;
 	}
