@@ -414,17 +414,17 @@ public class ModelLib {
 		public Sphere scaleAroundPos(Position pos, Scaling scale) {Sphere[]k={this};k=MathLib.scaleAroundPos(k,pos,scale);return k[0];}
 	}
 	public static class Ellipsoid {public double x=0,y=0,z=0,rx=0,ry=0,rz=0; public Ellipsoid(double xi,double yi,double zi,double rxi,double ryi,double rzi){this.x=xi;this.y=yi;this.z=zi;this.rx=rxi;this.ry=ryi;this.rz=rzi;}}
-	public static class AxisAlignedBoundingBox {public Position pos1=new Position(0.0f,0.0f,0.0f),pos2=new Position(0.0f,0.0f,0.0f); public Axis axis=new Axis(new Position(0.0f,0.0f,0.0f),new Direction(0.0f,0.0f,0.0f),new Direction(0.0f,0.0f,0.0f),new Direction(0.0f,0.0f,0.0f)); public AxisAlignedBoundingBox(Position pos1i, Position pos2i, Axis axisi){this.pos1=pos1i;this.pos2=pos2i;this.axis=axisi;}
-		public AxisAlignedBoundingBox copy(){AxisAlignedBoundingBox k=new AxisAlignedBoundingBox(this.pos1.copy(),this.pos2.copy(),this.axis.copy()); return k;}
-		public void setValue(AxisAlignedBoundingBox value) {this.pos1=value.pos1;this.pos2=value.pos2;this.axis=value.axis;}
+	public static class Cube {public Axis dim=new Axis(new Position(0.0f,0.0f,0.0f),new Direction(0.0f,0.0f,0.0f),new Direction(0.0f,0.0f,0.0f),new Direction(0.0f,0.0f,0.0f)); public Cube(Axis dimi){this.dim=dimi;}
+		public Cube copy(){Cube k=new Cube(this.dim.copy()); return k;}
+		public void setValue(Cube value) {this.dim=value.dim;}
 		public void translateSelf(Position pos) {setValue(translate(pos));}
 		public void translateSelf(Direction dir, double mult) {setValue(translate(dir,mult));}
-		public AxisAlignedBoundingBox translate(Position pos) {AxisAlignedBoundingBox[]k={this};k=MathLib.translate(k,pos);return k[0];}
-		public AxisAlignedBoundingBox translate(Direction dir, double mult) {AxisAlignedBoundingBox[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
+		public Cube translate(Position pos) {Cube[]k={this};k=MathLib.translate(k,pos);return k[0];}
+		public Cube translate(Direction dir, double mult) {Cube[]k={this};k=MathLib.translate(k,dir,mult);return k[0];}
 		public void rotateSelfAroundAxisPos(Position pos, Direction axis, double angle) {setValue(rotateAroundAxisPos(pos,axis,angle));}
-		public AxisAlignedBoundingBox rotateAroundAxisPos(Position pos, Direction axis, double angle) {AxisAlignedBoundingBox[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
+		public Cube rotateAroundAxisPos(Position pos, Direction axis, double angle) {Cube[]k={this};k=MathLib.rotateAroundAxisPos(k,pos,axis,angle);return k[0];}
 		public void scaleSelfAroundPos(Position pos, Scaling scale) {setValue(scaleAroundPos(pos,scale));}
-		public AxisAlignedBoundingBox scaleAroundPos(Position pos, Scaling scale) {AxisAlignedBoundingBox[]k={this};k=MathLib.scaleAroundPos(k,pos,scale);return k[0];}
+		public Cube scaleAroundPos(Position pos, Scaling scale) {Cube[]k={this};k=MathLib.scaleAroundPos(k,pos,scale);return k[0];}
 	}
 	public static class Cuboid {public Position pos1=new Position(0.0f,0.0f,0.0f),pos2=new Position(0.0f,0.0f,0.0f),pos3=new Position(0.0f,0.0f,0.0f),pos4=new Position(0.0f,0.0f,0.0f),pos5=new Position(0.0f,0.0f,0.0f),pos6=new Position(0.0f,0.0f,0.0f),pos7=new Position(0.0f,0.0f,0.0f),pos8=new Position(0.0f,0.0f,0.0f); public Cuboid(Position pos1i,Position pos2i,Position pos3i,Position pos4i,Position pos5i,Position pos6i,Position pos7i,Position pos8i){this.pos1=pos1i;this.pos2=pos2i;this.pos3=pos3i;this.pos4=pos4i;this.pos5=pos5i;this.pos6=pos6i;this.pos7=pos7i;this.pos8=pos8i;}
 		public Cuboid copy(){Cuboid k = new Cuboid(this.pos1.copy(),this.pos2.copy(),this.pos3.copy(),this.pos4.copy(),this.pos5.copy(),this.pos6.copy(),this.pos7.copy(),this.pos8.copy()); return k;}
@@ -453,7 +453,6 @@ public class ModelLib {
 	public static class Ellipse {public double x=0,y=0,z=0,rx=0,ry=0,rz=0; public Ellipse(double xi, double yi, double zi, double rxi, double ryi, double rzi){this.x=xi;this.y=yi;this.z=zi;this.rx=rxi;this.ry=ryi;this.rz=rzi;}}
 	public static class Arc {public double x=0,y=0,z=0,r=0,ang1=0,ang2=0; public Arc(double xi, double yi, double zi, double ri, double ang1i, double ang2i){this.x=xi;this.y=yi;this.z=zi;this.r=ri;this.ang1=ang1i;this.ang2=ang2i;}}
 	public static class Circle {public Position origin=new Position(0.0f,0.0f,0.0f); public double r=0; public Circle(Position origini, double ri){this.origin=origini;this.r=ri;}}
-	public static class Cube {public Axis dim=new Axis(new Position(0.0f,0.0f,0.0f),new Direction(1.0f,0.0f,0.0f),new Direction(1.0f,0.0f,0.0f),new Direction(1.0f,0.0f,0.0f)); public Cube(Axis dimi){this.dim=dimi;}}
 	public static class Cylinder {public Axis dim=new Axis(new Position(0.0f,0.0f,0.0f),new Direction(1.0f,0.0f,0.0f),new Direction(1.0f,0.0f,0.0f),new Direction(1.0f,0.0f,0.0f)); public Cylinder(Axis dimi){this.dim=dimi;}}
 	public static class Ray {public Position pos=new Position(0.0f,0.0f,0.0f); public Direction dir=new Direction(0.0f,0.0f,0.0f); public Ray(Position posi, Direction diri){this.pos=posi;this.dir=diri;}
 		public Ray copy(){Ray k = new Ray(this.pos.copy(),this.dir.copy()); return k;}
@@ -693,7 +692,7 @@ public class ModelLib {
 		public Line[] linelist = null;
 		public Position[] vertexlist = null;
 		public Sphere sphereboundaryvolume = null;
-		public AxisAlignedBoundingBox aabbboundaryvolume = null;
+		public Cube aabbboundaryvolume = null;
 		public Matrix transform = null;
 		public Position translation = null;
 		@Override public int compareTo(Entity o) {return this.sphereboundaryvolume.compareTo(o.sphereboundaryvolume);}
