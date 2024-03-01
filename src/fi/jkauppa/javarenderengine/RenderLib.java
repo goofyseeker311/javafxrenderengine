@@ -1175,12 +1175,11 @@ public class RenderLib {
 			float texr = trianglecolorcomp[0]*shadingmultiplier;
 			float texg = trianglecolorcomp[1]*shadingmultiplier;
 			float texb = trianglecolorcomp[2]*shadingmultiplier;
-			float multiplier = 10.0f;
 			if (unlit) {
 				if ((frontsidevisible)&&(lightmapcolor!=null)) {
-					texr *= lightmapcolorcomp[0]*multiplier*roughnessmult;
-					texg *= lightmapcolorcomp[1]*multiplier*roughnessmult;
-					texb *= lightmapcolorcomp[2]*multiplier*roughnessmult;
+					texr *= lightmapcolorcomp[0]*roughnessmult;
+					texg *= lightmapcolorcomp[1]*roughnessmult;
+					texb *= lightmapcolorcomp[2]*roughnessmult;
 				} else {
 					texr = 0.0f;
 					texg = 0.0f;
@@ -1188,9 +1187,9 @@ public class RenderLib {
 				}
 			}
 			if ((frontsidevisible)&&(emissivecolor!=null)) {
-				texr += emissivecolorcomp[0]*multiplier*roughnessmult;
-				texg += emissivecolorcomp[1]*multiplier*roughnessmult;
-				texb += emissivecolorcomp[2]*multiplier*roughnessmult;
+				texr += emissivecolorcomp[0]*roughnessmult;
+				texg += emissivecolorcomp[1]*roughnessmult;
+				texb += emissivecolorcomp[2]*roughnessmult;
 			}
 			if (texr>1.0f) {texr=1.0f;}
 			if (texg>1.0f) {texg=1.0f;}

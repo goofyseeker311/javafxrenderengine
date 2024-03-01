@@ -3,8 +3,6 @@ package fi.jkauppa.javafxrenderengine;
 import java.awt.Rectangle;
 
 import fi.jkauppa.javarenderengine.MathLib;
-import fi.jkauppa.javarenderengine.RenderLib;
-import fi.jkauppa.javarenderengine.ModelLib.Coordinate;
 import fi.jkauppa.javarenderengine.ModelLib.Cube;
 import fi.jkauppa.javarenderengine.ModelLib.Cubemap;
 import fi.jkauppa.javarenderengine.ModelLib.Direction;
@@ -16,6 +14,7 @@ import fi.jkauppa.javarenderengine.ModelLib.Position;
 import fi.jkauppa.javarenderengine.ModelLib.RenderView;
 import fi.jkauppa.javarenderengine.ModelLib.Sphere;
 import fi.jkauppa.javarenderengine.ModelLib.Triangle;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
@@ -24,6 +23,7 @@ import javafx.scene.SceneAntialiasing;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -113,39 +113,134 @@ public class RenderFXLib {
 				trimeshview.setMesh(trimesh);
 				trimeshview.setCullFace(CullFace.NONE);
 				PhongMaterial trimat = new PhongMaterial();
+				float roughnessmult = 1.0f-tri[0].mat.roughness;
+				Color trianglecolor = Color.WHITE;
+				Color lightmapcolor = null;
+				Color emissivecolor = null;
 				WritableImage diffusemap = null;
-				if (tri[0].mat.fileimage!=null) {
-					diffusemap = new WritableImage(tri[0].mat.fileimage.getWidth(), tri[0].mat.fileimage.getHeight());
-				}
-				if ((diffusemap==null)&&(tri[0].mat.ambientfileimage!=null)) {
-					diffusemap = new WritableImage(tri[0].mat.ambientfileimage.getWidth(), tri[0].mat.ambientfileimage.getHeight());
-				}
-				if ((diffusemap==null)&&(tri[0].mat.emissivefileimage!=null)) {
-					diffusemap = new WritableImage(tri[0].mat.emissivefileimage.getWidth(), tri[0].mat.emissivefileimage.getHeight());
-				}
-				if (diffusemap==null) {
-					java.awt.Color trianglecolor = RenderLib.trianglePixelShader(tri[0], null, null, null, unlit);
-					float[] trianglecolorcomp = trianglecolor.getRGBComponents(new float[4]);
-					Color shadertrianglecolor = new Color(trianglecolorcomp[0], trianglecolorcomp[1], trianglecolorcomp[2], trianglecolorcomp[3]);
-					trimat.setDiffuseColor(shadertrianglecolor);
-				} else {
-					PixelWriter diffusemapwriter = diffusemap.getPixelWriter();
-					for (int y=0;y<diffusemap.getHeight();y++) {
-						for (int x=0;x<diffusemap.getWidth();x++) {
-							double ucoord = ((double)x)/((double)(diffusemap.getWidth()-1));
-							double vcoord = ((double)y)/((double)(diffusemap.getHeight()-1));
-							Coordinate texuv = new Coordinate(ucoord, vcoord);
-							java.awt.Color trianglecolor = RenderLib.trianglePixelShader(tri[0], null, texuv, null, unlit);
-							if (trianglecolor!=null) {
-								float[] trianglecolorcomp = trianglecolor.getRGBComponents(new float[4]);
-								Color shadertrianglecolor = new Color(trianglecolorcomp[0], trianglecolorcomp[1], trianglecolorcomp[2], trianglecolorcomp[3]);
-								diffusemapwriter.setColor(x, y, shadertrianglecolor);
-							} else {
-								diffusemapwriter.setColor(x, y, Color.TRANSPARENT);
+				WritableImage emissivemap = null;
+				if (tri[0].mat.facecolor!=null) {trianglecolor = RenderFXLib.fxColor(tri[0].mat.facecolor);}
+				if (tri[0].mat.ambientcolor!=null) {lightmapcolor = RenderFXLib.fxColor(tri[0].mat.ambientcolor);}
+				if (tri[0].mat.emissivecolor!=null) {emissivecolor = RenderFXLib.fxColor(tri[0].mat.emissivecolor);}
+				if (tri[0].mat.fileimage!=null) {diffusemap = SwingFXUtils.toFXImage(tri[0].mat.fileimage, null);}
+				if (tri[0].mat.emissivefileimage!=null) {emissivemap = SwingFXUtils.toFXImage(tri[0].mat.emissivefileimage, null);}
+				SnapshotParameters snap = new SnapshotParameters();
+				snap.setFill(Color.TRANSPARENT);
+				if (unlit) {
+					Color tricolor = Color.BLACK;
+					if (lightmapcolor!=null) {
+						double tricolorr = trianglecolor.getRed()*lightmapcolor.getRed()*roughnessmult;
+						double tricolorg = trianglecolor.getGreen()*lightmapcolor.getGreen()*roughnessmult;
+						double tricolorb = trianglecolor.getBlue()*lightmapcolor.getBlue()*roughnessmult;
+						double tricolora = trianglecolor.getOpacity();
+						if (tricolorr>1.0f) {tricolorr=1.0f;}
+						if (tricolorg>1.0f) {tricolorg=1.0f;}
+						if (tricolorb>1.0f) {tricolorb=1.0f;}
+						if (tricolora>1.0f) {tricolora=1.0f;}
+						tricolor = new Color(tricolorr,tricolorg,tricolorb,tricolora);
+						if (diffusemap!=null) {
+							Canvas diffusecanvas = new Canvas((int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+							GraphicsContext diffusecanvasgfx = diffusecanvas.getGraphicsContext2D();
+							diffusecanvasgfx.clearRect(0, 0, (int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+							diffusecanvasgfx.setFill(lightmapcolor);
+							diffusecanvasgfx.fillRect(0, 0, (int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+							Canvas roughnessmultcanvas = new Canvas((int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+							GraphicsContext roughnessmultcanvasgfx = roughnessmultcanvas.getGraphicsContext2D();
+							roughnessmultcanvasgfx.setFill(new Color(roughnessmult,roughnessmult,roughnessmult,1.0f));
+							roughnessmultcanvasgfx.fillRect(0, 0, (int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+							WritableImage roughnessimage = roughnessmultcanvas.snapshot(snap, null);
+							diffusecanvasgfx.setGlobalBlendMode(BlendMode.MULTIPLY);
+							diffusecanvasgfx.drawImage(diffusemap, 0, 0);
+							diffusecanvasgfx.drawImage(roughnessimage, 0, 0);
+							if (emissivemap!=null) {
+								diffusecanvasgfx.setGlobalBlendMode(BlendMode.ADD);
+								diffusecanvasgfx.drawImage(emissivemap, 0, 0);
+							} else if (emissivecolor!=null) {
+								Canvas emissivecanvas = new Canvas((int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+								GraphicsContext emissivecanvasgfx = emissivecanvas.getGraphicsContext2D();
+								emissivecanvasgfx.clearRect(0, 0, (int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+								emissivecanvasgfx.setFill(emissivecolor);
+								emissivecanvasgfx.fillRect(0, 0, (int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+								WritableImage emissiveimage = emissivecanvas.snapshot(snap, null);
+								diffusecanvasgfx.setGlobalBlendMode(BlendMode.ADD);
+								diffusecanvasgfx.drawImage(emissiveimage, 0, 0);
 							}
+							WritableImage diffuseimage = diffusecanvas.snapshot(snap, null);
+							trimat.setDiffuseMap(diffuseimage);
+						} else {
+							trimat.setDiffuseColor(tricolor);
 						}
+					} else if (diffusemap!=null) {
+						Canvas diffusecanvas = new Canvas((int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+						GraphicsContext diffusecanvasgfx = diffusecanvas.getGraphicsContext2D();
+						diffusecanvasgfx.clearRect(0, 0, (int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+						Canvas roughnessmultcanvas = new Canvas((int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+						GraphicsContext roughnessmultcanvasgfx = roughnessmultcanvas.getGraphicsContext2D();
+						roughnessmultcanvasgfx.setFill(new Color(roughnessmult,roughnessmult,roughnessmult,1.0f));
+						roughnessmultcanvasgfx.fillRect(0, 0, (int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+						WritableImage roughnessimage = roughnessmultcanvas.snapshot(snap, null);
+						diffusecanvasgfx.drawImage(diffusemap, 0, 0);
+						diffusecanvasgfx.setGlobalBlendMode(BlendMode.MULTIPLY);
+						diffusecanvasgfx.drawImage(emissivemap, 0, 0);
+						diffusecanvasgfx.drawImage(roughnessimage, 0, 0);
+						if (emissivemap!=null) {
+							diffusecanvasgfx.setGlobalBlendMode(BlendMode.ADD);
+							diffusecanvasgfx.drawImage(emissivemap, 0, 0);
+						} else if (emissivecolor!=null) {
+							Canvas emissivecanvas = new Canvas((int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+							GraphicsContext emissivecanvasgfx = emissivecanvas.getGraphicsContext2D();
+							emissivecanvasgfx.clearRect(0, 0, (int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+							emissivecanvasgfx.setFill(emissivecolor);
+							emissivecanvasgfx.fillRect(0, 0, (int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+							WritableImage emissiveimage = emissivecanvas.snapshot(snap, null);
+							diffusecanvasgfx.setGlobalBlendMode(BlendMode.ADD);
+							diffusecanvasgfx.drawImage(emissiveimage, 0, 0);
+						}
+						WritableImage diffuseimage = diffusecanvas.snapshot(snap, null);
+						trimat.setDiffuseMap(diffuseimage);
+					} else if (emissivemap!=null) {
+						trimat.setDiffuseMap(emissivemap);
+					} else if (emissivecolor!=null) {
+						trimat.setDiffuseColor(emissivecolor);
+					} else {
+						trimat.setDiffuseColor(tricolor);
 					}
-					trimat.setDiffuseMap(diffusemap);
+				} else {
+					Color tricolor = Color.BLACK;
+					double tricolorr = trianglecolor.getRed()*roughnessmult;
+					double tricolorg = trianglecolor.getGreen()*roughnessmult;
+					double tricolorb = trianglecolor.getBlue()*roughnessmult;
+					double tricolora = trianglecolor.getOpacity();
+					if (tricolorr>1.0f) {tricolorr=1.0f;}
+					if (tricolorg>1.0f) {tricolorg=1.0f;}
+					if (tricolorb>1.0f) {tricolorb=1.0f;}
+					if (tricolora>1.0f) {tricolora=1.0f;}
+					tricolor = new Color(tricolorr,tricolorg,tricolorb,tricolora);
+					trimat.setDiffuseColor(tricolor);
+					if (diffusemap!=null) {
+						Canvas diffusecanvas = new Canvas((int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+						GraphicsContext diffusecanvasgfx = diffusecanvas.getGraphicsContext2D();
+						diffusecanvasgfx.clearRect(0, 0, (int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+						Canvas roughnessmultcanvas = new Canvas((int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+						GraphicsContext roughnessmultcanvasgfx = roughnessmultcanvas.getGraphicsContext2D();
+						roughnessmultcanvasgfx.setFill(new Color(roughnessmult,roughnessmult,roughnessmult,1.0f));
+						roughnessmultcanvasgfx.fillRect(0, 0, (int)diffusemap.getWidth(), (int)diffusemap.getHeight());
+						WritableImage roughnessimage = roughnessmultcanvas.snapshot(snap, null);
+						diffusecanvasgfx.drawImage(diffusemap, 0, 0);
+						diffusecanvasgfx.setGlobalBlendMode(BlendMode.MULTIPLY);
+						diffusecanvasgfx.drawImage(roughnessimage, 0, 0);
+						WritableImage diffuseimage = diffusecanvas.snapshot(snap, null);
+						trimat.setDiffuseMap(diffuseimage);
+					}
+					if (emissivecolor!=null) {
+						WritableImage emissiveimage = new WritableImage(1,1);
+						PixelWriter emissiveimagewriter = emissiveimage.getPixelWriter();
+						emissiveimagewriter.setColor(0, 0, emissivecolor);
+						trimat.setSelfIlluminationMap(emissiveimage);
+					}
+					if (emissivemap!=null) {
+						trimat.setSelfIlluminationMap(emissivemap);
+					}
 				}
 				trimeshview.setMaterial(trimat);
 				root.getChildren().add(trimeshview);
@@ -171,7 +266,7 @@ public class RenderFXLib {
 		}
 		return k;
 	}
-
+	
 	public static Affine matrixAffine(Matrix vmat) {
 		Affine transform = Affine.affine(vmat.a11, vmat.a12, vmat.a13, 0, vmat.a21, vmat.a22, vmat.a23, 0, vmat.a31, vmat.a32, vmat.a33, 0);
 		transform.append(new Rotate(180.0f,new Point3D(1.0f,0.0f,0.0f)));

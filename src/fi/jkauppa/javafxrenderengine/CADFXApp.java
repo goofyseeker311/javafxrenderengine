@@ -524,8 +524,11 @@ public class CADFXApp extends AppFXHandler {
 					System.out.println("CADApp: keyPressed: key SHIFT-ENTER: unlitrender="+this.unlitrender);
 				} else if (keyevent.isControlDown()) {
 					int bounces = 2;
-					this.entities.getChildren().clear();
-					RenderFXLib.renderSurfaceFaceLightmapCubemapView(this.entitylist, this.entities, 32, bounces);
+					Group root = new Group();
+					RenderFXLib.constructTriangleFXScene(root, this.entitylist, true);
+					RenderFXLib.renderSurfaceFaceLightmapCubemapView(this.entitylist, root, 32, bounces);
+					this.defaultscenetriangleroot = RenderFXLib.constructTriangleFXScene(new Group(), this.entitylist, false);
+					this.unlitscenetriangleroot = RenderFXLib.constructTriangleFXScene(new Group(), this.entitylist, true);
 				} else {
 					this.polygonfillmode += 1;
 					if (this.polygonfillmode>2) {
