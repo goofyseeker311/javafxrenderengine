@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
@@ -31,7 +33,7 @@ public class UtilLib {
 	private static GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	private static GraphicsDevice gd = ge.getDefaultScreenDevice();
 	private static GraphicsConfiguration gc = gd.getDefaultConfiguration();
-	
+
 	public static class ImageFileFilters  {
 		public static class PNGFileFilter extends FileFilter {
 			@Override public boolean accept(File f) {String fend=f.getName().toLowerCase(); return (f.isDirectory())||(fend.endsWith(".png"));}
@@ -55,7 +57,7 @@ public class UtilLib {
 		}
 		public static class AllImageFileFilter extends FileFilter {
 			@Override public boolean accept(File f) {String fend=f.getName().toLowerCase();
-				return (f.isDirectory())||(fend.endsWith(".png"))||fend.endsWith(".jpg")||(fend.endsWith(".jpeg"))||(fend.endsWith(".gif"))||(fend.endsWith(".bmp"))||(fend.endsWith(".wbmp"));}
+			return (f.isDirectory())||(fend.endsWith(".png"))||fend.endsWith(".jpg")||(fend.endsWith(".jpeg"))||(fend.endsWith(".gif"))||(fend.endsWith(".bmp"))||(fend.endsWith(".wbmp"));}
 			@Override public String getDescription() {return "Image files";}
 		}
 	}
@@ -70,12 +72,12 @@ public class UtilLib {
 		}
 		public static class AllModelFileFilter extends FileFilter {
 			@Override public boolean accept(File f) {String fend=f.getName().toLowerCase();
-				return (f.isDirectory())||(fend.endsWith(".obj"))||fend.endsWith(".stl");}
+			return (f.isDirectory())||(fend.endsWith(".obj"))||fend.endsWith(".stl");}
 			@Override public String getDescription() {return "Model files";}
 		}
 	}
-	
-    public static void loadNativeLibrary(String[] filename, boolean loadresourcefromjar) {
+
+	public static void loadNativeLibrary(String[] filename, boolean loadresourcefromjar) {
 		try {
 			Path tempdir = Files.createTempDirectory("loadlib");
 			String[] temppath = new String[filename.length];
@@ -87,43 +89,43 @@ public class UtilLib {
 					BufferedInputStream libraryfilestream = null;
 					libraryfilestream = new BufferedInputStream(ClassLoader.getSystemClassLoader().getResourceAsStream(libraryfile.getPath().replace(File.separatorChar, '/')));
 					Files.copy(libraryfilestream, tempfile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			    	libraryfilestream.close();
-			    	temppath[i] = tempfile.toPath().toAbsolutePath().toString();
+					libraryfilestream.close();
+					temppath[i] = tempfile.toPath().toAbsolutePath().toString();
 				}
 			}
 			for (int i=0;i<filename.length;i++) {
 				System.load(temppath[i]);
 			}
 		} catch (Exception ex) {ex.printStackTrace();}
-    }
+	}
 
-    public static boolean isImageFilename(String filename) {
-    	String filenamelower = filename.toLowerCase();
-    	return (filenamelower.endsWith(".png"))||(filenamelower.endsWith(".jpeg")||(filenamelower.endsWith(".jpg"))||
-    			(filenamelower.endsWith(".tif")||(filenamelower.endsWith(".tiff"))||(filenamelower.endsWith(".bmp"))||
-    					(filenamelower.endsWith(".wbmp"))||(filenamelower.endsWith(".gif"))));
-    }
-    
-    public static JFileChooser createModelFileChooser() {
-    	JFileChooser filechooser = new JFileChooser();
-    	ModelFileFilters.OBJFileFilter objfilefilter = new ModelFileFilters.OBJFileFilter();
+	public static boolean isImageFilename(String filename) {
+		String filenamelower = filename.toLowerCase();
+		return (filenamelower.endsWith(".png"))||(filenamelower.endsWith(".jpeg")||(filenamelower.endsWith(".jpg"))||
+				(filenamelower.endsWith(".tif")||(filenamelower.endsWith(".tiff"))||(filenamelower.endsWith(".bmp"))||
+						(filenamelower.endsWith(".wbmp"))||(filenamelower.endsWith(".gif"))));
+	}
+
+	public static JFileChooser createModelFileChooser() {
+		JFileChooser filechooser = new JFileChooser();
+		ModelFileFilters.OBJFileFilter objfilefilter = new ModelFileFilters.OBJFileFilter();
 		filechooser.addChoosableFileFilter(objfilefilter);
 		filechooser.addChoosableFileFilter(new ModelFileFilters.STLFileFilter());
 		filechooser.setFileFilter(objfilefilter);
 		filechooser.setAcceptAllFileFilterUsed(false);
 		return filechooser;
-    }
-    public static JFileChooser createAllModelFileChooser() {
-    	JFileChooser filechooser = new JFileChooser();
-    	ModelFileFilters.AllModelFileFilter allmodelfilefilter = new ModelFileFilters.AllModelFileFilter();
+	}
+	public static JFileChooser createAllModelFileChooser() {
+		JFileChooser filechooser = new JFileChooser();
+		ModelFileFilters.AllModelFileFilter allmodelfilefilter = new ModelFileFilters.AllModelFileFilter();
 		filechooser.addChoosableFileFilter(allmodelfilefilter);
 		filechooser.setFileFilter(allmodelfilefilter);
 		filechooser.setAcceptAllFileFilterUsed(false);
 		return filechooser;
-    }
-    
-    public static void saveModelFormat(String filename, Entity[] entitylist, FileFilter savefileformat, boolean savesurfaceonly) {
-    	String savefilename = filename;
+	}
+
+	public static void saveModelFormat(String filename, Entity[] entitylist, FileFilter savefileformat, boolean savesurfaceonly) {
+		String savefilename = filename;
 		if (savefileformat.getClass().equals(ModelFileFilters.STLFileFilter.class)) {
 			if (!savefilename.toLowerCase().endsWith(".stl")) {savefilename = savefilename.concat(".stl");}
 			Entity saveentity = new Entity();
@@ -135,25 +137,25 @@ public class UtilLib {
 			saveentity.childlist = entitylist;
 			ModelLib.saveOBJFileEntity(savefilename, saveentity, savesurfaceonly);
 		}
-    }
-    public static Entity loadModelFormat(String filename, FileFilter loadfileformat, boolean loadresourcefromjar) {
-    	Entity loadentity = null;
+	}
+	public static Entity loadModelFormat(String filename, FileFilter loadfileformat, boolean loadresourcefromjar) {
+		Entity loadentity = null;
 		if (loadfileformat.getClass().equals(ModelFileFilters.STLFileFilter.class)) {
 			loadentity = ModelLib.loadSTLFileEntity(filename, loadresourcefromjar);
 		} else {
 			loadentity = ModelLib.loadOBJFileEntity(filename, loadresourcefromjar);
 		}
 		return loadentity;
-    }
+	}
 
-    public static boolean isModelFilename(String filename) {
-    	String filenamelower = filename.toLowerCase();
-    	return (filenamelower.endsWith(".obj"))||(filenamelower.endsWith(".stl"));
-    }
-    
-    public static JFileChooser createImageFileChooser() {
-    	JFileChooser imagechooser = new JFileChooser();
-    	ImageFileFilters.PNGFileFilter pngfilefilter = new ImageFileFilters.PNGFileFilter();
+	public static boolean isModelFilename(String filename) {
+		String filenamelower = filename.toLowerCase();
+		return (filenamelower.endsWith(".obj"))||(filenamelower.endsWith(".stl"));
+	}
+
+	public static JFileChooser createImageFileChooser() {
+		JFileChooser imagechooser = new JFileChooser();
+		ImageFileFilters.PNGFileFilter pngfilefilter = new ImageFileFilters.PNGFileFilter();
 		imagechooser.addChoosableFileFilter(pngfilefilter);
 		imagechooser.addChoosableFileFilter(new ImageFileFilters.JPGFileFilter());
 		imagechooser.addChoosableFileFilter(new ImageFileFilters.GIFFileFilter());
@@ -162,18 +164,18 @@ public class UtilLib {
 		imagechooser.setFileFilter(pngfilefilter);
 		imagechooser.setAcceptAllFileFilterUsed(false);
 		return imagechooser;
-    }
-    public static JFileChooser createAllImageFileChooser() {
-    	JFileChooser imagechooser = new JFileChooser();
-    	ImageFileFilters.AllImageFileFilter allimagefilefilter = new ImageFileFilters.AllImageFileFilter();
+	}
+	public static JFileChooser createAllImageFileChooser() {
+		JFileChooser imagechooser = new JFileChooser();
+		ImageFileFilters.AllImageFileFilter allimagefilefilter = new ImageFileFilters.AllImageFileFilter();
 		imagechooser.addChoosableFileFilter(allimagefilefilter);
 		imagechooser.setFileFilter(allimagefilefilter);
 		imagechooser.setAcceptAllFileFilterUsed(false);
 		return imagechooser;
-    }
+	}
 
-    public static void saveImageFormat(String filename, BufferedImage image, FileFilter savefileformat) {
-    	String savefilename = filename;
+	public static void saveImageFormat(String filename, BufferedImage image, FileFilter savefileformat) {
+		String savefilename = filename;
 		if (savefileformat.getClass().equals(ImageFileFilters.JPGFileFilter.class)) {
 			if ((!savefilename.toLowerCase().endsWith(".jpg"))&&(!savefilename.toLowerCase().endsWith(".jpeg"))) {savefilename = savefilename.concat(".jpg");}
 			UtilLib.saveImage(savefilename, image, "JPG");
@@ -190,13 +192,13 @@ public class UtilLib {
 			if (!savefilename.toLowerCase().endsWith(".png")) {savefilename = savefilename.concat(".png");}
 			UtilLib.saveImage(savefilename, image, "PNG");
 		}
-    }
-    
+	}
+
 	public static void saveImage(String filename, BufferedImage image, String format) {
 		File savefile = new File(filename);
 		try {ImageIO.write(image, format, savefile);} catch (Exception ex) {ex.printStackTrace();}
 	}
-    
+
 	public static BufferedImage loadImage(String filename, boolean loadresourcefromjar) {
 		BufferedImage k = null;
 		if (filename!=null) {
@@ -205,24 +207,24 @@ public class UtilLib {
 				BufferedInputStream imagefilestream = null;
 				if (loadresourcefromjar) {
 					imagefilestream = new BufferedInputStream(ClassLoader.getSystemClassLoader().getResourceAsStream(imagefile.getPath().replace(File.separatorChar, '/')));
-				}else {
+				} else {
 					imagefilestream = new BufferedInputStream(new FileInputStream(imagefile));
 				}
 				BufferedImage loadimage = ImageIO.read(imagefilestream);
 				if (loadimage!=null) {
-					BufferedImage loadimagevolatile = gc.createCompatibleImage(loadimage.getWidth(), loadimage.getHeight(), Transparency.TRANSLUCENT);
-					Graphics2D loadimagevolatilegfx = loadimagevolatile.createGraphics();
-					loadimagevolatilegfx.setComposite(AlphaComposite.Src);
-					loadimagevolatilegfx.drawImage(loadimage, 0, 0, null);
-					loadimagevolatilegfx.dispose();
-					k = loadimagevolatile;
+					BufferedImage argbimage = new BufferedImage(loadimage.getWidth(), loadimage.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+					Graphics2D argbimagegfx = argbimage.createGraphics();
+					argbimagegfx.setComposite(AlphaComposite.Src);
+					argbimagegfx.drawImage(loadimage, 0, 0, null);
+					argbimagegfx.dispose();
+					k = argbimage;
 				}
 				imagefilestream.close();
 			} catch (Exception ex) {ex.printStackTrace();}
 		}
 		return k;
 	}
-	
+
 	public static BufferedImage flipImage(BufferedImage image, boolean horizontal, boolean vertical) {
 		BufferedImage k = gc.createCompatibleImage(image.getWidth(), image.getHeight(), Transparency.TRANSLUCENT);
 		Graphics2D rigfx = k.createGraphics();
@@ -243,6 +245,26 @@ public class UtilLib {
 		}
 		rigfx.drawImage(image, 0, 0, null);
 		rigfx.dispose();
+		return k;
+	}
+
+	public static byte[] loadSound(String filename, int copies, boolean loadresourcefromjar) {
+		byte[] k = null;
+		if (filename!=null) {
+			try {
+				File soundfile = new File(filename);
+				BufferedInputStream soundfilestream = null;
+				if (loadresourcefromjar) {
+					soundfilestream = new BufferedInputStream(ClassLoader.getSystemClassLoader().getResourceAsStream(soundfile.getPath().replace(File.separatorChar, '/')));
+				} else {
+					soundfilestream = new BufferedInputStream(new FileInputStream(soundfile));
+				}
+				AudioInputStream soundfileaudiostream = AudioSystem.getAudioInputStream(soundfilestream);
+				byte[] soundbytes = soundfileaudiostream.readAllBytes();
+				k = soundbytes;
+				soundfilestream.close();
+			} catch (Exception ex) {ex.printStackTrace();}
+		}
 		return k;
 	}
 
@@ -293,7 +315,7 @@ public class UtilLib {
 			} else {
 				compval = data[o1].compareTo((T)data[o2]);
 			}
-	        return compval;
+			return compval;
 		}
 	}
 	public static <T> Integer[] objectIndexSort(Comparable<T>[] data, Comparator<T> comp) {
@@ -301,7 +323,7 @@ public class UtilLib {
 		if ((data!=null)&&(data.length>0)) {
 			Integer[] indices = new Integer[data.length];
 			for (int i = 0; i < indices.length; i++) {
-			    indices[i] = i;
+				indices[i] = i;
 			}
 			ObjectSort<T> comparator = new ObjectSort<T>(data, comp);
 			Arrays.sort(indices, comparator);
@@ -311,22 +333,22 @@ public class UtilLib {
 	}
 
 	public static class ImageTransferable implements Transferable {
-        private Image image;
-        public ImageTransferable (Image imagei) {this.image=imagei;}
-        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {if (isDataFlavorSupported(flavor)) {return image;}else{throw new UnsupportedFlavorException(flavor);}}
-        public boolean isDataFlavorSupported (DataFlavor flavor) {return flavor==DataFlavor.imageFlavor;}
-        public DataFlavor[] getTransferDataFlavors () {return new DataFlavor[] {DataFlavor.imageFlavor};}
-    }
-	
+		private Image image;
+		public ImageTransferable (Image imagei) {this.image=imagei;}
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {if (isDataFlavorSupported(flavor)) {return image;}else{throw new UnsupportedFlavorException(flavor);}}
+		public boolean isDataFlavorSupported (DataFlavor flavor) {return flavor==DataFlavor.imageFlavor;}
+		public DataFlavor[] getTransferDataFlavors () {return new DataFlavor[] {DataFlavor.imageFlavor};}
+	}
+
 	public static Color getHSBTransparencyColor(float hue, float saturation, float brightness, float transparency) {
 		Color newdrawcolor = Color.getHSBColor(hue, saturation, brightness);
 		float[] newdrawcolorcomp = newdrawcolor.getRGBColorComponents(new float[3]);
 		return new Color(newdrawcolorcomp[0], newdrawcolorcomp[1], newdrawcolorcomp[2], transparency);
 	}
 	public static float[] getHSBTransparencyColorComponents(Color color, float transparency) {
-    	float[] newhsbdrawcolorcomp = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), new float[3]);
-    	float[] newhsbdrawcolor = {newhsbdrawcolorcomp[0], newhsbdrawcolorcomp[1], newhsbdrawcolorcomp[2], transparency};
-    	return newhsbdrawcolor;
+		float[] newhsbdrawcolorcomp = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), new float[3]);
+		float[] newhsbdrawcolor = {newhsbdrawcolorcomp[0], newhsbdrawcolorcomp[1], newhsbdrawcolorcomp[2], transparency};
+		return newhsbdrawcolor;
 	}
 
 }

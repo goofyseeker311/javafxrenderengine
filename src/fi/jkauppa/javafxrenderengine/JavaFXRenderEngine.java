@@ -1,6 +1,5 @@
 package fi.jkauppa.javafxrenderengine;
 
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Timer;
@@ -8,15 +7,6 @@ import java.util.TimerTask;
 
 import javax.swing.UIManager;
 
-import fi.jkauppa.javarenderengine.ModelLib.Axis;
-import fi.jkauppa.javarenderengine.ModelLib.Direction;
-import fi.jkauppa.javarenderengine.ModelLib.Matrix;
-import fi.jkauppa.javarenderengine.ModelLib.Plane;
-import fi.jkauppa.javarenderengine.ModelLib.Position;
-import fi.jkauppa.javarenderengine.ModelLib.Rotation;
-import fi.jkauppa.javarenderengine.ModelLib.Sphere;
-import fi.jkauppa.javarenderengine.ModelLib.Triangle;
-import fi.jkauppa.javarenderengine.MathLib;
 import fi.jkauppa.javarenderengine.UtilLib;
 import fi.jkauppa.javarenderengine.UtilLib.ImageFileFilters.PNGFileFilter;
 import javafx.animation.AnimationTimer;
@@ -61,32 +51,6 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
 		System.setProperty("sun.java2d.opengl", "true");
 		try {UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());} catch (Exception ex) {}
     	Platform.setImplicitExit(true);
-		
-		Position[] vraappoints = {new Position(1.0f,0.0f,0.0f), new Position(1.0f,1.0f,-1.0f)};
-		Position[] vraaparound = { new Position(2.0f,0.0f,0.0f) };
-		Direction[] vraapaaxis = { new Direction(0.0f,0.0f,1.0f) };
-		double[] vraapaangle = { 180.0f };
-		Position[] vraapprot = MathLib.rotateAroundAxisPos(vraappoints, vraaparound[0], vraapaaxis[0], vraapaangle[0]);
-		for (int i=0;i<vraapprot.length;i++) {System.out.println("JavaFXRenderEngine: vraapprot="+vraapprot[i].x+" "+vraapprot[i].y+" "+vraapprot[i].z);}
-		Position[] smtipos  = {new Position(0.0f,0.0f,0.0f), new Position(-1.0f,1.0f,0.0f), new Position(1.0f,1.0f,0.0f), new Position(0.0f,1.0f,1.0f), new Position(1.0f,0.0f,2.0f), new Position(0.0f,1.0f,2.0f), new Position(0.0f,-1.0f,2.0f), new Position(1.0f,0.0f,-2.0f), new Position(0.0f,1.0f,-2.0f), new Position(0.0f,-1.0f,-2.0f), new Position(-1.0f,2.0f,0.0f), new Position(1.0f,2.0f,0.0f), new Position(0.0f,2.0f,1.0f), new Position(-1.0f,-2.0f,0.0f), new Position(1.0f,-2.0f,0.0f), new Position(0.0f,-2.0f,1.0f)};
-		Triangle[] smtitri = {new Triangle(smtipos[0],smtipos[1],smtipos[3]), new Triangle(smtipos[1],smtipos[2],smtipos[3]), new Triangle(smtipos[4],smtipos[5],smtipos[6]), new Triangle(smtipos[7],smtipos[8],smtipos[9]), new Triangle(smtipos[10],smtipos[11],smtipos[12]), new Triangle(smtipos[13],smtipos[14],smtipos[15])};
-		Sphere[] smtitrisph = MathLib.triangleCircumSphere(smtitri);
-		Matrix smtimat = MathLib.rotationMatrix(-90, 0, 0);
-		Rectangle[] smti = MathLib.spheremapTriangleIntersection(smtipos[0], smtitri, 64, 64, smtimat, null);
-		Rectangle[] ssi = MathLib.spheremapSphereIntersection(smtipos[0], smtitrisph, 64, 64, smtimat, null);
-		for (int i=0;i<smti.length;i++) {System.out.println("JavaFXRenderEngine: smti="+smti[i].x+" "+smti[i].y+" "+(smti[i].x+smti[i].width-1)+" "+(smti[i].y+smti[i].height-1));}
-		for (int i=0;i<ssi.length;i++) {System.out.println("JavaFXRenderEngine: ssi="+ssi[i].x+" "+ssi[i].y+" "+(ssi[i].x+ssi[i].width-1)+" "+(ssi[i].y+ssi[i].height-1));}
-		Position[] pvpos = {new Position(0.0f,0.0f,0.0f)};
-		Direction[] pvdir = {new Direction(1.0f,0.0f,0.0f), new Direction(1.0f,1.0f,1.0f)};
-		Plane[] pvplanes = MathLib.planeFromNormalAtPoint(pvpos[0], pvdir);
-		Axis[] pvaxis = MathLib.planeVectors(pvplanes);
-		for (int i=0;i<pvaxis.length;i++) {System.out.println("JavaFXRenderEngine: pvaxis: pos="+pvaxis[i].pos.x+" "+pvaxis[i].pos.y+" "+pvaxis[i].pos.z+" fwd="+pvaxis[i].fwd.dx+" "+pvaxis[i].fwd.dy+" "+pvaxis[i].fwd.dz+" rgt="+pvaxis[i].rgt.dx+" "+pvaxis[i].rgt.dy+" "+pvaxis[i].rgt.dz+" up="+pvaxis[i].up.dx+" "+pvaxis[i].up.dy+" "+pvaxis[i].up.dz);}
-		Position[] aprpos = {new Position(0.0f,0.0f,0.0f), new Position(0.0f,-1.0f,0.0f), new Position(0.0f,0.0f,1.0f), new Position(0.0f,0.0f,-1.0f), new Position(0.0f,-1.0f,1.0f), new Position(0.0f,-1.0f,-1.0f), new Position(0.0f,1.0f,0.0f), new Position(0.0f,1.0f,1.0f), new Position(0.0f,1.0f,-1.0f), new Position(-1.0f,0.0f,0.0f), new Position(-1.0f,0.0f,1.0f), new Position(-1.0f,0.0f,-1.0f), new Position(1.0f,0.0f,0.0f), new Position(1.0f,0.0f,1.0f), new Position(1.0f,0.0f,-1.0f)};
-		Direction[] aprdir = {new Direction(0.0f,-1.0f,0.0f), new Direction(1.0f,0.0f,0.0f), new Direction(0.0f,0.0f,1.0f)};
-		Axis aprxis = new Axis(aprpos[0],aprdir[0],aprdir[1],aprdir[2]);
-		Rotation[] aprrot = MathLib.axisPointRotation(aprpos, aprxis);
-		for (int i=0;i<aprrot.length;i++) {System.out.println("JavaFXRenderEngine: aprrot="+aprrot[i].x+" "+aprrot[i].y+" "+aprrot[i].z);}
-		
     	launch(args);
     }
     @Override public void init() {}
@@ -97,7 +61,7 @@ public class JavaFXRenderEngine extends Application implements Runnable,EventHan
     
     @Override public void start(Stage primaryStagei) throws Exception {
     	this.primaryStage = primaryStagei;
-    	this.primaryStage.setTitle("JavaFXRenderEngine v0.4.4");
+    	this.primaryStage.setTitle("JavaFXRenderEngine v0.4.5");
     	this.primaryStage.getIcons().add(logowimage);
     	this.primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     	this.primaryStage.setFullScreenExitHint("");
